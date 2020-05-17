@@ -11,11 +11,11 @@ namespace CodeLifter.Covid19.Data
         {
             get
             {
-                //return Environment.GetEnvironmentVariable("SQL_CONNECTION_STRING")
-                return "Data Source=127.0.0.1;Initial Catalog=Covid19;persist security info=True;user id=sa;password=S@berh@gen01SqlServer";
+                return Environment.GetEnvironmentVariable("SQL_CONNECTION_STRING");
             }
         }
 
+        public DbSet<AdminToken> AdminTokens { get; set; }
         public DbSet<DataPoint> DataPoints { get; set; }
         public DbSet<Country> Countries { get; set; }
         public DbSet<District> Districts { get; set; }
@@ -32,6 +32,10 @@ namespace CodeLifter.Covid19.Data
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            builder.Entity<AdminToken>()
+                    .HasIndex(c => c.Token)
+                    .IsUnique();
+
             builder.Entity<Country>()
                     .HasIndex(c => c.Name)
                     .IsUnique();

@@ -7,7 +7,13 @@ services:
       context: .
       dockerfile: CovidApi.CodeLifter.IO/Dockerfile
     depends_on:
-        - db
+      - db
+    environment:
+      SQL_CONNECTION_STRING: ${SQL_CONNECTION_STRING}
+      GITHUB_AUTH_TOKEN: ${GITHUB_AUTH_TOKEN}
+      ADMIN_AUTH_TOKEN: ${ADMIN_AUTH_TOKEN}
+    links:
+      - db
 
   db:
     container_name: sql-server

@@ -21,11 +21,6 @@
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "weatherforecast",
-      "environmentVariables": {
-        "GITHUB_AUTH_TOKEN": "d4c28c7eccfb80c6175c823aabae4cb34e58d5f3",
-        "SQL_CONNECTION_STRING": "Data Source=127.0.0.1;Initial Catalog=Covid19;persist security info=True;user id=sa;password=S@berh@gen01SqlServer",
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      },
       "applicationUrl": "https://localhost:5001;http://localhost:5000"
     }
   }

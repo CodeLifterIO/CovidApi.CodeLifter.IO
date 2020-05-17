@@ -18,6 +18,9 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Services\Management\" />
+    <Folder Include="DB\" />
+    <Folder Include="DB\mssql\" />
+    <Folder Include="DB\mssql\backups\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="appsettings.Development.json" />

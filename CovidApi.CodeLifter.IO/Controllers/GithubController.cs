@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
@@ -27,6 +25,17 @@ namespace CovidApi.CodeLifter.IO.Controllers
                 return _service;
             }
         }
+
+
+        private readonly ILogger<GithubController> _logger;
+
+        public GithubController(ILogger<GithubController> logger)
+        {
+            _logger = logger;
+        }
+
+
+
 
         [HttpGet]
         public async Task<IActionResult> ShowLimits()

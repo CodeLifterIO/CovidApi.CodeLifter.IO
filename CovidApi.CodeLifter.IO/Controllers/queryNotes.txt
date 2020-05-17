@@ -1,0 +1,29 @@
+﻿               //var query = context.DataPoints
+                //    .Where(dp => dp.ProvinceId == province.Id)
+                //    .GroupBy(dp => dp.SourceFile)
+                //    .Where(s => s.Count() >= 0)
+                //    .OrderBy(s => s.Key)
+                //    .Select(s => new Statistic()
+                //    {
+                //        SourceFile = s.Key,
+                //        Deaths = (int)s.Sum(x => x.Deaths),
+                //        Confirmed = (int)s.Sum(x => x.Deaths),
+                //        Recovered = (int)s.Sum(x => x.Deaths),
+                //        Active = (int)s.Sum(x => x.Active),
+                //        Count = s.Count()
+                //    });
+
+                //var query = from dp in context.Set<DataPoint>()
+                //            where dp.ProvinceId == province.Id
+                //            group dp by dp.SourceFile into s
+                //            where s.Count() > 0
+                //            orderby s.Key
+                //            select new Statistic()
+                //            {
+                //                SourceFile = s.Key,
+                //                Deaths = (int)s.Sum(x => x.Deaths),
+                //                Confirmed = (int)s.Sum(x => x.Deaths),
+                //                Recovered = (int)s.Sum(x => x.Deaths),
+                //                Active = (int)s.Sum(x => x.Active),
+                //                Count = s.Count()
+                //            };

@@ -1,0 +1,14 @@
+//Create a new migration
+dotnet ef migrations add {Migration Name}
+
+
+// Updates the DB to include the new migrations
+dotnet ef database update
+
+
+// reverts DB back to LastGoodMigration but does not revert LastGoodMigration
+dotnet ef database update {Migration Name}
+
+
+// BAckup the SQL DB then run this command
+docker cp 4cbe6dbbeeef:/data/sql_data/Covid19_04-30-2020.bak Documents/Covid19/bak

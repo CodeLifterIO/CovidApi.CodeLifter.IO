@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "CodeLifter.Covid19.Data": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "Key": "Value",
+        "SQL_CONNECTION_STRING": "Data Source=10.200.200.1;Initial Catalog=SCovid19;persist security info=True;user id=SCovidReadWrite;password=StagingCovid",
+        "GITHUB_AUTH_TOKEN": "d4c28c7eccfb80c6175c823aabae4cb34e58d5f3"
+      }
+    }
+  }
+}

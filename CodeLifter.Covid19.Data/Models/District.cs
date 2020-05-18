@@ -66,9 +66,6 @@ namespace CodeLifter.Covid19.Data.Models
         {
             using (var context = new CovidContext())
             {
-                // District district = context.Districts.Find(entity);
-                // if(null != district) return district;
-
                 return context.Districts
                     .Where(p => p.Name == entity.Name || p.Slug == entity.Slug)
                     .FirstOrDefault();

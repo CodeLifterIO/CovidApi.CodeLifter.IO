@@ -40,9 +40,9 @@ namespace CovidApi.CodeLifter.IO.Controllers
                 district = await context.Districts
                     .Where(d => d.Slug == slug)
                     .Include(d => d.GeoCoordinate)
-                    .Include(d => d.Province)
                     .Include(d => d.Country)
-                    .FirstOrDefaultAsync();
+                    .Include(d => d.Province)
+                                        .FirstOrDefaultAsync();
 
                 var query = from dp in context.Set<DataPoint>()
                             where dp.DistrictId == district.Id

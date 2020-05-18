@@ -5,7 +5,7 @@
     <DockerTargetOS>Linux</DockerTargetOS>
     <ProjectGuid>{95988778-F1CB-49AE-8DBA-D0B4FA684E6F}</ProjectGuid>
     <DockerLaunchBrowser>True</DockerLaunchBrowser>
-    <DockerServiceUrl>{Scheme}://localhost:{ServicePort}/weatherforecast</DockerServiceUrl>
+    <DockerServiceUrl>{Scheme}://localhost:{ServicePort}/Admin/Info</DockerServiceUrl>
     <DockerServiceName>covidapi.codelifter.io</DockerServiceName>
   </PropertyGroup>
   <ItemGroup>

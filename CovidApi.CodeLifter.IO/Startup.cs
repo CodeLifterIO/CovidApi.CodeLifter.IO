@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CodeLifter.Covid19.Data;
+using CodeLifter.Covid19.Data.Models;
 using CovidApi.CodeLifter.IO.Management.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -63,6 +64,17 @@ namespace CovidApi.CodeLifter.IO
                 using (var context = serviceScope.ServiceProvider.GetService<CovidContext>())
                 {
                     context.Database.Migrate();
+
+                    string guidSource = Environment.GetEnvironmentVariable("ADMIN_AUTH_TOKEN");
+                    if (context.AdminTokens.Count() == 0 && !string.IsNullOrWhiteSpace(guidSource))
+                    {
+                        Guid adminToken = new Guid(guidSource);
+                        AdminToken token = new AdminToken()
+                        {
+                            Token = adminToken,
+                        };
+                        AdminToken.Insert(token);
+                    }
                 }
             }
         }

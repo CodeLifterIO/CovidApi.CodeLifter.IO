@@ -26,18 +26,6 @@ namespace CodeLifter.Covid19.Data.Migrations
                 table: "AdminTokens",
                 column: "Token",
                 unique: true);
-
-
-            string guidSource = Environment.GetEnvironmentVariable("ADMIN_AUTH_TOKEN");
-            if (!string.IsNullOrWhiteSpace(guidSource))
-            {
-                Guid adminToken = new Guid(guidSource);
-                AdminToken token = new AdminToken()
-                {
-                    Token = adminToken,
-                };
-                AdminToken.Insert(token);
-            }
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

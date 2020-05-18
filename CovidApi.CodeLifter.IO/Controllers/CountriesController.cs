@@ -27,7 +27,7 @@ namespace CovidApi.CodeLifter.IO.Controllers
 
         [HttpGet]
         [Route("country/{slug}/")]
-        public async Task<IActionResult> Country(string slug)
+        public async Task<IActionResult> Country([FromRoute]string slug)
         {
             using (var context = new CovidContext())
             {
@@ -59,7 +59,7 @@ namespace CovidApi.CodeLifter.IO.Controllers
 
         [HttpGet]
         [Route("country/{slug}/provinces")]
-        public async Task<IActionResult> GetProvincesByCountry(string slug)
+        public async Task<IActionResult> GetProvincesByCountry([FromRoute]string slug)
         {
             Country country = null;
             using (var context = new CovidContext())
@@ -104,7 +104,7 @@ namespace CovidApi.CodeLifter.IO.Controllers
 
         [HttpGet]
         [Route("country/{slug}/timeseries")]
-        public async Task<IActionResult> GetTimeSeriesByCountry(string slug)
+        public async Task<IActionResult> GetTimeSeriesByCountry([FromRoute]string slug)
         {
             Country country = null;
             using (var context = new CovidContext())

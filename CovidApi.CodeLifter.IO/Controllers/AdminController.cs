@@ -28,7 +28,6 @@ namespace CovidApi.CodeLifter.IO.Controllers
             }
         }
 
-
         private readonly ILogger<AdminController> _logger;
 
         public AdminController(ILogger<AdminController> logger)

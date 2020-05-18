@@ -14,6 +14,7 @@ namespace CovidApi.CodeLifter.IO.Controllers
     public class DistrictsController : BaseController
     {
         [HttpGet]
+        [Route("counties")]
         [Route("districts")]
         public async Task<IActionResult> Districts()
         {
@@ -31,6 +32,7 @@ namespace CovidApi.CodeLifter.IO.Controllers
         }
 
         [HttpGet]
+        [Route("county/{slug}")]
         [Route("district/{slug}")]
         public async Task<IActionResult> District(string slug)
         {
@@ -64,6 +66,7 @@ namespace CovidApi.CodeLifter.IO.Controllers
         }
 
         [HttpGet]
+        [Route("county/{slug}/timeseries")]
         [Route("district/{slug}/timeseries")]
         public async Task<IActionResult> GetTimeSeriesByDistrict(string slug)
         {

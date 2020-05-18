@@ -14,6 +14,7 @@ namespace CodeLifter.Covid19.Data.Migrations
 												DECLARE @backupFileName varchar(68);
 												DECLARE @databaseName varchar(8);
 												DECLARE @fullPath varchar(68);
+												DECLARE @constantPath varchar(68);
 
 												SELECT @backupDate = MAX(SourceFile) FROM DataPoints;
 												SELECT @backupTime = CONVERT(time, CURRENT_TIMESTAMP);
@@ -24,9 +25,16 @@ namespace CodeLifter.Covid19.Data.Migrations
 																				@backupTime,
 																				'.bak');
 												SELECT @fullPath = CONCAT('/var/opt/mssql/data/backups/', @backupFileName);
+												SELECT @constantPath = CONCAT('/var/opt/mssql/data/backups/', @databaseName, '.bak');
 
 												BACKUP DATABASE @databaseName
 												TO DISK = @fullPath
+										   WITH FORMAT,
+											  MEDIANAME = 'SQLServerBackups',
+											  NAME = @backupFileName;
+
+												BACKUP DATABASE @databaseName
+												TO DISK = @constantPath
 										   WITH FORMAT,
 											  MEDIANAME = 'SQLServerBackups',
 											  NAME = @backupFileName;

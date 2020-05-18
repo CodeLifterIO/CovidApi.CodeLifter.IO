@@ -9,11 +9,10 @@ using CodeLifter.Covid19.Data.Models;
 
 namespace CovidApi.CodeLifter.IO.Controllers
 {
-    public class ProvincesController : BaseController
+    public class ProvinceController : BaseController
     {
         [HttpGet]
-        [Route("states")]
-        [Route("provinces")]
+        [Route("[action]")]
         public async Task<IActionResult> Provinces()
         {
             using (var context = new CovidContext())
@@ -27,8 +26,7 @@ namespace CovidApi.CodeLifter.IO.Controllers
         }
 
         [HttpGet]
-        [Route("state/{slug}")]
-        [Route("province/{slug}")]
+        [Route("[controller]/{slug}")]
         public async Task<IActionResult> Province([FromRoute] string slug)
         {
             using (var context = new CovidContext())
@@ -45,9 +43,8 @@ namespace CovidApi.CodeLifter.IO.Controllers
         }
 
         [HttpGet]
-        [Route("state/{slug}/counties")]
-        [Route("province/{slug}/districts")]
-        public async Task<IActionResult> GetDistrictsByProvince([FromRoute] string slug)
+        [Route("[controller]/{slug}/[action]")]
+        public async Task<IActionResult> Districts([FromRoute] string slug)
         {
             Province province;
             using (var context = new CovidContext())
@@ -78,9 +75,8 @@ namespace CovidApi.CodeLifter.IO.Controllers
         }
 
         [HttpGet]
-        [Route("state/{slug}/timeseries")]
-        [Route("province/{slug}/timeseries")]
-        public async Task<IActionResult> GetTimeSeriesByProvince([FromRoute] string slug)
+        [Route("[controller]/{slug}/[action]")]
+        public async Task<IActionResult> TimeSeries([FromRoute] string slug)
         {
             using (var context = new CovidContext())
             {

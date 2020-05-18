@@ -11,11 +11,10 @@ using Microsoft.Extensions.Logging;
 
 namespace CovidApi.CodeLifter.IO.Controllers
 {
-    public class DistrictsController : BaseController
+    public class DistrictController : BaseController
     {
         [HttpGet]
-        [Route("counties")]
-        [Route("districts")]
+        [Route("[action]")]
         public async Task<IActionResult> Districts()
         {
             List<District> districts;
@@ -32,8 +31,7 @@ namespace CovidApi.CodeLifter.IO.Controllers
         }
 
         [HttpGet]
-        [Route("county/{slug}")]
-        [Route("district/{slug}")]
+        [Route("[controller]/{slug}")]
         public async Task<IActionResult> District(string slug)
         {
             District district;
@@ -66,9 +64,8 @@ namespace CovidApi.CodeLifter.IO.Controllers
         }
 
         [HttpGet]
-        [Route("county/{slug}/timeseries")]
-        [Route("district/{slug}/timeseries")]
-        public async Task<IActionResult> GetTimeSeriesByDistrict(string slug)
+        [Route("[controller]/{slug}/[action]")]
+        public async Task<IActionResult> TimeSeries(string slug)
         {
             using (var context = new CovidContext())
             {

@@ -9,12 +9,12 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CovidApi.CodeLifter.IO.Controllers
 {
-    public class CountriesController : BaseController
+    public class CountryController : BaseController
     {
 
         [HttpGet]
-        [Route("countries")]
-        public async Task<IActionResult> GetCountries()
+        [Route("[Action]")]
+        public async Task<IActionResult> Countries()
         {
             using (var context = new CovidContext())
             {
@@ -26,7 +26,7 @@ namespace CovidApi.CodeLifter.IO.Controllers
         }
 
         [HttpGet]
-        [Route("country/{slug}/")]
+        [Route("[controller]/{slug}/")]
         public async Task<IActionResult> Country([FromRoute]string slug)
         {
             using (var context = new CovidContext())
@@ -58,8 +58,8 @@ namespace CovidApi.CodeLifter.IO.Controllers
 
 
         [HttpGet]
-        [Route("country/{slug}/provinces")]
-        public async Task<IActionResult> GetProvincesByCountry([FromRoute]string slug)
+        [Route("[controller]/{slug}/[action]")]
+        public async Task<IActionResult> Provinces([FromRoute]string slug)
         {
             Country country = null;
             using (var context = new CovidContext())
@@ -103,8 +103,8 @@ namespace CovidApi.CodeLifter.IO.Controllers
 
 
         [HttpGet]
-        [Route("country/{slug}/timeseries")]
-        public async Task<IActionResult> GetTimeSeriesByCountry([FromRoute]string slug)
+        [Route("[controller]/{slug}/[action]")]
+        public async Task<IActionResult> TimeSeries([FromRoute]string slug)
         {
             Country country = null;
             using (var context = new CovidContext())

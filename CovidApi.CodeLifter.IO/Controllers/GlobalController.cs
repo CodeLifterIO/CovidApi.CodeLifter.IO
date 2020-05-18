@@ -11,7 +11,7 @@ namespace CovidApi.CodeLifter.IO.Controllers
     {
 
         [HttpGet]
-        [Route("global")]
+        [Route("[controller]")]
         public async Task<IActionResult> Total()
         {
             using (var context = new CovidContext())
@@ -37,7 +37,7 @@ namespace CovidApi.CodeLifter.IO.Controllers
 
 
         [HttpGet]
-        [Route("global/timeseries")]
+        [Route("[controller]/[action]")]
         public async Task<IActionResult> TimeSeries()
         {
             using (var context = new CovidContext())

@@ -23,16 +23,6 @@ namespace CovidApi.CodeLifter.IO.Management.Services
 
         public GithubService(string token, List<Entry> entries = null, LogRunner log = null)
         {
-            if (token == null)
-            {
-                throw new ArgumentNullException("token");
-            }
-
-            if (string.Empty == token)
-            {
-                throw new ArgumentException("Zero-length string invalid", "token");
-            }
-
             if (entries == null)
             {
                 Entries = new List<Entry>();
@@ -63,13 +53,6 @@ namespace CovidApi.CodeLifter.IO.Management.Services
                 Client.Credentials = tokenAuth;
             }
         }
-
-        //public async Task BeginProcessing()
-        //{
-        //    await ReportAPILimits();
-        //    await GetListOfFiles();
-        //    // await SaveEntriesToDataModel();
-        //}
 
         public async Task<ApiLimitReport> ReportAPILimits()
         {

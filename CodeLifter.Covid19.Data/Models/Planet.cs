@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using CodeLifter.Covid19.Data.Interfaces;
-using Newtonsoft.Json;
 
 namespace CodeLifter.Covid19.Data.Models
 {
@@ -14,11 +14,9 @@ namespace CodeLifter.Covid19.Data.Models
         public long Population { get; set; } = 7594000000;
 
         [NotMapped]
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public Statistic CurrentData { get; set; }
 
         [NotMapped]
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public object TimeSeries { get; set; }
 
         [NotMapped]

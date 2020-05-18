@@ -1,9 +1,34 @@
-﻿If you want to use the admin features and download new data from github you will need to populate .env and add your github auth token and a GUID to ADMIN_AUTH_TOKEN
+﻿Make sure you adjust your SA Password in the readme before running 
 
 --------
 # .env
 
 SQLSERVER_SA_PASSWORD=Str0ngP@ssw0rd
 SQL_CONNECTION_STRING=Data Source=db;Initial Catalog=Covid19;trusted_connection=False;User Id=sa;Password=Str0ngP@ssw0rd
-GITHUB_AUTH_TOKEN=
-ADMIN_AUTH_TOKEN=
+
+
+
+
+
+# Sample API Calls:
+
+## global stats
+/global
+/global/timesseries
+
+## national stats
+/countries
+/country/us
+/country/us/timeseries
+/country/us/provinces
+
+## state-provincial stats
+/provinces
+/province/washington
+/province/washington/timeseries
+/province/districts
+
+## district-county stats (Still seems to have a few bugs)
+/districts
+/district/king
+/district/king/timeseries

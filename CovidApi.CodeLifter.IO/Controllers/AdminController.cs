@@ -8,6 +8,7 @@ using CodeLifter.Covid19.Data.Models;
 using CovidApi.CodeLifter.IO.Management.Models;
 using CovidApi.CodeLifter.IO.Management.Services;
 using CodeLifter.Covid19.Data;
+using System.Linq;
 
 namespace CovidApi.CodeLifter.IO.Controllers
 {
@@ -35,11 +36,8 @@ namespace CovidApi.CodeLifter.IO.Controllers
             _logger = logger;
         }
 
-
-
-
         [HttpGet]
-        [Route("[controller]/[action]")]
+        [Route("admin/userInfo")]
         public async Task<IActionResult> Info()
         {
             ApiLimitReport report = null;
@@ -63,7 +61,7 @@ namespace CovidApi.CodeLifter.IO.Controllers
 
 
         [HttpGet]
-        [Route("[controller]/[action]/{fileName}")]
+        [Route("admin/process/{fileName}")]
         public async Task<IActionResult> ProcessFile(string fileName)
         {
             if (string.IsNullOrWhiteSpace(fileName) || !fileName.EndsWith(".csv"))
@@ -85,14 +83,6 @@ namespace CovidApi.CodeLifter.IO.Controllers
 
             return new OkObjectResult(dcs);
         }
-
-        //[FunctionName("TimerTrigger_Update_Database")]
-        //public async Task RunAsync([TimerTrigger("0 */48 * * * *")] TimerInfo myTimer, ILogger log)
-        //{
-
-
-        //    await DownloadAllFiles(null);
-        //}
 
         [HttpGet]
         [Route("[controller]/[action]")]

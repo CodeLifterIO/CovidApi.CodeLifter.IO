@@ -64,17 +64,6 @@ namespace CovidApi.CodeLifter.IO
                 using (var context = serviceScope.ServiceProvider.GetService<CovidContext>())
                 {
                     context.Database.Migrate();
-
-                    string guidSource = Environment.GetEnvironmentVariable("ADMIN_AUTH_TOKEN");
-                    if (context.AdminTokens.Count() == 0 && !string.IsNullOrWhiteSpace(guidSource))
-                    {
-                        Guid adminToken = new Guid(guidSource);
-                        AdminToken token = new AdminToken()
-                        {
-                            Token = adminToken,
-                        };
-                        AdminToken.Insert(token);
-                    }
                 }
             }
         }

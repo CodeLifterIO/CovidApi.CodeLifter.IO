@@ -9,6 +9,33 @@ namespace CovidApi.CodeLifter.IO.Controllers
 {
     public class GlobalController : BaseController
     {
+
+        [HttpGet]
+        [Route("global")]
+        public async Task<IActionResult> Total()
+        {
+            using (var context = new CovidContext())
+            {
+                Planet earth = new Planet();
+                var query = from dp in context.Set<DataPoint>()
+                            group dp by dp.SourceFile into s
+                            where s.Count() > 0
+                            orderby s.Key
+                            select new Statistic()
+                            {
+                                SourceFile = s.Key,
+                                Deaths = (int)s.Sum(x => x.Deaths),
+                                Confirmed = (int)s.Sum(x => x.Deaths),
+                                Recovered = (int)s.Sum(x => x.Deaths),
+                                Active = (int)s.Sum(x => x.Active),
+                                Count = s.Count()
+                            };
+                earth.CurrentData = query.Last();
+                return new OkObjectResult(earth);
+            }
+        }
+
+
         [HttpGet]
         [Route("global/timeseries")]
         public async Task<IActionResult> TimeSeries()

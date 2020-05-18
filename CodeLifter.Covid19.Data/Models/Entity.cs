@@ -1,5 +1,5 @@
 using System.Reflection;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace CodeLifter.Covid19.Data.Models
 {

@@ -106,9 +106,10 @@ namespace CovidApi.CodeLifter.IO.Controllers
         [Route("country/{slug}/timeseries")]
         public async Task<IActionResult> GetTimeSeriesByCountry(string slug)
         {
+            Country country = null;
             using (var context = new CovidContext())
             {
-                Country country = await context.Countries
+                country = await context.Countries
                     .Where(c => c.Slug == slug)
                     .Include(c => c.GeoCoordinate)
                     .FirstOrDefaultAsync();
@@ -127,7 +128,7 @@ namespace CovidApi.CodeLifter.IO.Controllers
                                 Active = (int)s.Sum(x => x.Active),
                                 Count = s.Count()
                             };
-                country.TimeSeries = query;
+                country.TimeSeries = query.ToList();
 
                 return new OkObjectResult(country);
             }

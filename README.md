@@ -13,22 +13,22 @@ SQL_CONNECTION_STRING=Data Source=db;Initial Catalog=Covid19;trusted_connection=
 # Sample API Calls:
 
 ## global stats
-/global
-/global/timesseries
+- /global
+- /global/timesseries
 
-## national stats
-/countries
-/country/us
-/country/us/timeseries
-/country/us/provinces
+## national stats. {'us' is the slug built for the United States}
+- /countries
+- /country/us
+- /country/us/timeseries
+- /country/us/provinces
 
-## state-provincial stats
-/provinces
-/province/washington
-/province/washington/timeseries
-/province/districts
+## state-provincial stats {'wa' is the slug built for the state of Washington in the United States}
+- /provinces
+- /province/washington
+- /province/washington/timeseries
+- /province/districts
 
-## district-county stats (Still seems to have a few bugs)
-/districts
-/district/king
-/district/king/timeseries
+## district-county stats (Still seems to have a few bugs). {'king' is the slug built for the county of King in the state of Washington in the United States}
+- /districts
+- /district/king
+- /district/king/timeseries

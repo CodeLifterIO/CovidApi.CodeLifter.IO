@@ -1,3 +1,4 @@
+using System;
 using System.Text.Json;
 using CodeLifter.Covid19.Data;
 using Microsoft.AspNetCore.Builder;
@@ -26,7 +27,23 @@ namespace CovidApi.CodeLifter.IO
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "CovidApi.Codelifter.IO", Version = "v1" });
+                c.SwaggerDoc("v1",
+                    new OpenApiInfo
+                    {
+                        Title = "CovidApi.Codelifter.IO",
+                        Version = "v1",
+                        Description = "An easy to use API to track the number sof the growing SARS0CoV-2 novel Coronavirus pandemic.",
+                        Contact = new OpenApiContact
+                        {
+                            Name = "Andrew Palmer (CodeLifterIO)",
+                            Email = "a@codelifter.net"
+                        },
+                        License = new OpenApiLicense
+                        {
+                            Name = "MIT License",
+                            Url = new Uri("https://www.mit.edu/~amini/LICENSE.md")
+                        }
+                    });
             });
 
             services.AddControllers()

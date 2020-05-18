@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Text.Json.Serialization;
 using CodeLifter.Covid19.Data.Interfaces;
-using Newtonsoft.Json;
 using Slugify;
 
 namespace CodeLifter.Covid19.Data.Models
@@ -34,11 +34,9 @@ namespace CodeLifter.Covid19.Data.Models
         public string TimeSeriesUrl { get { return $"country/{Slug}/timeseries"; } }
 
         [NotMapped]
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public Statistic CurrentData { get; set; }
 
         [NotMapped]
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public object TimeSeries { get; set; }
 
 

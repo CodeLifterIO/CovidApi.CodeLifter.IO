@@ -11,15 +11,15 @@ services:
     environment:
       SQL_CONNECTION_STRING: ${SQL_CONNECTION_STRING}
       GITHUB_AUTH_TOKEN: ${GITHUB_AUTH_TOKEN}
-      ADMIN_AUTH_TOKEN: ${ADMIN_AUTH_TOKEN}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
     links:
       - db
 
   db:
-    container_name: sql-server
+    container_name: covidapi-codelifter-data
     image: mcr.microsoft.com/mssql/server:2019-CU3-ubuntu-18.04
     ports:
-      - "1433:1433"
+      - "1401:1433"
     volumes:
       - mssql-data:/var/opt/mssql
     environment:

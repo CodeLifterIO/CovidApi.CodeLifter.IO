@@ -1,23 +1,28 @@
-version: '3.4'
+version: '3.6'
 
 services:
   covidapi.codelifter.io:
-    image: ${DOCKER_REGISTRY-}covidapicodelifter
+    container_name: covidapi-codelifter-io
+    image: ${DOCKER_REGISTRY-}covidapicodelifterio
     build:
       context: .
       dockerfile: CovidApi.CodeLifter.IO/Dockerfile
+    networks:
+      - covidapinet
     depends_on:
-      - db
+      - covidapi-codelifter-data
     environment:
-      SQL_CONNECTION_STRING: ${SQL_CONNECTION_STRING}
+      SQLSERVER_SA_PASSWORD: ${SQLSERVER_SA_PASSWORD}
       GITHUB_AUTH_TOKEN: ${GITHUB_AUTH_TOKEN}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
     links:
-      - db
+      - covidapi-codelifter-data
 
-  db:
+  covidapi-codelifter-data:
     container_name: covidapi-codelifter-data
     image: mcr.microsoft.com/mssql/server:2019-CU3-ubuntu-18.04
+    networks:
+      - covidapinet
     ports:
       - "1401:1433"
     volumes:
@@ -28,3 +33,7 @@ services:
 
 volumes:
   mssql-data:
+
+networks:
+  covidapinet: 
+    name: covidapinet

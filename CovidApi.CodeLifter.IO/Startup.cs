@@ -32,7 +32,7 @@ namespace CovidApi.CodeLifter.IO
                     {
                         Title = "CovidApi.Codelifter.IO",
                         Version = "v1",
-                        Description = "An easy to use API to track the number sof the growing SARS0CoV-2 novel Coronavirus pandemic.",
+                        Description = "An easy to use API to track the number sof the growing SARS-CoV-2 novel Coronavirus pandemic.",
                         Contact = new OpenApiContact
                         {
                             Name = "Andrew Palmer (CodeLifterIO)",

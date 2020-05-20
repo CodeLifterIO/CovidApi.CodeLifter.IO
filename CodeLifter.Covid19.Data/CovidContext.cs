@@ -11,8 +11,12 @@ namespace CodeLifter.Covid19.Data
         {
             get
             {
-                return Environment.GetEnvironmentVariable("SQL_CONNECTION_STRING");
+                string baseConnection = "Data Source=10.200.200.100,1401;Initial Catalog=Covid19;trusted_connection=False;User Id=sa;Password=";
+                string password = Environment.GetEnvironmentVariable("SQLSERVER_SA_PASSWORD");
+                //string password = "Str0ngP@ssw0rd";
+                return baseConnection + password;
             }
+                
         }
 
         public DbSet<AdminToken> AdminTokens { get; set; }
@@ -29,7 +33,6 @@ namespace CodeLifter.Covid19.Data
             options.UseSqlServer(SQL_CONNECTION_STRING);
         }
             
-
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.Entity<AdminToken>()

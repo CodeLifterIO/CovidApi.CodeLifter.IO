@@ -19,11 +19,7 @@ namespace CodeLifter.Covid19.Data.Migrations
 												SELECT @backupDate = MAX(SourceFile) FROM DataPoints;
 												SELECT @backupTime = CONVERT(time, CURRENT_TIMESTAMP);
 												SELECT @databaseName = DB_NAME();
-												SELECT @backupFileName = CONCAT(@databaseName,
-																				'-',
-																				@backupDate,
-																				@backupTime,
-																				'.bak');
+												SELECT @backupFileName = CONCAT(@databaseName, '.bak');
 												SELECT @fullPath = CONCAT('/var/opt/mssql/data/backups/', @backupFileName);
 												SELECT @constantPath = CONCAT('/var/opt/mssql/data/backups/', @databaseName, '.bak');
 

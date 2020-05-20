@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker cp sql-server:/var/opt/mssql/data/backups/ ./sql
+docker cp covidapi-codelifter-data:/var/opt/mssql/data/Covid19.bak ./Bak/Covid19.bak

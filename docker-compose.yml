@@ -20,7 +20,7 @@ services:
 
   covidapi-codelifter-data:
     container_name: covidapi-codelifter-data
-    image: mcr.microsoft.com/mssql/server:2019-CU3-ubuntu-18.04
+    image: codelifterio/covidapi-codelifter-data:05-19-2020
     networks:
       - covidapinet
     ports:

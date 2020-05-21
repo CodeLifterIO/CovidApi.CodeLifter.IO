@@ -9,10 +9,12 @@ using CovidApi.CodeLifter.IO.Management.Models;
 using CovidApi.CodeLifter.IO.Management.Services;
 using CodeLifter.Covid19.Data;
 using System.Linq;
+using CovidApi.CodeLifter.IO.Filters;
 
 namespace CovidApi.CodeLifter.IO.Controllers
 {
-    public class AdminController
+    [PasswordResourceFilter]
+        public class AdminController
     {
         public const string GithubFolderPath = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/";
 
@@ -37,11 +39,10 @@ namespace CovidApi.CodeLifter.IO.Controllers
 
         [HttpGet]
         [Route("admin/userInfo")]
-        public async Task<IActionResult> Info()
+        public async Task<IActionResult> Info([FromQuery]string password)
         {
             ApiLimitReport report = null;
             List<DataFile> files = new List<DataFile>();
-            DataCollectionStatistic dcs;
             try
             {
                 report = await Service.ReportAPILimits();
@@ -61,7 +62,7 @@ namespace CovidApi.CodeLifter.IO.Controllers
 
         [HttpGet]
         [Route("admin/process/{fileName}")]
-        public async Task<IActionResult> ProcessFile(string fileName)
+        public async Task<IActionResult> ProcessFile([FromRoute]string fileName, [FromQuery]string password)
         {
             if (string.IsNullOrWhiteSpace(fileName) || !fileName.EndsWith(".csv"))
             {
@@ -86,7 +87,7 @@ namespace CovidApi.CodeLifter.IO.Controllers
         [HttpGet]
         [Route("[controller]/[action]")]
         [Route("[controller]/[action]/{fileName}")]
-        public async Task<IActionResult> Process_All(string fileName)
+        public async Task<IActionResult> Process_All([FromRoute]string fileName, [FromQuery]string password)
         {
             return new OkObjectResult(await DownloadAllFiles(fileName));
         }

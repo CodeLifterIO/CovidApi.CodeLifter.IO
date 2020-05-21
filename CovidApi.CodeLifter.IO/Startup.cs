@@ -1,6 +1,7 @@
 using System;
 using System.Text.Json;
 using CodeLifter.Covid19.Data;
+using CovidApi.CodeLifter.IO.Filters;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -46,7 +47,10 @@ namespace CovidApi.CodeLifter.IO
                     });
             });
 
-            services.AddControllers()
+            services.AddControllers(options =>
+                    {
+                        options.Filters.Add(typeof(PasswordResourceFilter));
+                    })
                     .AddJsonOptions(options =>
                     {
                         options.JsonSerializerOptions.IgnoreNullValues = true;

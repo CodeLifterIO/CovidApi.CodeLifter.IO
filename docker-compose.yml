@@ -20,7 +20,7 @@ services:
 
   covidapi-codelifter-data:
     container_name: covidapi-codelifter-data
-    image: codelifterio/covidapi-codelifter-data:05-19-2020
+    image: codelifterio/covidapi-codelifter-data:05-20-2020
     networks:
       - covidapinet
     ports:

@@ -44,7 +44,7 @@ namespace CovidApi.CodeLifter.IO.Controllers
 
         [HttpGet]
         [Route("[controller]/{slug}/[action]")]
-        public async Task<IActionResult> Districts([FromRoute] string slug)
+        public async Task<IActionResult> Districts([FromRoute] string slug, [FromQuery]string searchTerm = "")
         {
             Province province;
             using (var context = new CovidContext())
@@ -62,9 +62,15 @@ namespace CovidApi.CodeLifter.IO.Controllers
             {
                 using (var context = new CovidContext())
                 {
-                    districts = await context.Districts
-                        .Where(p => p.ProvinceId == province.Id)
-                        .Include(p => p.Country)
+                    var query = context.Districts
+                        .Where(p => p.ProvinceId == province.Id);
+
+                    if (!string.IsNullOrWhiteSpace(searchTerm))
+                    {
+                        query = query.Where(d => d.Name.Contains(searchTerm) || d.Slug.Contains(searchTerm));
+                    }
+
+                    districts = await query.Include(p => p.Country)
                         .Include(p => p.Province)
                         .Include(p => p.GeoCoordinate)
                         .ToListAsync();

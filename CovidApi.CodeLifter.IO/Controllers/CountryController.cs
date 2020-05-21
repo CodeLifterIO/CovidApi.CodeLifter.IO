@@ -6,6 +6,9 @@ using System.Linq;
 using System.Net.Http;
 using CodeLifter.Covid19.Data.Models;
 using Microsoft.AspNetCore.Mvc;
+using Octokit.Internal;
+using Microsoft.AspNetCore.Http;
+using System;
 
 namespace CovidApi.CodeLifter.IO.Controllers
 {
@@ -59,7 +62,7 @@ namespace CovidApi.CodeLifter.IO.Controllers
 
         [HttpGet]
         [Route("[controller]/{slug}/[action]")]
-        public async Task<IActionResult> Provinces([FromRoute]string slug)
+        public async Task<IActionResult> Provinces([FromRoute]string slug, [FromQuery]string searchTerm = "")
         {
             Country country = null;
             using (var context = new CovidContext())
@@ -90,9 +93,15 @@ namespace CovidApi.CodeLifter.IO.Controllers
             {
                 using (var context = new CovidContext())
                 {
-                    provinces = await context.Provinces
-                        .Where(p => p.CountryId == country.Id)
-                        .Include(p => p.Country)
+                    var query = context.Provinces
+                        .Where(p => p.CountryId == country.Id);
+
+                    if(!string.IsNullOrWhiteSpace(searchTerm))
+                    {
+                        query = query.Where(p => p.Name.Contains(searchTerm) || p.Slug.Contains(searchTerm));
+                    }
+
+                    provinces = await query.Include(p => p.Country)
                         .Include(p => p.GeoCoordinate)
                         .ToListAsync();
                 }

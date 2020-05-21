@@ -58,7 +58,7 @@ namespace CovidApi.CodeLifter.IO.Controllers
                                 Active = (int)s.Sum(x => x.Active),
                                 Count = s.Count()
                             };
-                district.CurrentData = query.Last();
+                district.CurrentData = await query.LastAsync();
                 return new OkObjectResult(district);
             }
         }

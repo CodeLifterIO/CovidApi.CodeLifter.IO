@@ -14,6 +14,7 @@ using CovidApi.CodeLifter.IO.Filters;
 namespace CovidApi.CodeLifter.IO.Controllers
 {
     [PasswordResourceFilter]
+    [ApiExplorerSettings(IgnoreApi = true)]
         public class AdminController
     {
         public const string GithubFolderPath = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/";

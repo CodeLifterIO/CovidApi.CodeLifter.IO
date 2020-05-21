@@ -25,22 +25,22 @@ namespace CovidApi.CodeLifter.IO.Controllers
             }
         }
 
-        [HttpGet]
-        [Route("[controller]/{slug}")]
-        public async Task<IActionResult> Province([FromRoute] string slug)
-        {
-            using (var context = new CovidContext())
-            {
-                Province province = await context.Provinces
-                    .Where(p => p.Slug == slug)
-                    .Include(p => p.GeoCoordinate)
-                    .Include(p => p.Country)
-                    .FirstOrDefaultAsync();
+        //[HttpGet]
+        //[Route("[controller]/{slug}")]
+        //public async Task<IActionResult> Province([FromRoute] string slug)
+        //{
+        //    using (var context = new CovidContext())
+        //    {
+        //        Province province = await context.Provinces
+        //            .Where(p => p.Slug == slug)
+        //            .Include(p => p.GeoCoordinate)
+        //            .Include(p => p.Country)
+        //            .FirstOrDefaultAsync();
 
-                province.CurrentData = await GetLatestStatistic(context.DataPoints, province);
-                return new OkObjectResult(province);
-            }
-        }
+        //        province.CurrentData = await GetLatestStatistic(context.DataPoints, province);
+        //        return new OkObjectResult(province);
+        //    }
+        //}
 
         [HttpGet]
         [Route("[controller]/{slug}/[action]")]
@@ -81,8 +81,8 @@ namespace CovidApi.CodeLifter.IO.Controllers
         }
 
         [HttpGet]
-        [Route("[controller]/{slug}/[action]")]
-        public async Task<IActionResult> TimeSeries([FromRoute] string slug)
+        [Route("[controller]/{slug}")]
+        public async Task<IActionResult> Data([FromRoute] string slug)
         {
             using (var context = new CovidContext())
             {
@@ -93,27 +93,27 @@ namespace CovidApi.CodeLifter.IO.Controllers
                     .FirstOrDefaultAsync();
 
                 province.TimeSeries = await GetTimeSeriesStatistics(context.DataPoints, province);
-
+                province.CurrentData = province.TimeSeries.Last();
                 return new OkObjectResult(province);
             }
         }
 
-        protected async Task<Statistic> GetLatestStatistic(DbSet<DataPoint> dbSet, Entity entity)
-        {
-            return await dbSet.Where(dp => dp.ProvinceId == entity.Id)
-                        .GroupBy(dp => dp.SourceFile)
-                        .Where(s => s.Count() >= 0)
-                        .OrderBy(s => s.Key)
-                        .Select(s => new Statistic()
-                        {
-                            SourceFile = s.Key,
-                            Deaths = (int)s.Sum(x => x.Deaths),
-                            Confirmed = (int)s.Sum(x => x.Deaths),
-                            Recovered = (int)s.Sum(x => x.Deaths),
-                            Active = (int)s.Sum(x => x.Active),
-                            Count = s.Count()
-                        }).LastAsync();
-        }
+        //protected async Task<Statistic> GetLatestStatistic(DbSet<DataPoint> dbSet, Entity entity)
+        //{
+        //    return await dbSet.Where(dp => dp.ProvinceId == entity.Id)
+        //                .GroupBy(dp => dp.SourceFile)
+        //                .Where(s => s.Count() >= 0)
+        //                .OrderBy(s => s.Key)
+        //                .Select(s => new Statistic()
+        //                {
+        //                    SourceFile = s.Key,
+        //                    Deaths = (int)s.Sum(x => x.Deaths),
+        //                    Confirmed = (int)s.Sum(x => x.Deaths),
+        //                    Recovered = (int)s.Sum(x => x.Deaths),
+        //                    Active = (int)s.Sum(x => x.Active),
+        //                    Count = s.Count()
+        //                }).LastAsync();
+        //}
 
         protected async Task<List<Statistic>> GetTimeSeriesStatistics(DbSet<DataPoint> dbSet, Entity entity)
         {

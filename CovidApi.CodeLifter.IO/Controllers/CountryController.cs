@@ -15,49 +15,38 @@ namespace CovidApi.CodeLifter.IO.Controllers
     public class CountryController : BaseController
     {
 
-        [HttpGet]
-        [Route("[Action]")]
-        public async Task<IActionResult> Countries()
-        {
-            using (var context = new CovidContext())
-            {
-                List<Country> countries = await context.Countries
-                    .Include(country => country.GeoCoordinate)
-                    .ToListAsync();
-                return new OkObjectResult(countries);
-            }
-        }
+     
 
-        [HttpGet]
-        [Route("[controller]/{slug}/")]
-        public async Task<IActionResult> Country([FromRoute]string slug)
-        {
-            using (var context = new CovidContext())
-            {
-                Country country = await context.Countries
-                    .Where(c => c.Slug == slug)
-                    .Include(c => c.GeoCoordinate)
-                    .FirstOrDefaultAsync();
+        //[HttpGet]
+        //[Route("[controller]/{slug}/")]
+        //public async Task<IActionResult> Country([FromRoute]string slug)
+        //{
+        //    using (var context = new CovidContext())
+        //    {
+        //        Country country = await context.Countries
+        //            .Where(c => c.Slug == slug)
+        //            .Include(c => c.GeoCoordinate)
+        //            .FirstOrDefaultAsync();
 
-                var query = from dp in context.Set<DataPoint>()
-                            where dp.CountryId == country.Id
-                            group dp by dp.SourceFile into s
-                            where s.Count() > 0
-                            orderby s.Key
-                            select new Statistic()
-                            {
-                                SourceFile = s.Key,
-                                Deaths = (int)s.Sum(x => x.Deaths),
-                                Confirmed = (int)s.Sum(x => x.Deaths),
-                                Recovered = (int)s.Sum(x => x.Deaths),
-                                Active = (int)s.Sum(x => x.Active),
-                                Count = s.Count()
-                            };
-                country.CurrentData = query.Last();
+        //        var query = from dp in context.Set<DataPoint>()
+        //                    where dp.CountryId == country.Id
+        //                    group dp by dp.SourceFile into s
+        //                    where s.Count() > 0
+        //                    orderby s.Key
+        //                    select new Statistic()
+        //                    {
+        //                        SourceFile = s.Key,
+        //                        Deaths = (int)s.Sum(x => x.Deaths),
+        //                        Confirmed = (int)s.Sum(x => x.Deaths),
+        //                        Recovered = (int)s.Sum(x => x.Deaths),
+        //                        Active = (int)s.Sum(x => x.Active),
+        //                        Count = s.Count()
+        //                    };
+        //        country.CurrentData = query.Last();
 
-                return new OkObjectResult(country);
-            }
-        }
+        //        return new OkObjectResult(country);
+        //    }
+        //}
 
 
         [HttpGet]
@@ -112,8 +101,8 @@ namespace CovidApi.CodeLifter.IO.Controllers
 
 
         [HttpGet]
-        [Route("[controller]/{slug}/[action]")]
-        public async Task<IActionResult> TimeSeries([FromRoute]string slug)
+        [Route("[controller]/{slug}")]
+        public async Task<IActionResult> Data([FromRoute]string slug)
         {
             Country country = null;
             using (var context = new CovidContext())
@@ -138,7 +127,7 @@ namespace CovidApi.CodeLifter.IO.Controllers
                                 Count = s.Count()
                             };
                 country.TimeSeries = query.ToList();
-
+                country.CurrentData = country.TimeSeries.Last();
                 return new OkObjectResult(country);
             }
         }

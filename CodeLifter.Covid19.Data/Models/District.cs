@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text.Json.Serialization;
 using CodeLifter.Covid19.Data.Interfaces;
@@ -59,7 +60,7 @@ namespace CodeLifter.Covid19.Data.Models
         public Statistic CurrentData { get; set; }
 
         [NotMapped]
-        public object TimeSeries { get; set; }
+        public List<Statistic> TimeSeries { get; set; }
 
 
         public static District Find(District entity)

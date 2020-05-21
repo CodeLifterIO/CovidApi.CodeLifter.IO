@@ -55,7 +55,7 @@ namespace CodeLifter.Covid19.Data.Models
         public Statistic CurrentData { get; set; }
 
         [NotMapped]
-        public object TimeSeries { get; set; }
+        public List<Statistic> TimeSeries { get; set; }
 
 
         public static Province Find(Province entity)

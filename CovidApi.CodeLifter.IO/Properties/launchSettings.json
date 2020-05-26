@@ -15,6 +15,7 @@
       "launchUrl": "Admin",
       "environmentVariables": {
         "Key": "Value",
+        "SQLSERVER_SA_PASSWORD": "Str0ngP@ssw0rd",
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },

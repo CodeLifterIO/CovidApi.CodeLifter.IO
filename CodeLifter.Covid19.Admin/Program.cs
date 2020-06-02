@@ -35,6 +35,8 @@ namespace CodeLifter.Covid19.Admin
 
         static void Main(string[] args)
         {
+            Logger.LogEntry("******* STARTING UP ******", Logging.LogLevels.Info);
+
             if (null == args || args.Length == 0 || args[0] == "-all")
             {
                 Task t = DownloadAllFiles();
@@ -83,7 +85,7 @@ namespace CodeLifter.Covid19.Admin
             using (var context = new CovidContext())
             {
                 List<DataCollectionStatistic> startFileStat = await context.DataCollectionStatistics.ToListAsync();
-                startFile = startFileStat.LastOrDefault().FileName;
+                startFile = startFileStat?.LastOrDefault()?.FileName;
             }
 
             if (string.IsNullOrWhiteSpace(startFile))

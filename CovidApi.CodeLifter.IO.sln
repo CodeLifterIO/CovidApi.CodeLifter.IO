@@ -1,17 +1,20 @@
-
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CovidApi.CodeLifter.IO", "CovidApi.CodeLifter.IO\CovidApi.CodeLifter.IO.csproj", "{0D37455E-4B91-4424-A9A0-DC4AF336ACE6}"
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30114.105
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CovidApi.CodeLifter.IO", "CovidApi.CodeLifter.IO\CovidApi.CodeLifter.IO.csproj", "{0D37455E-4B91-4424-A9A0-DC4AF336ACE6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeLifter.Covid19.Data", "CodeLifter.Covid19.Data\CodeLifter.Covid19.Data.csproj", "{DABE6BD4-A614-40A1-86D6-7B330D3605A0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeLifter.Covid19.Data", "CodeLifter.Covid19.Data\CodeLifter.Covid19.Data.csproj", "{DABE6BD4-A614-40A1-86D6-7B330D3605A0}"
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{95988778-F1CB-49AE-8DBA-D0B4FA684E6F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F6509F86-EA1F-4466-83E7-C39CE26E3636}"
 	ProjectSection(SolutionItems) = preProject
-		README.md = README.md
 		License.txt = License.txt
+		README.md = README.md
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeLifter.Covid19.Admin", "CodeLifter.Covid19.Admin\CodeLifter.Covid19.Admin.csproj", "{F7461DC3-569A-4C0B-A424-32225351DEFA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,5 +34,15 @@ Global
 		{95988778-F1CB-49AE-8DBA-D0B4FA684E6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{95988778-F1CB-49AE-8DBA-D0B4FA684E6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{95988778-F1CB-49AE-8DBA-D0B4FA684E6F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F7461DC3-569A-4C0B-A424-32225351DEFA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7461DC3-569A-4C0B-A424-32225351DEFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F7461DC3-569A-4C0B-A424-32225351DEFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F7461DC3-569A-4C0B-A424-32225351DEFA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6C36386C-40BD-4CE4-98BF-5F89E372EEC9}
 	EndGlobalSection
 EndGlobal

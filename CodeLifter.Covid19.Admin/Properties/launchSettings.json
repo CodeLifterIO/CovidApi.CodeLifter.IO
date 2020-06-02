@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "CodeLifter.Covid19.Admin": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "Key": "Value",
+        "SQLSERVER_SA_PASSWORD": "Str0ngP@ssw0rd"
+      }
+    }
+  }
+}

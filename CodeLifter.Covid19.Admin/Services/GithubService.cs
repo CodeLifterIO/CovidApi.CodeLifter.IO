@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
+using CodeLifter.Covid19.Admin.Models;
+using CodeLifter.Covid19.Data.Models;
 using CodeLifter.Logging;
 using CodeLifter.Logging.Loggers;
 using Octokit;
-using CodeLifter.Covid19.Data;
-using CodeLifter.Covid19.Data.Models;
-using CovidApi.CodeLifter.IO.Management.Models;
 
-namespace CovidApi.CodeLifter.IO.Management.Services
+namespace CodeLifter.Covid19.Admin.Services
 {
     public class GithubService
     {
@@ -376,4 +375,3 @@ namespace CovidApi.CodeLifter.IO.Management.Services
         }
     }
 }
-

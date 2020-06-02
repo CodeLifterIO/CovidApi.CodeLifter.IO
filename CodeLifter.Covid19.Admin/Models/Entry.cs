@@ -1,5 +1,5 @@
 ﻿using System;
-namespace CovidApi.CodeLifter.IO.Management.Models
+namespace CodeLifter.Covid19.Admin.Models
 {
     public class Entry
     {

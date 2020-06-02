@@ -12,8 +12,8 @@ namespace CodeLifter.Covid19.Data
             get
             {
                 string baseConnection = "Data Source=10.200.200.100,1401;Initial Catalog=Covid19;trusted_connection=False;User Id=sa;Password=";
-                //string password = Environment.GetEnvironmentVariable("SQLSERVER_SA_PASSWORD");
-                string password = "Str0ngP@ssw0rd";
+                string password = Environment.GetEnvironmentVariable("SQLSERVER_SA_PASSWORD");
+                //string password = "Str0ngP@ssw0rd";
                 return baseConnection + password;
             }
                 

@@ -2,9 +2,9 @@ version: '3.6'
 
 services:
 
-  codelifter.covid19.admin:
-    container_name: codelifter-covid19-admin
-    image: ${DOCKER_REGISTRY-}codeliftercovid19admin
+  covidapi.codelifter.admin:
+    container_name: covidapi-codelifter-admin
+    image: codelifterio/covidapi-codelifter-admin:06-01-2020
     build:
       context: .
       dockerfile: CodeLifter.Covid19.Admin/Dockerfile
@@ -20,7 +20,7 @@ services:
 
   covidapi.codelifter.io:
     container_name: covidapi-codelifter-io
-    image: ${DOCKER_REGISTRY-}covidapicodelifterio
+    image: codelifterio/covidapi-codelifter-io:06-01-2020
     build:
       context: .
       dockerfile: CovidApi.CodeLifter.IO/Dockerfile
@@ -37,7 +37,7 @@ services:
 
   covidapi-codelifter-data:
     container_name: covidapi-codelifter-data
-    image: codelifterio/covidapi-codelifter-data:05-20-2020
+    image: codelifterio/covidapi-codelifter-data:06-01-2020
     networks:
       - covidapinet
     ports:

@@ -14,7 +14,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeLifter.Covid19.Admin", "CodeLifter.Covid19.Admin\CodeLifter.Covid19.Admin.csproj", "{F7461DC3-569A-4C0B-A424-32225351DEFA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeLifter.Covid19.Admin", "CodeLifter.Covid19.Admin\CodeLifter.Covid19.Admin.csproj", "{F7461DC3-569A-4C0B-A424-32225351DEFA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{9288C37F-E09A-4744-B34A-97B61C3BFE3D}"
+	ProjectSection(SolutionItems) = preProject
+		Scripts\database_backup.sh = Scripts\database_backup.sh
+		Scripts\database_restore.sh = Scripts\database_restore.sh
+		Scripts\docker_push.sh = Scripts\docker_push.sh
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Bak", "Bak", "{C55D6DFE-6B5C-424E-9FA4-F6507E88AC6C}"
+	ProjectSection(SolutionItems) = preProject
+		Bak\Covid19.bak = Bak\Covid19.bak
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +53,10 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9288C37F-E09A-4744-B34A-97B61C3BFE3D} = {F6509F86-EA1F-4466-83E7-C39CE26E3636}
+		{C55D6DFE-6B5C-424E-9FA4-F6507E88AC6C} = {F6509F86-EA1F-4466-83E7-C39CE26E3636}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6C36386C-40BD-4CE4-98BF-5F89E372EEC9}

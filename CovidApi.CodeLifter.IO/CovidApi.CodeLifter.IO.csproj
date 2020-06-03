@@ -18,6 +18,7 @@
     <PackageReference Include="Octokit" Version="0.47.0" />
     <PackageReference Include="PagedList.Core" Version="1.17.4" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.4.1" />
+    <PackageReference Include="StackExchange.Redis" Version="2.1.30" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="appsettings.Development.json" />

@@ -11,10 +11,13 @@ namespace CodeLifter.Covid19.Data
         {
             get
             {
-                string baseConnection = "Data Source=10.200.200.100,1401;Initial Catalog=Covid19;trusted_connection=False;User Id=sa;Password=";
-                string password = Environment.GetEnvironmentVariable("SQLSERVER_SA_PASSWORD");
-                //string password = "Str0ngP@ssw0rd";
-                return baseConnection + password;
+                string dataSource = Environment.GetEnvironmentVariable("SQLSERVER_DATASOURCE");
+                string catalog = Environment.GetEnvironmentVariable("SQLSERVER_CATALOG");
+                string userId = Environment.GetEnvironmentVariable("SQLSERVER_USER_ID");
+                string password = Environment.GetEnvironmentVariable("SQLSERVER_USER_PASSWORD");
+
+                string connection = $"Data Source={dataSource};Initial Catalog={catalog};trusted_connection=False;User Id={userId};Password={password}";
+                return connection;
             }
                 
         }

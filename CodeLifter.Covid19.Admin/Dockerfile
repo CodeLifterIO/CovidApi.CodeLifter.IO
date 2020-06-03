@@ -3,6 +3,7 @@
 FROM mcr.microsoft.com/dotnet/core/runtime:3.1-buster-slim AS base
 WORKDIR /app
 
+# Copy everything across
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
 WORKDIR /src
 COPY ["CodeLifter.Covid19.Admin/CodeLifter.Covid19.Admin.csproj", "CodeLifter.Covid19.Admin/"]
@@ -15,6 +16,7 @@ RUN dotnet build "CodeLifter.Covid19.Admin.csproj" -c Release -o /app/build
 FROM build AS publish
 RUN dotnet publish "CodeLifter.Covid19.Admin.csproj" -c Release -o /app/publish
 
+#Build Runtime Image
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .

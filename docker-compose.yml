@@ -48,6 +48,16 @@ services:
       SA_PASSWORD: ${SQLSERVER_SA_PASSWORD}
       ACCEPT_EULA: "Y"
 
+  covidapi-codelifter-redis:
+    container_name: covidapi-codelifter-redis
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    hostname: redis
+    networks:
+      - covidapinet
+
 volumes:
   mssql-data:
 

@@ -89,7 +89,6 @@ namespace CovidApi.CodeLifter.IO.Controllers
                                 Count = s.Count()
                             };
                 district.TimeSeries = await query.ToListAsync();
-                district.CurrentData = district.TimeSeries.Last();
 
                 return new OkObjectResult(district);
             }

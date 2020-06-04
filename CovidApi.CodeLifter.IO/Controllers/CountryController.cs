@@ -127,7 +127,6 @@ namespace CovidApi.CodeLifter.IO.Controllers
                                 Count = s.Count()
                             };
                 country.TimeSeries = query.ToList();
-                country.CurrentData = country.TimeSeries.Last();
                 return new OkObjectResult(country);
             }
         }

@@ -93,7 +93,6 @@ namespace CovidApi.CodeLifter.IO.Controllers
                     .FirstOrDefaultAsync();
 
                 province.TimeSeries = await GetTimeSeriesStatistics(context.DataPoints, province);
-                province.CurrentData = province.TimeSeries.Last();
                 return new OkObjectResult(province);
             }
         }

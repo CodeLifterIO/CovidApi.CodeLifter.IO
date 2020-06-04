@@ -12,14 +12,12 @@ namespace CodeLifter.Covid19.Data
             get
             {
                 string baseConnection = "Data Source=10.200.200.100,1401;Initial Catalog=Covid19;trusted_connection=False;User Id=sa;Password=";
-                string password = Environment.GetEnvironmentVariable("SQLSERVER_SA_PASSWORD");
-                //string password = "Str0ngP@ssw0rd";
+                //string password = Environment.GetEnvironmentVariable("SQLSERVER_SA_PASSWORD");
+                string password = "Str0ngP@ssw0rd";
                 return baseConnection + password;
             }
                 
         }
-
-        public DbSet<AdminToken> AdminTokens { get; set; }
         public DbSet<DataPoint> DataPoints { get; set; }
         public DbSet<Country> Countries { get; set; }
         public DbSet<District> Districts { get; set; }
@@ -35,10 +33,6 @@ namespace CodeLifter.Covid19.Data
             
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            builder.Entity<AdminToken>()
-                    .HasIndex(c => c.Token)
-                    .IsUnique();
-
             builder.Entity<Country>()
                     .HasIndex(c => c.Name)
                     .IsUnique();

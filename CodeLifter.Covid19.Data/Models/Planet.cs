@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
-using CodeLifter.Covid19.Data.Interfaces;
+
 
 namespace CodeLifter.Covid19.Data.Models
 {
     [NotMapped]
-    public class Planet : INamedEntity
+    public class Planet
     {
         [JsonIgnore]
         public int Id { get; private set; } = 3;

@@ -2,16 +2,21 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text.Json.Serialization;
-using CodeLifter.Covid19.Data.Interfaces;
 using Slugify;
 
 namespace CodeLifter.Covid19.Data.Models
 {
-    public class District : Entity, INamedEntity, IStatisticalEntity
+    public class District : Entity
     {
         public string FIPS { get; set; }
         public string Name { get; set; }
         public string Slug { get; set; }
+        public int? Confirmed { get; set; }
+        public int? Deaths { get; set; }
+        public int? Recovered { get; set; }
+        public int? Active { get; set; }
+        [JsonIgnore]
+        public double? CaseFatalityRatio { get; set; }
 
         [JsonIgnore]
         public int? GeoCoordinateId { get; set; }
@@ -44,11 +49,11 @@ namespace CodeLifter.Covid19.Data.Models
             }
         }
 
-        [NotMapped]
-        public string TotalsUrl
-        {
-            get { return $"district/{Slug}"; }
-        }
+        //[NotMapped]
+        //public string TotalsUrl
+        //{
+        //    get { return $"district/{Slug}"; }
+        //}
 
         [NotMapped]
         public string TimeSeriessUrl
@@ -56,8 +61,8 @@ namespace CodeLifter.Covid19.Data.Models
             get { return $"district/{Slug}/timeseries"; }
         }
 
-        [NotMapped]
-        public Statistic CurrentData { get; set; }
+        //[NotMapped]
+        //public Statistic CurrentData { get; set; }
 
         [NotMapped]
         public List<Statistic> TimeSeries { get; set; }

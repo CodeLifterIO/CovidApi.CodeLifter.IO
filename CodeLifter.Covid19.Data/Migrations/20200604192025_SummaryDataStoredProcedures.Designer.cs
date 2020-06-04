@@ -4,14 +4,16 @@ using CodeLifter.Covid19.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CodeLifter.Covid19.Data.Migrations
 {
     [DbContext(typeof(CovidContext))]
-    partial class CovidContextModelSnapshot : ModelSnapshot
+    [Migration("20200604192025_SummaryDataStoredProcedures")]
+    partial class SummaryDataStoredProcedures
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -28,6 +30,9 @@ namespace CodeLifter.Covid19.Data.Migrations
 
                     b.Property<int?>("Active")
                         .HasColumnType("int");
+
+                    b.Property<double?>("CaseFatalityRatio")
+                        .HasColumnType("float");
 
                     b.Property<int?>("Confirmed")
                         .HasColumnType("int");
@@ -174,6 +179,9 @@ namespace CodeLifter.Covid19.Data.Migrations
                     b.Property<int?>("GeoCoordinateId")
                         .HasColumnType("int");
 
+                    b.Property<double?>("IncidenceRate")
+                        .HasColumnType("float");
+
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(450)");
 
@@ -247,6 +255,9 @@ namespace CodeLifter.Covid19.Data.Migrations
 
                     b.Property<int?>("GeoCoordinateId")
                         .HasColumnType("int");
+
+                    b.Property<double?>("IncidenceRate")
+                        .HasColumnType("float");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(450)");

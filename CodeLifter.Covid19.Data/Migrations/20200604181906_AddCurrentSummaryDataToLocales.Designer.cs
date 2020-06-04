@@ -4,20 +4,40 @@ using CodeLifter.Covid19.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CodeLifter.Covid19.Data.Migrations
 {
     [DbContext(typeof(CovidContext))]
-    partial class CovidContextModelSnapshot : ModelSnapshot
+    [Migration("20200604181906_AddCurrentSummaryDataToLocales")]
+    partial class AddCurrentSummaryDataToLocales
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "3.1.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+            modelBuilder.Entity("CodeLifter.Covid19.Data.Models.AdminToken", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<Guid>("Token")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Token")
+                        .IsUnique();
+
+                    b.ToTable("AdminTokens");
+                });
 
             modelBuilder.Entity("CodeLifter.Covid19.Data.Models.Country", b =>
                 {
@@ -28,6 +48,9 @@ namespace CodeLifter.Covid19.Data.Migrations
 
                     b.Property<int?>("Active")
                         .HasColumnType("int");
+
+                    b.Property<double?>("CaseFatalityRatio")
+                        .HasColumnType("float");
 
                     b.Property<int?>("Confirmed")
                         .HasColumnType("int");
@@ -174,6 +197,9 @@ namespace CodeLifter.Covid19.Data.Migrations
                     b.Property<int?>("GeoCoordinateId")
                         .HasColumnType("int");
 
+                    b.Property<double?>("IncidenceRate")
+                        .HasColumnType("float");
+
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(450)");
 
@@ -247,6 +273,9 @@ namespace CodeLifter.Covid19.Data.Migrations
 
                     b.Property<int?>("GeoCoordinateId")
                         .HasColumnType("int");
+
+                    b.Property<double?>("IncidenceRate")
+                        .HasColumnType("float");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(450)");

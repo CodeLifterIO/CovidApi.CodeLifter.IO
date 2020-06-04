@@ -13,8 +13,10 @@ services:
     depends_on:
       - covidapi-codelifter-data
     environment:
-      SQLSERVER_SA_PASSWORD: ${SQLSERVER_SA_PASSWORD}
-      GITHUB_AUTH_TOKEN: ${GITHUB_AUTH_TOKEN}
+      SQLSERVER_DATASOURCE: ${SQLSERVER_DATASOURCE}
+      SQLSERVER_CATALOG: ${SQLSERVER_CATALOG}
+      SQLSERVER_USER_ID: ${SQLSERVER_USER_ID}
+      SQLSERVER_USER_PASSWORD: ${SQLSERVER_USER_PASSWORD}
     links:
       - covidapi-codelifter-data
 
@@ -28,10 +30,12 @@ services:
       - covidapinet
     depends_on:
       - covidapi-codelifter-data
+      - covidapi-codelifter-redis
     environment:
-      SQLSERVER_SA_PASSWORD: ${SQLSERVER_SA_PASSWORD}
-      GITHUB_AUTH_TOKEN: ${GITHUB_AUTH_TOKEN}
-      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      SQLSERVER_DATASOURCE: ${SQLSERVER_DATASOURCE}
+      SQLSERVER_CATALOG: ${SQLSERVER_CATALOG}
+      SQLSERVER_USER_ID: ${SQLSERVER_USER_ID}
+      SQLSERVER_USER_PASSWORD: ${SQLSERVER_USER_PASSWORD}
     links:
       - covidapi-codelifter-data
 
@@ -45,7 +49,10 @@ services:
     volumes:
       - mssql-data:/var/opt/mssql
     environment:
-      SA_PASSWORD: ${SQLSERVER_SA_PASSWORD}
+      SQLSERVER_DATASOURCE: ${SQLSERVER_DATASOURCE}
+      SQLSERVER_CATALOG: ${SQLSERVER_CATALOG}
+      SQLSERVER_USER_ID: ${SQLSERVER_USER_ID}
+      SQLSERVER_USER_PASSWORD: ${SQLSERVER_USER_PASSWORD}
       ACCEPT_EULA: "Y"
 
   covidapi-codelifter-redis:

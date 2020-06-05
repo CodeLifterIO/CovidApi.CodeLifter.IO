@@ -16,7 +16,7 @@ BEGIN
 
 	SELECT @databaseName = DB_NAME();
 	SELECT @backupFileName = CONCAT(@databaseName, '.bak');
-	SELECT @fullPath = CONCAT('/var/opt/mssql/data/', @backupFileName);
+	SELECT @fullPath = CONCAT('/var/opt/mssql/data/backups/', @backupFileName);
 
 	BACKUP DATABASE @databaseName
 		TO DISK = @fullPath

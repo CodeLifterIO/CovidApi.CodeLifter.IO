@@ -4,7 +4,7 @@ services:
 
   covidapi.codelifter.admin:
     container_name: covidapi-codelifter-admin
-    image: codelifterio/covidapi-codelifter-admin:06-01-2020
+    image: codelifterio/covidapi-codelifter-admin
     build:
       context: .
       dockerfile: CodeLifter.Covid19.Admin/Dockerfile
@@ -22,7 +22,7 @@ services:
 
   covidapi.codelifter.io:
     container_name: covidapi-codelifter-io
-    image: codelifterio/covidapi-codelifter-io:06-01-2020
+    image: codelifterio/covidapi-codelifter-io
     build:
       context: .
       dockerfile: CovidApi.CodeLifter.IO/Dockerfile

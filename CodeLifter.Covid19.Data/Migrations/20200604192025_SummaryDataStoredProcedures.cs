@@ -12,12 +12,16 @@ namespace CodeLifter.Covid19.Data.Migrations
                                 SET QUOTED_IDENTIFIER ON
                                 GO
                                 CREATE PROCEDURE SP_Update_Summary_On_Country 
-                                    @sourceFile varchar(10)
                                 AS
                                 BEGIN
                                     -- SET NOCOUNT ON added to prevent extra result sets from
                                     -- interfering with SELECT statements.
                                     SET NOCOUNT ON;
+
+								DECLARE @sourceFile varchar(10);
+								SELECT @sourceFile = (SELECT TOP (1) REPLACE([FileName], '.csv', '') 
+													  FROM [Covid19].[dbo].[DataCollectionStatistics]
+													  ORDER BY Id DESC);
 
                                 UPDATE C	
                                 SET
@@ -46,12 +50,16 @@ namespace CodeLifter.Covid19.Data.Migrations
                                 SET QUOTED_IDENTIFIER ON
                                 GO
                                 CREATE PROCEDURE SP_Update_Summary_On_Province 
-                                    @sourceFile varchar(10)
                                 AS
                                 BEGIN
                                     -- SET NOCOUNT ON added to prevent extra result sets from
                                     -- interfering with SELECT statements.
                                     SET NOCOUNT ON;
+
+								DECLARE @sourceFile varchar(10);
+								SELECT @sourceFile = (SELECT TOP (1) REPLACE([FileName], '.csv', '') 
+													  FROM [Covid19].[dbo].[DataCollectionStatistics]
+													  ORDER BY Id DESC);
 
                                 UPDATE P	
                                 SET
@@ -80,12 +88,16 @@ namespace CodeLifter.Covid19.Data.Migrations
                                 SET QUOTED_IDENTIFIER ON
                                 GO
                                 CREATE PROCEDURE SP_Update_Summary_On_District 
-                                    @sourceFile varchar(10)
                                 AS
                                 BEGIN
                                     -- SET NOCOUNT ON added to prevent extra result sets from
                                     -- interfering with SELECT statements.
                                     SET NOCOUNT ON;
+
+								DECLARE @sourceFile varchar(10);
+								SELECT @sourceFile = (SELECT TOP (1) REPLACE([FileName], '.csv', '') 
+													  FROM [Covid19].[dbo].[DataCollectionStatistics]
+													  ORDER BY Id DESC);
 
                                 UPDATE D	
                                 SET

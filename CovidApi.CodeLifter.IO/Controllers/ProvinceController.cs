@@ -12,37 +12,6 @@ namespace CovidApi.CodeLifter.IO.Controllers
     public class ProvinceController : BaseController
     {
         [HttpGet]
-        [Route("[action]")]
-        public async Task<IActionResult> Provinces()
-        {
-            using (var context = new CovidContext())
-            {
-                List<Province> provinces = await context.Provinces
-                    .Include(p => p.GeoCoordinate)
-                    .Include(p => p.Country)
-                    .ToListAsync();
-                return new OkObjectResult(provinces);
-            }
-        }
-
-        //[HttpGet]
-        //[Route("[controller]/{slug}")]
-        //public async Task<IActionResult> Province([FromRoute] string slug)
-        //{
-        //    using (var context = new CovidContext())
-        //    {
-        //        Province province = await context.Provinces
-        //            .Where(p => p.Slug == slug)
-        //            .Include(p => p.GeoCoordinate)
-        //            .Include(p => p.Country)
-        //            .FirstOrDefaultAsync();
-
-        //        province.CurrentData = await GetLatestStatistic(context.DataPoints, province);
-        //        return new OkObjectResult(province);
-        //    }
-        //}
-
-        [HttpGet]
         [Route("[controller]/{slug}/[action]")]
         public async Task<IActionResult> Districts([FromRoute] string slug, [FromQuery]string searchTerm = "")
         {
@@ -55,7 +24,6 @@ namespace CovidApi.CodeLifter.IO.Controllers
                     .Include(p => p.Country)
                     .FirstOrDefaultAsync();
             }
-
 
             List<District> districts = null;
             if (null != province)
@@ -97,23 +65,6 @@ namespace CovidApi.CodeLifter.IO.Controllers
             }
         }
 
-        //protected async Task<Statistic> GetLatestStatistic(DbSet<DataPoint> dbSet, Entity entity)
-        //{
-        //    return await dbSet.Where(dp => dp.ProvinceId == entity.Id)
-        //                .GroupBy(dp => dp.SourceFile)
-        //                .Where(s => s.Count() >= 0)
-        //                .OrderBy(s => s.Key)
-        //                .Select(s => new Statistic()
-        //                {
-        //                    SourceFile = s.Key,
-        //                    Deaths = (int)s.Sum(x => x.Deaths),
-        //                    Confirmed = (int)s.Sum(x => x.Deaths),
-        //                    Recovered = (int)s.Sum(x => x.Deaths),
-        //                    Active = (int)s.Sum(x => x.Active),
-        //                    Count = s.Count()
-        //                }).LastAsync();
-        //}
-
         protected async Task<List<Statistic>> GetTimeSeriesStatistics(DbSet<DataPoint> dbSet, Entity entity)
         {
             var query = await dbSet.Where(dp => dp.ProvinceId == entity.Id)
@@ -131,8 +82,5 @@ namespace CovidApi.CodeLifter.IO.Controllers
                         }).ToListAsync();
             return query;
         }
-
-
-
     }
 }

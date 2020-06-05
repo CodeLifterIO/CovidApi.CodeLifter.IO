@@ -22,8 +22,5 @@ namespace CodeLifter.Covid19.Data.Models
 
         [NotMapped]
         public string CountriesUrl { get { return $"countries"; } }
-
-        [NotMapped]
-        public string TimeSeriesUrl { get { return $"global/timeseries"; } }
     }
 }

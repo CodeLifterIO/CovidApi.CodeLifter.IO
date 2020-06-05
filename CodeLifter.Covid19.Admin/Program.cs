@@ -39,7 +39,7 @@ namespace CodeLifter.Covid19.Admin
 
             if (null == args || args.Length == 0 || args[0] == "-all")
             {
-                Task t = DownloadAllFiles();
+                Task t = DownloadAllFiles("05-28-2020");
                 t.Wait();
             }
             else if(args[0].Length == 2)
@@ -81,14 +81,15 @@ namespace CodeLifter.Covid19.Admin
         public static async Task DownloadAllFiles(string startFile = null)
         {
             bool isStarted = false;
-
+            
+            string lastFile = "";
             using (var context = new CovidContext())
             {
                 List<DataCollectionStatistic> startFileStat = await context.DataCollectionStatistics.ToListAsync();
-                startFile = startFileStat?.LastOrDefault()?.FileName;
+                lastFile = startFileStat?.Last()?.FileName;
             }
 
-            if (string.IsNullOrWhiteSpace(startFile))
+            if (string.IsNullOrWhiteSpace(startFile) && string.IsNullOrWhiteSpace(lastFile))
             {
                 isStarted = true;
             }
@@ -101,13 +102,18 @@ namespace CodeLifter.Covid19.Admin
                                                 "csse_covid_19_data/csse_covid_19_daily_reports");
             foreach (DataFile file in files)
             {
+                if (file.FileName == startFile)
+                {
+                    isStarted = true;
+                }
+
                 if (isStarted == true)
                 {
                     await Service.ParseAndDeleteFile(file);
                     dcs = await Service.SaveEntriesToDataModel(file.FileName);
                 }
 
-                if (file.FileName == startFile)
+                if (file.FileName == lastFile)
                 {
                     isStarted = true;
                 }

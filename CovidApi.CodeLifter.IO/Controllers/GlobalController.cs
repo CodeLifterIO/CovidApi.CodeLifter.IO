@@ -11,20 +11,6 @@ namespace CovidApi.CodeLifter.IO.Controllers
 {
     public class GlobalController : BaseController
     {
-
-        [HttpGet]
-        [Route("[controller]/[Action]")]
-        public async Task<IActionResult> Countries()
-        {
-            using (var context = new CovidContext())
-            {
-                List<Country> countries = await context.Countries
-                    .Include(country => country.GeoCoordinate)
-                    .ToListAsync();
-                return new OkObjectResult(countries);
-            }
-        }
-
         [HttpGet]
         [Route("[controller]")]
         public async Task<IActionResult> Global()
@@ -48,6 +34,19 @@ namespace CovidApi.CodeLifter.IO.Controllers
                 earth.TimeSeries = await tsQuery.ToListAsync();
                 earth.CurrentData = earth.TimeSeries.Last();
                 return new OkObjectResult(earth);
+            }
+        }
+
+        [HttpGet]
+        [Route("[controller]/[action]")]
+        public async Task<IActionResult> Countries()
+        {
+            using (var context = new CovidContext())
+            {
+                List<Country> countries = await context.Countries
+                    .Include(country => country.GeoCoordinate)
+                    .ToListAsync();
+                return new OkObjectResult(countries);
             }
         }
     }

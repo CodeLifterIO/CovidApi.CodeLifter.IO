@@ -14,41 +14,6 @@ namespace CovidApi.CodeLifter.IO.Controllers
 {
     public class CountryController : BaseController
     {
-
-     
-
-        //[HttpGet]
-        //[Route("[controller]/{slug}/")]
-        //public async Task<IActionResult> Country([FromRoute]string slug)
-        //{
-        //    using (var context = new CovidContext())
-        //    {
-        //        Country country = await context.Countries
-        //            .Where(c => c.Slug == slug)
-        //            .Include(c => c.GeoCoordinate)
-        //            .FirstOrDefaultAsync();
-
-        //        var query = from dp in context.Set<DataPoint>()
-        //                    where dp.CountryId == country.Id
-        //                    group dp by dp.SourceFile into s
-        //                    where s.Count() > 0
-        //                    orderby s.Key
-        //                    select new Statistic()
-        //                    {
-        //                        SourceFile = s.Key,
-        //                        Deaths = (int)s.Sum(x => x.Deaths),
-        //                        Confirmed = (int)s.Sum(x => x.Deaths),
-        //                        Recovered = (int)s.Sum(x => x.Deaths),
-        //                        Active = (int)s.Sum(x => x.Active),
-        //                        Count = s.Count()
-        //                    };
-        //        country.CurrentData = query.Last();
-
-        //        return new OkObjectResult(country);
-        //    }
-        //}
-
-
         [HttpGet]
         [Route("[controller]/{slug}/[action]")]
         public async Task<IActionResult> Provinces([FromRoute]string slug, [FromQuery]string searchTerm = "")

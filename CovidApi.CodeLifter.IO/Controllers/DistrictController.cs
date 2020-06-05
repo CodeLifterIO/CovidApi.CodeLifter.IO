@@ -14,56 +14,6 @@ namespace CovidApi.CodeLifter.IO.Controllers
     public class DistrictController : BaseController
     {
         [HttpGet]
-        [Route("[action]")]
-        public async Task<IActionResult> Districts()
-        {
-            List<District> districts;
-            using (var context = new CovidContext())
-            {
-                districts = await context.Districts
-                    .Include(p => p.GeoCoordinate)
-                    .Include(p => p.Country)
-                    .Include(p => p.Province)
-                    .ToListAsync();
-            }
-
-            return new OkObjectResult(districts);
-        }
-
-        //[HttpGet]
-        //[Route("[controller]/{slug}")]
-        //public async Task<IActionResult> District(string slug)
-        //{
-        //    District district;
-        //    using (var context = new CovidContext())
-        //    {
-        //        district = await context.Districts
-        //            .Where(d => d.Slug == slug)
-        //            .Include(d => d.GeoCoordinate)
-        //            .Include(d => d.Country)
-        //            .Include(d => d.Province)
-        //                                .FirstOrDefaultAsync();
-
-        //        var query = from dp in context.Set<DataPoint>()
-        //                    where dp.DistrictId == district.Id
-        //                    group dp by dp.SourceFile into s
-        //                    where s.Count() > 0
-        //                    orderby s.Key
-        //                    select new Statistic()
-        //                    {
-        //                        SourceFile = s.Key,
-        //                        Deaths = (int)s.Sum(x => x.Deaths),
-        //                        Confirmed = (int)s.Sum(x => x.Deaths),
-        //                        Recovered = (int)s.Sum(x => x.Deaths),
-        //                        Active = (int)s.Sum(x => x.Active),
-        //                        Count = s.Count()
-        //                    };
-        //        district.CurrentData = await query.LastAsync();
-        //        return new OkObjectResult(district);
-        //    }
-        //}
-
-        [HttpGet]
         [Route("[controller]/{slug}")]
         public async Task<IActionResult> Data(string slug)
         {

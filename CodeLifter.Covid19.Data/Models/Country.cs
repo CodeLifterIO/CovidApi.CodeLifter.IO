@@ -18,6 +18,7 @@ namespace CodeLifter.Covid19.Data.Models
         public int? Deaths { get; set; }
         public int? Recovered { get; set; }
         public int? Active { get; set; }
+
         [JsonIgnore]
         public double? IncidenceRate { get; set; }
 
@@ -29,17 +30,11 @@ namespace CodeLifter.Covid19.Data.Models
         [JsonIgnore]
         public List<DataPoint> DataPoints { get; set; }
 
-        //[NotMapped]
-        //public string TotalsUrl { get { return $"country/{Slug}"; } }
-
         [NotMapped]
         public string ProvincesUrl { get { return $"country/{Slug}/provinces"; } }
 
         [NotMapped]
         public string TimeSeriesUrl { get { return $"country/{Slug}/timeseries"; } }
-
-        //[NotMapped]
-        //public Statistic CurrentData { get; set; }
 
         [NotMapped]
         public List<Statistic> TimeSeries { get; set; }

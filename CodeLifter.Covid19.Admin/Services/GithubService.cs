@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using CodeLifter.Covid19.Admin.Models;
+using CodeLifter.Covid19.Data;
 using CodeLifter.Covid19.Data.Models;
 using CodeLifter.Logging;
 using CodeLifter.Logging.Loggers;
@@ -254,6 +255,9 @@ namespace CodeLifter.Covid19.Admin.Services
             stat.RecordsProcessed = i;
             DataCollectionStatistic.Update(stat);
             Entries.Clear();
+
+            ///STored Procedure work 
+            StoredProcedure.SummarizeEntities();
 
             Log.LogMessage(stat.ToString(), LogLevels.Trace);
 

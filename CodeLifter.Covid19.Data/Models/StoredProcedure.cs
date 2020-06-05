@@ -14,7 +14,43 @@ namespace CodeLifter.Covid19.Data.Models
         {
             using (var context = new CovidContext())
             {
-                context.StoredProcedures.FromSqlRaw("EXEC SP_Backup_Database;");
+                int result = context.Database.ExecuteSqlRaw("EXEC SP_Backup_Database;");
+                //context.StoredProcedures.FromSqlRaw("EXEC SP_Backup_Database;").FirstOrDefaultAsync();
+            }
+        }
+
+        public static void SummarizeEntities()
+        {
+            SummarizeCountries();
+            SummarizeProvinces();
+            SummarizeDistricts();
+        }
+
+
+        public static void SummarizeCountries()
+        {
+            using (var context = new CovidContext())
+            {
+                int result = context.Database.ExecuteSqlRaw($"EXEC SP_Update_Summary_On_Country;");
+                //context.StoredProcedures.FromSqlRaw("EXEC SP_Update_Summary_On_Country;").FirstOrDefaultAsync();
+            }
+        }
+
+        public static void SummarizeProvinces()
+        {
+            using (var context = new CovidContext())
+            {
+                int result = context.Database.ExecuteSqlRaw($"EXEC SP_Update_Summary_On_Province;");
+                //context.StoredProcedures.FromSqlRaw("EXEC SP_Update_Summary_On_Province;").FirstOrDefaultAsync();
+            }
+        }
+
+        public static void SummarizeDistricts()
+        {
+            using (var context = new CovidContext())
+            {
+                int result = context.Database.ExecuteSqlRaw($"EXEC SP_Update_Summary_On_District;");
+                //context.StoredProcedures.FromSqlRaw("EXEC SP_Update_Summary_On_District;").FirstOrDefaultAsync();
             }
         }
     }

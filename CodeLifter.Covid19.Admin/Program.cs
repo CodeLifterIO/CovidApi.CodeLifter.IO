@@ -37,23 +37,28 @@ namespace CodeLifter.Covid19.Admin
         {
             Logger.LogEntry("******* STARTING UP ******", Logging.LogLevels.Info);
 
-            if (null == args || args.Length == 0 || args[0] == "-all")
+            if (args.Length == 1 && args[0] == "-a")
             {
-                Task t = DownloadAllFiles("05-28-2020");
+                Task t = DownloadAllFiles();
                 t.Wait();
             }
-            else if(args[0].Length == 2)
+            else if(args.Length == 2 && args[0] == "-f")
             {
-                if(args[0] == "-f")
-                {
-                    Task t = DownloadFile(args[1]);
-                    t.Wait();
-                }
+                Task t = DownloadFile(args[1]);
+                t.Wait();
             }
             else
             {
-                Logger.LogEntry("INVALID ARGS", Logging.LogLevels.Error);
+                PrintArgs();
+                return;
             }
+        }
+
+        public static void PrintArgs()
+        {
+            Logger.LogEntry("******* INVALID ARGS ******", Logging.LogLevels.Info);
+            Logger.LogEntry("******* -a            Download all files ******", Logging.LogLevels.Info);
+            Logger.LogEntry("******* -f [filename] Download single file ******", Logging.LogLevels.Info);
         }
 
         public static async Task DownloadFile(string fileName = null)

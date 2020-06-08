@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "CodeLifter.IO.CovidApi.Functions": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker",
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
+      "httpPort": 32027,
+      "useSSL": false
+    }
+  }
+}

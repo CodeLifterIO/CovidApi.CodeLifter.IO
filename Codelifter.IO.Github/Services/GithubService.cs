@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
-using CodeLifter.Covid19.Admin.Models;
-using CodeLifter.Covid19.Data;
 using CodeLifter.Covid19.Data.Models;
+using CodeLifter.IO.Github.Models;
 using CodeLifter.Logging;
 using CodeLifter.Logging.Loggers;
 using Octokit;
 
-namespace CodeLifter.Covid19.Admin.Services
+namespace CodeLifter.IO.Github.Services
 {
     public class GithubService
     {
@@ -25,11 +24,11 @@ namespace CodeLifter.Covid19.Admin.Services
         {
             if (entries == null)
             {
-                Entries = new List<Entry>();
+                this.Entries = new List<Entry>();
             }
             else
             {
-                Entries = entries;
+                this.Entries = entries;
             }
 
             if (log == null)
@@ -230,7 +229,7 @@ namespace CodeLifter.Covid19.Admin.Services
             return 0;
         }
 
-        public async Task<DataCollectionStatistic> SaveEntriesToDataModel(string fileName)
+        public async Task SaveEntriesToDataModel(string fileName)
         {
             DataCollectionStatistic stat = new DataCollectionStatistic()
             {
@@ -238,30 +237,23 @@ namespace CodeLifter.Covid19.Admin.Services
                 LastRunStarted = DateTime.Now,
                 FileName = fileName
             };
-            DataCollectionStatistic.Insert(stat);
+            Entity.Insert(stat);
 
             int i = 0;
             foreach (Entry entry in Entries)
             {
                 ProcessEntry(entry);
                 i++;
-                if ((i % 100) == 0)
-                {
-                    Log.LogMessage($"{i} / {Entries.Count}  -  {entry.ToString()}");
-                }
             }
 
             stat.LastRunCompleted = DateTime.Now;
             stat.RecordsProcessed = i;
-            DataCollectionStatistic.Update(stat);
+            Entity.Update(stat);
             Entries.Clear();
 
             ///STored Procedure work 
             StoredProcedure.SummarizeEntities();
-
             Log.LogMessage(stat.ToString(), LogLevels.Trace);
-
-            return stat;
         }
 
         public void ProcessEntry(Entry entry)

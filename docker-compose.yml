@@ -28,6 +28,9 @@ services:
       dockerfile: CovidApi.CodeLifter.IO/Dockerfile
     networks:
       - covidapinet
+    ports:
+      - "6680:80"
+      - "6666:443"
     depends_on:
       - covidapi-codelifter-data
       - covidapi-codelifter-redis

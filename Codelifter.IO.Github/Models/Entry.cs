@@ -1,5 +1,5 @@
 ﻿using System;
-namespace CodeLifter.Covid19.Admin.Models
+namespace CodeLifter.IO.Github.Models
 {
     public class Entry
     {

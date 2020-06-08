@@ -1,7 +1,7 @@
-﻿using CodeLifter.Covid19.Admin.Models;
-using CodeLifter.Covid19.Admin.Services;
-using CodeLifter.Covid19.Data;
+﻿using CodeLifter.Covid19.Data;
 using CodeLifter.Covid19.Data.Models;
+using CodeLifter.IO.Github.Models;
+using CodeLifter.IO.Github.Services;
 using CodeLifter.Logging.Loggers;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -68,7 +68,7 @@ namespace CodeLifter.Covid19.Admin
             try
             {
                 await Service.ParseAndDeleteFile(downloadUrl, fileName);
-                dcs = await Service.SaveEntriesToDataModel(fileName);
+                await Service.SaveEntriesToDataModel(fileName);
             }
             catch
             {
@@ -94,7 +94,6 @@ namespace CodeLifter.Covid19.Admin
                 isStarted = true;
             }
 
-            DataCollectionStatistic dcs = null;
             List<DataFile> files = new List<DataFile>();
 
             files = await Service.GetListOfFiles("CSSEGISandData",
@@ -110,7 +109,7 @@ namespace CodeLifter.Covid19.Admin
                 if (isStarted == true)
                 {
                     await Service.ParseAndDeleteFile(file);
-                    dcs = await Service.SaveEntriesToDataModel(file.FileName);
+                    await Service.SaveEntriesToDataModel(file.FileName);
                 }
 
                 if (file.FileName == lastFile)

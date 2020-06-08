@@ -11,16 +11,21 @@ namespace CodeLifter.Covid19.Data
         {
             get
             {
-                string dataSource = Environment.GetEnvironmentVariable("SQLSERVER_DATASOURCE");
-                string catalog = Environment.GetEnvironmentVariable("SQLSERVER_CATALOG");
-                string userId = Environment.GetEnvironmentVariable("SQLSERVER_USER_ID");
-                string password = Environment.GetEnvironmentVariable("SQLSERVER_USER_PASSWORD");
+                string SQLSERVER_CONNECTION_STRING = Environment.GetEnvironmentVariable("SQLSERVER_CONNECTION_STRING");
 
-                string connection = $"Data Source={dataSource};Initial Catalog={catalog};trusted_connection=False;User Id={userId};Password={password}";
-                return connection;
+                if(string.IsNullOrEmpty(SQLSERVER_CONNECTION_STRING))
+                {
+                    string dataSource = Environment.GetEnvironmentVariable("SQLSERVER_DATASOURCE");
+                    string catalog = Environment.GetEnvironmentVariable("SQLSERVER_CATALOG");
+                    string userId = Environment.GetEnvironmentVariable("SQLSERVER_USER_ID");
+                    string password = Environment.GetEnvironmentVariable("SQLSERVER_USER_PASSWORD");
+                    SQLSERVER_CONNECTION_STRING = $"Data Source={dataSource};Initial Catalog={catalog};trusted_connection=False;User Id={userId};Password={password}";
+                }
+
+                return SQLSERVER_CONNECTION_STRING;
             }
-                
         }
+
         public DbSet<DataPoint> DataPoints { get; set; }
         public DbSet<Country> Countries { get; set; }
         public DbSet<District> Districts { get; set; }

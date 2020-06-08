@@ -4,11 +4,15 @@
       "commandName": "Project",
       "environmentVariables": {
         "Key": "Value",
-        "SQLSERVER_SA_PASSWORD": "Str0ngP@ssw0rd"
+        "SQLSERVER_CONNECTION_STRING": "Server=codelifter.database.windows.net;Database=Covid19;trusted_connection=false;UID=cladmin;Password=S@berh@gen01Sql"
       }
     },
     "Docker": {
-      "commandName": "Docker"
+      "commandName": "Docker",
+      "environmentVariables": {
+        "Key": "Value",
+        "SQLSERVER_CONNECTION_STRING": "Server=codelifter.database.windows.net;Database=Covid19;trusted_connection=false;UID=cladmin;Password=S@berh@gen01Sql"
+      }
     }
   }
 }

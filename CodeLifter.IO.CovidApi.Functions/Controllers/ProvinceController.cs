@@ -19,7 +19,7 @@ namespace CodeLifter.IO.CovidApi.Functions.Controllers
     {
         [FunctionName("ProvinceDistricts")]
         public async static Task<IActionResult> ProvinceDistricts(
-            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "province/{slug}/districts")] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "province/{slug}/districts")] HttpRequest req,
             ILogger log,
             string slug)
         {
@@ -59,7 +59,7 @@ namespace CodeLifter.IO.CovidApi.Functions.Controllers
 
         [FunctionName("Province")]
         public async static Task<IActionResult> Province(
-            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "province/{slug}")] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "province/{slug}")] HttpRequest req,
             ILogger log,
             string slug)
         {

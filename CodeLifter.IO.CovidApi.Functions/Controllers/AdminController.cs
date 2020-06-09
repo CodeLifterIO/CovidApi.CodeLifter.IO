@@ -30,8 +30,8 @@ namespace CodeLifter.IO.CovidApi.Functions.Controllers
         }
 
         [FunctionName("AdminController")]
-        public static async void Run([TimerTrigger("0 0 */2 * * *")] TimerInfo myTimer, ILogger log)  //every two hours
-        //public static async void Run([TimerTrigger("0 */1 * * * *")] TimerInfo myTimer, ILogger log)  //every minute
+        // public static async void Run([TimerTrigger("0 0 */2 * * *")] TimerInfo myTimer, ILogger log)  //every two hours
+        public static async Task Run([TimerTrigger("0 */1 * * * *")] TimerInfo myTimer, ILogger log)  //every minute
         {
             DateTime startTime = DateTime.Now;
             log.LogInformation($"******* STARTING UP at {startTime} ******");

@@ -30,8 +30,8 @@ services:
     networks:
       - covidapinet
     ports:
-      - "80:80"
-      - "443:443"
+      - "8180:80"
+      - "8143:443"
     depends_on:
       - covidapi-codelifter-data
       - covidapi-codelifter-redis
@@ -42,6 +42,7 @@ services:
       SQLSERVER_USER_PASSWORD: ${SQLSERVER_USER_PASSWORD}
     links:
       - covidapi-codelifter-data
+      - covidapi-codelifter-redis
 
   covidapi-codelifter-data:
     container_name: covidapi-codelifter-data

@@ -13,6 +13,7 @@ services:
     depends_on:
       - covidapi-codelifter-data
     environment:
+      ADMIN_ARGS: ${ADMIN_ARGS}
       SQLSERVER_DATASOURCE: ${SQLSERVER_DATASOURCE}
       SQLSERVER_CATALOG: ${SQLSERVER_CATALOG}
       SQLSERVER_USER_ID: ${SQLSERVER_USER_ID}
@@ -29,8 +30,8 @@ services:
     networks:
       - covidapinet
     ports:
-      - "6680:80"
-      - "6666:443"
+      - "80:80"
+      - "443:443"
     depends_on:
       - covidapi-codelifter-data
       - covidapi-codelifter-redis
@@ -44,11 +45,11 @@ services:
 
   covidapi-codelifter-data:
     container_name: covidapi-codelifter-data
-    image: codelifterio/covidapi-codelifter-data:06-01-2020
+    image: codelifterio/covidapi-codelifter-data
     networks:
       - covidapinet
     ports:
-      - "1401:1433"
+      - "1433:1433"
     volumes:
       - mssql-data:/var/opt/mssql
     environment:

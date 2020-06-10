@@ -30,11 +30,14 @@ namespace CodeLifter.Covid19.Admin
             }
         }
 
-
-
-
         static void Main(string[] args)
         {
+            string[] adminArgs = Environment.GetEnvironmentVariable("ADMIN_ARGS").Split(" ");
+            if(adminArgs != null)
+            {
+                args = adminArgs;
+            }
+            
             Logger.LogEntry("******* STARTING UP ******", Logging.LogLevels.Info);
 
             if (args.Length == 1 && args[0] == "-a")

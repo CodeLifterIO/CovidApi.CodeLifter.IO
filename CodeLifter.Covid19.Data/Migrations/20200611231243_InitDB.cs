@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace CodeLifter.Covid19.Data.Migrations
 {
-    public partial class Init : Migration
+    public partial class InitDB : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -15,7 +15,8 @@ namespace CodeLifter.Covid19.Data.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     RecordsProcessed = table.Column<int>(nullable: false),
                     LastRunCompleted = table.Column<DateTime>(nullable: false),
-                    LastRunStarted = table.Column<DateTime>(nullable: false)
+                    LastRunStarted = table.Column<DateTime>(nullable: false),
+                    FileName = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -132,7 +133,9 @@ namespace CodeLifter.Covid19.Data.Migrations
                     Deaths = table.Column<int>(nullable: true),
                     Recovered = table.Column<int>(nullable: true),
                     Active = table.Column<int>(nullable: true),
-                    CombinedKey = table.Column<string>(nullable: true),
+                    IncidenceRate = table.Column<double>(nullable: true),
+                    CaseFatalityRatio = table.Column<double>(nullable: true),
+                    SourceFile = table.Column<string>(nullable: true),
                     CountryId = table.Column<int>(nullable: true),
                     ProvinceId = table.Column<int>(nullable: true),
                     DistrictId = table.Column<int>(nullable: true)
@@ -154,6 +157,45 @@ namespace CodeLifter.Covid19.Data.Migrations
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_DataPoints_Provinces_ProvinceId",
+                        column: x => x.ProvinceId,
+                        principalTable: "Provinces",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Totals",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Count = table.Column<int>(nullable: false),
+                    Confirmed = table.Column<int>(nullable: false),
+                    Deaths = table.Column<int>(nullable: false),
+                    Active = table.Column<int>(nullable: false),
+                    Recovered = table.Column<int>(nullable: false),
+                    SourceFile = table.Column<string>(nullable: true),
+                    CountryId = table.Column<int>(nullable: true),
+                    ProvinceId = table.Column<int>(nullable: true),
+                    DistrictId = table.Column<int>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Totals", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Totals_Countries_CountryId",
+                        column: x => x.CountryId,
+                        principalTable: "Countries",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Totals_Districts_DistrictId",
+                        column: x => x.DistrictId,
+                        principalTable: "Districts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Totals_Provinces_ProvinceId",
                         column: x => x.ProvinceId,
                         principalTable: "Provinces",
                         principalColumn: "Id",
@@ -245,6 +287,28 @@ namespace CodeLifter.Covid19.Data.Migrations
                 column: "Name",
                 unique: true,
                 filter: "[Name] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Totals_CountryId",
+                table: "Totals",
+                column: "CountryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Totals_DistrictId",
+                table: "Totals",
+                column: "DistrictId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Totals_ProvinceId",
+                table: "Totals",
+                column: "ProvinceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Totals_SourceFile_CountryId_ProvinceId_DistrictId",
+                table: "Totals",
+                columns: new[] { "SourceFile", "CountryId", "ProvinceId", "DistrictId" },
+                unique: true,
+                filter: "[SourceFile] IS NOT NULL AND [CountryId] IS NOT NULL AND [ProvinceId] IS NOT NULL AND [DistrictId] IS NOT NULL");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -254,6 +318,9 @@ namespace CodeLifter.Covid19.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "DataPoints");
+
+            migrationBuilder.DropTable(
+                name: "Totals");
 
             migrationBuilder.DropTable(
                 name: "Districts");

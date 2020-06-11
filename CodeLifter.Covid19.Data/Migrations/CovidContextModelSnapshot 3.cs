@@ -4,16 +4,14 @@ using CodeLifter.Covid19.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CodeLifter.Covid19.Data.Migrations
 {
     [DbContext(typeof(CovidContext))]
-    [Migration("20200604182358_RemoveAdminToken")]
-    partial class RemoveAdminToken
+    partial class CovidContextModelSnapshot : ModelSnapshot
     {
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -28,29 +26,11 @@ namespace CodeLifter.Covid19.Data.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int?>("Active")
-                        .HasColumnType("int");
-
-                    b.Property<double?>("CaseFatalityRatio")
-                        .HasColumnType("float");
-
-                    b.Property<int?>("Confirmed")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("Deaths")
-                        .HasColumnType("int");
-
                     b.Property<int?>("GeoCoordinateId")
                         .HasColumnType("int");
 
-                    b.Property<double?>("IncidenceRate")
-                        .HasColumnType("float");
-
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<int?>("Recovered")
-                        .HasColumnType("int");
 
                     b.Property<string>("Slug")
                         .HasColumnType("nvarchar(max)");
@@ -106,9 +86,6 @@ namespace CodeLifter.Covid19.Data.Migrations
                     b.Property<double?>("CaseFatalityRatio")
                         .HasColumnType("float");
 
-                    b.Property<string>("CombinedKey")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int?>("Confirmed")
                         .HasColumnType("int");
 
@@ -158,19 +135,7 @@ namespace CodeLifter.Covid19.Data.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int?>("Active")
-                        .HasColumnType("int");
-
-                    b.Property<double?>("CaseFatalityRatio")
-                        .HasColumnType("float");
-
-                    b.Property<int?>("Confirmed")
-                        .HasColumnType("int");
-
                     b.Property<int?>("CountryId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("Deaths")
                         .HasColumnType("int");
 
                     b.Property<string>("FIPS")
@@ -179,16 +144,10 @@ namespace CodeLifter.Covid19.Data.Migrations
                     b.Property<int?>("GeoCoordinateId")
                         .HasColumnType("int");
 
-                    b.Property<double?>("IncidenceRate")
-                        .HasColumnType("float");
-
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<int?>("ProvinceId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("Recovered")
                         .HasColumnType("int");
 
                     b.Property<string>("Slug")
@@ -238,32 +197,14 @@ namespace CodeLifter.Covid19.Data.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int?>("Active")
-                        .HasColumnType("int");
-
-                    b.Property<double?>("CaseFatalityRatio")
-                        .HasColumnType("float");
-
-                    b.Property<int?>("Confirmed")
-                        .HasColumnType("int");
-
                     b.Property<int?>("CountryId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("Deaths")
                         .HasColumnType("int");
 
                     b.Property<int?>("GeoCoordinateId")
                         .HasColumnType("int");
 
-                    b.Property<double?>("IncidenceRate")
-                        .HasColumnType("float");
-
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<int?>("Recovered")
-                        .HasColumnType("int");
 
                     b.Property<string>("Slug")
                         .HasColumnType("nvarchar(max)");
@@ -279,6 +220,55 @@ namespace CodeLifter.Covid19.Data.Migrations
                         .HasFilter("[Name] IS NOT NULL");
 
                     b.ToTable("Provinces");
+                });
+
+            modelBuilder.Entity("CodeLifter.Covid19.Data.Models.Stat", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("Active")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Confirmed")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Count")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("CountryId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Deaths")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("DistrictId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ProvinceId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Recovered")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SourceFile")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CountryId");
+
+                    b.HasIndex("DistrictId");
+
+                    b.HasIndex("ProvinceId");
+
+                    b.HasIndex("SourceFile", "CountryId", "ProvinceId", "DistrictId")
+                        .IsUnique()
+                        .HasFilter("[SourceFile] IS NOT NULL AND [CountryId] IS NOT NULL AND [ProvinceId] IS NOT NULL AND [DistrictId] IS NOT NULL");
+
+                    b.ToTable("Statistics");
                 });
 
             modelBuilder.Entity("CodeLifter.Covid19.Data.Models.Country", b =>
@@ -327,6 +317,21 @@ namespace CodeLifter.Covid19.Data.Migrations
                     b.HasOne("CodeLifter.Covid19.Data.Models.GeoCoordinate", "GeoCoordinate")
                         .WithMany()
                         .HasForeignKey("GeoCoordinateId");
+                });
+
+            modelBuilder.Entity("CodeLifter.Covid19.Data.Models.Stat", b =>
+                {
+                    b.HasOne("CodeLifter.Covid19.Data.Models.Country", "Country")
+                        .WithMany()
+                        .HasForeignKey("CountryId");
+
+                    b.HasOne("CodeLifter.Covid19.Data.Models.District", "District")
+                        .WithMany()
+                        .HasForeignKey("DistrictId");
+
+                    b.HasOne("CodeLifter.Covid19.Data.Models.Province", "Province")
+                        .WithMany()
+                        .HasForeignKey("ProvinceId");
                 });
 #pragma warning restore 612, 618
         }

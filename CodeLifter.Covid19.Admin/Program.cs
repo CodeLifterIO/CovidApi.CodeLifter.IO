@@ -83,21 +83,21 @@ namespace CodeLifter.Covid19.Admin
         }
 
 
-        public static async Task DownloadAllFiles(string startFile = null)
+        public static async Task DownloadAllFiles()
         {
             bool isStarted = false;
-            
+            isStarted = true;
             string lastFile = "";
-            using (var context = new CovidContext())
-            {
-                List<DataCollectionStatistic> startFileStat = await context.DataCollectionStatistics.ToListAsync();
-                lastFile = startFileStat?.Last()?.FileName;
-            }
+            //using (var context = new CovidContext())
+            //{
+            //    List<DataCollectionStatistic> startFileStat = await context.DataCollectionStatistics.ToListAsync();
+            //    lastFile = startFileStat?.Last()?.FileName;
+            //}
 
-            if (string.IsNullOrWhiteSpace(startFile) && string.IsNullOrWhiteSpace(lastFile))
-            {
-                isStarted = true;
-            }
+            //if (string.IsNullOrWhiteSpace(startFile) && string.IsNullOrWhiteSpace(lastFile))
+            //{
+            //    isStarted = true;
+            //}
 
             List<DataFile> files = new List<DataFile>();
 
@@ -106,11 +106,6 @@ namespace CodeLifter.Covid19.Admin
                                                 "csse_covid_19_data/csse_covid_19_daily_reports");
             foreach (DataFile file in files)
             {
-                if (file.FileName == startFile)
-                {
-                    isStarted = true;
-                }
-
                 if (isStarted == true)
                 {
                     await Service.ParseAndDeleteFile(file);

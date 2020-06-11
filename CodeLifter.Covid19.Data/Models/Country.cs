@@ -14,13 +14,6 @@ namespace CodeLifter.Covid19.Data.Models
 
         public string Name { get; set; }
         public string Slug { get; set; }
-        public int? Confirmed { get; set; }
-        public int? Deaths { get; set; }
-        public int? Recovered { get; set; }
-        public int? Active { get; set; }
-
-        [JsonIgnore]
-        public double? IncidenceRate { get; set; }
 
         [JsonIgnore]
         public int? GeoCoordinateId { get; set; }
@@ -37,7 +30,7 @@ namespace CodeLifter.Covid19.Data.Models
         public string TimeSeriesUrl { get { return $"country/{Slug}/timeseries"; } }
 
         [NotMapped]
-        public List<Statistic> TimeSeries { get; set; }
+        public List<Totals> TimeSeries { get; set; }
 
 
         public static Country Find(Country entity)

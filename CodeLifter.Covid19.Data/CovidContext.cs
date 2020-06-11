@@ -11,9 +11,10 @@ namespace CodeLifter.Covid19.Data
         {
             get
             {
-                string SQLSERVER_CONNECTION_STRING = Environment.GetEnvironmentVariable("SQLSERVER_CONNECTION_STRING");
+                //string SQLSERVER_CONNECTION_STRING = Environment.GetEnvironmentVariable("SQLSERVER_CONNECTION_STRING");
+                string SQLSERVER_CONNECTION_STRING = $"Data Source=10.200.200.101;Initial Catalog=Covid19;trusted_connection=False;User Id=sa;Password=Str0ngP@ssw0rd";
 
-                if(string.IsNullOrEmpty(SQLSERVER_CONNECTION_STRING))
+                if (string.IsNullOrEmpty(SQLSERVER_CONNECTION_STRING))
                 {
                     string dataSource = Environment.GetEnvironmentVariable("SQLSERVER_DATASOURCE");
                     string catalog = Environment.GetEnvironmentVariable("SQLSERVER_CATALOG");
@@ -30,8 +31,9 @@ namespace CodeLifter.Covid19.Data
         public DbSet<Country> Countries { get; set; }
         public DbSet<District> Districts { get; set; }
         public DbSet<Province> Provinces { get; set; }
-        public DbSet<DataCollectionStatistic> DataCollectionStatistics {get; set;}
         public DbSet<GeoCoordinate> GeoCoordinates { get; set; }
+        public DbSet<Totals> Totals { get; set; }
+        public DbSet<DataCollectionStatistic> DataCollectionStatistics {get; set;}
         public DbSet<StoredProcedure> StoredProcedures { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
@@ -41,6 +43,11 @@ namespace CodeLifter.Covid19.Data
             
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            builder.Entity<DataPoint>()
+                    .HasIndex(d => new { d.LastUpdate, d.CountryId, d.ProvinceId, d.DistrictId })
+                    .IsUnique()
+                    .HasFilter("[LastUpdate] IS NOT NULL AND [CountryId] IS NOT NULL");
+
             builder.Entity<Country>()
                     .HasIndex(c => c.Name)
                     .IsUnique();
@@ -49,19 +56,18 @@ namespace CodeLifter.Covid19.Data
                     .HasIndex(d => new{ d.FIPS, d.Name, })
                     .IsUnique();
 
-            builder.Entity<GeoCoordinate>()
-                    .HasIndex(d => new { d.Latitude, d.Longitude, })
-                    .IsUnique();
-
             builder.Entity<Province>()
                     .HasIndex(p => p.Name)
                     .IsUnique();
 
-            builder.Entity<DataPoint>()
-                    .HasIndex(d => new {d.LastUpdate, d.CountryId, d.ProvinceId, d.DistrictId })
-                    .IsUnique()
-                    .HasFilter("[LastUpdate] IS NOT NULL AND [CountryId] IS NOT NULL");
-                    
+            builder.Entity<GeoCoordinate>()
+                    .HasIndex(d => new { d.Latitude, d.Longitude, })
+                    .IsUnique();
+
+            builder.Entity<Totals>()
+                    .HasIndex(d => new { d.SourceFile, d.CountryId, d.ProvinceId, d.DistrictId, })
+                    .IsUnique();
+
             builder.Entity<DataCollectionStatistic>()
                     .HasIndex(dcs => dcs.Id)
                     .IsUnique();

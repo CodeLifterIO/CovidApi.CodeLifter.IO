@@ -8,11 +8,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Twilio;
+using Twilio.Rest.Api.V2010.Account;
 
 namespace CodeLifter.Covid19.Admin
 {
     class Program
     {
+        const string accountSid = "ACf88381998d155e9618b0ec6566a77401";
+        const string authToken = "ced5cbadbe221c19083219de1bfd6fa5";
         public const string GithubFolderPath = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/";
         
         public static ILogger Logger => new ConsoleLogger();
@@ -35,7 +39,12 @@ namespace CodeLifter.Covid19.Admin
 
         static void Main(string[] args)
         {
-            Logger.LogEntry("******* STARTING UP ******", Logging.LogLevels.Info);
+            Environment.GetEnvironmentVariable("ADMIN_ARGS");
+
+            TwilioClient.Init(accountSid, authToken);
+
+            SendSMS($"******* CODELIFTER:API Starting *******");
+
 
             if (args.Length == 1 && args[0] == "-a")
             {
@@ -108,8 +117,15 @@ namespace CodeLifter.Covid19.Admin
             {
                 if (isStarted == true)
                 {
+                    DateTime fileStart = DateTime.Now;
+
                     await Service.ParseAndDeleteFile(file);
                     await Service.SaveEntriesToDataModel(file.FileName);
+
+                    DateTime fileComplete = DateTime.Now;
+                    var elapsed = fileComplete - fileStart;
+
+                    SendSMS($"File {file.FileName} completed in {elapsed.Seconds}");
                 }
 
                 if (file.FileName == lastFile)
@@ -117,8 +133,21 @@ namespace CodeLifter.Covid19.Admin
                     isStarted = true;
                 }
             }
-            
-            Logger.LogEntry("SUCCESS - UP TO DATE", Logging.LogLevels.Info);
+
+            SendSMS("SUCCESS - UP TO DATE");
+        }
+
+
+        public static void SendSMS(string smsText)
+        {
+            var message = MessageResource.Create(
+                body: smsText,
+                from: new Twilio.Types.PhoneNumber("+12057514753"),
+                to: new Twilio.Types.PhoneNumber("+13603331197")
+            );
+            Console.WriteLine(message.Sid);
+
+            Logger.LogEntry(smsText, Logging.LogLevels.Info);
         }
     }
 }

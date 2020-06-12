@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using CodeLifter.Covid19.Data.Models;
 using Microsoft.EntityFrameworkCore;
@@ -11,10 +12,8 @@ namespace CodeLifter.Covid19.Data
         {
             get
             {
-                //string SQLSERVER_CONNECTION_STRING = Environment.GetEnvironmentVariable("SQLSERVER_CONNECTION_STRING");
-                string SQLSERVER_CONNECTION_STRING = $"Data Source=10.200.200.101;Initial Catalog=Covid19;trusted_connection=False;User Id=sa;Password=Str0ngP@ssw0rd";
-
-                if (string.IsNullOrEmpty(SQLSERVER_CONNECTION_STRING))
+                string SQLSERVER_CONNECTION_STRING = Environment.GetEnvironmentVariable("SQLSERVER_CONNECTION_STRING");
+                if(string.IsNullOrEmpty(SQLSERVER_CONNECTION_STRING))
                 {
                     string dataSource = Environment.GetEnvironmentVariable("SQLSERVER_DATASOURCE");
                     string catalog = Environment.GetEnvironmentVariable("SQLSERVER_CATALOG");
@@ -22,7 +21,6 @@ namespace CodeLifter.Covid19.Data
                     string password = Environment.GetEnvironmentVariable("SQLSERVER_USER_PASSWORD");
                     SQLSERVER_CONNECTION_STRING = $"Data Source={dataSource};Initial Catalog={catalog};trusted_connection=False;User Id={userId};Password={password}";
                 }
-
                 return SQLSERVER_CONNECTION_STRING;
             }
         }

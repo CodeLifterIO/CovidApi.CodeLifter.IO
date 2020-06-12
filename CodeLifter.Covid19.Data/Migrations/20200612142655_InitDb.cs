@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace CodeLifter.Covid19.Data.Migrations
 {
-    public partial class InitDB : Migration
+    public partial class InitDb : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -169,11 +169,11 @@ namespace CodeLifter.Covid19.Data.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Count = table.Column<int>(nullable: false),
-                    Confirmed = table.Column<int>(nullable: false),
-                    Deaths = table.Column<int>(nullable: false),
-                    Active = table.Column<int>(nullable: false),
-                    Recovered = table.Column<int>(nullable: false),
+                    Count = table.Column<int>(nullable: true),
+                    Confirmed = table.Column<int>(nullable: true),
+                    Deaths = table.Column<int>(nullable: true),
+                    Active = table.Column<int>(nullable: true),
+                    Recovered = table.Column<int>(nullable: true),
                     SourceFile = table.Column<string>(nullable: true),
                     CountryId = table.Column<int>(nullable: true),
                     ProvinceId = table.Column<int>(nullable: true),

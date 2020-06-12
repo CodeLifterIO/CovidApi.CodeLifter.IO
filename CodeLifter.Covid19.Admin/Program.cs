@@ -47,9 +47,9 @@ namespace CodeLifter.Covid19.Admin
         }
 
 
-        static void Main(string[] args)
+        static void Main()
         {
-            Environment.GetEnvironmentVariable("ADMIN_ARGS");
+            string[] args = Environment.GetEnvironmentVariable("ADMIN_ARGS").Split(" ");
 
             TwilioService.SendSMS($"******* CODELIFTER:API Starting *******");
 

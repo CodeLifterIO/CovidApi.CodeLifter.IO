@@ -1,21 +1,21 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CodeLifter.Covid19.Data.Models
 {
     public class Totals : Entity
     {
-        public int Count { get; set; }
-        public int Confirmed { get; set; }
-        public int Deaths { get; set; }
-        public int Active { get; set; }
-        public int Recovered { get; set; }
+        [DefaultValue(0)]
+        public int? Count { get; set; }
+        [DefaultValue(0)]
+        public int? Confirmed { get; set; }
+        [DefaultValue(0)]
+        public int? Deaths { get; set; }
+        [DefaultValue(0)]
+        public int? Active { get; set; }
+        [DefaultValue(0)]
+        public int? Recovered { get; set; }
         public string SourceFile { get; set; }
-        public int Total {
-            get
-            {
-                return Confirmed + Deaths + Active + Recovered;
-            }
-        }
 
         public int? CountryId { get; set; }
         public Country Country { get; set; }

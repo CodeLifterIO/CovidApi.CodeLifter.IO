@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CodeLifter.Covid19.Data.Migrations
 {
     [DbContext(typeof(CovidContext))]
-    [Migration("20200611231252_SummaryStoredProcs")]
-    partial class SummaryStoredProcs
+    [Migration("20200612142655_InitDb")]
+    partial class InitDb
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -231,19 +231,19 @@ namespace CodeLifter.Covid19.Data.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("Active")
+                    b.Property<int?>("Active")
                         .HasColumnType("int");
 
-                    b.Property<int>("Confirmed")
+                    b.Property<int?>("Confirmed")
                         .HasColumnType("int");
 
-                    b.Property<int>("Count")
+                    b.Property<int?>("Count")
                         .HasColumnType("int");
 
                     b.Property<int?>("CountryId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Deaths")
+                    b.Property<int?>("Deaths")
                         .HasColumnType("int");
 
                     b.Property<int?>("DistrictId")
@@ -252,7 +252,7 @@ namespace CodeLifter.Covid19.Data.Migrations
                     b.Property<int?>("ProvinceId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Recovered")
+                    b.Property<int?>("Recovered")
                         .HasColumnType("int");
 
                     b.Property<string>("SourceFile")

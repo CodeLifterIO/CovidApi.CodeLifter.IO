@@ -12,8 +12,9 @@ namespace CodeLifter.Covid19.Data
         {
             get
             {
-                string SQLSERVER_CONNECTION_STRING = Environment.GetEnvironmentVariable("SQLSERVER_CONNECTION_STRING");
-                if(string.IsNullOrEmpty(SQLSERVER_CONNECTION_STRING))
+                string SQLSERVER_CONNECTION_STRING = "Data Source=10.200.200.101;Initial Catalog=Covid19;trusted_connection=False;User Id=sa;Password=Str0ngP@ssw0rd";
+                //string SQLSERVER_CONNECTION_STRING = Environment.GetEnvironmentVariable("SQLSERVER_CONNECTION_STRING");
+                if (string.IsNullOrEmpty(SQLSERVER_CONNECTION_STRING))
                 {
                     string dataSource = Environment.GetEnvironmentVariable("SQLSERVER_DATASOURCE");
                     string catalog = Environment.GetEnvironmentVariable("SQLSERVER_CATALOG");

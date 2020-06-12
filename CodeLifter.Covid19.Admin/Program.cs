@@ -15,36 +15,43 @@ namespace CodeLifter.Covid19.Admin
 {
     class Program
     {
-        const string accountSid = "ACf88381998d155e9618b0ec6566a77401";
-        const string authToken = "ced5cbadbe221c19083219de1bfd6fa5";
+
         public const string GithubFolderPath = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/";
         
         public static ILogger Logger => new ConsoleLogger();
         
         
-        protected static GithubService _service { get; private set; }
-        public static GithubService Service
+        private static GithubService _githubService { get; set; }
+        public static GithubService GithubService
         {
             get
             {
-                if (_service == null)
-                    _service = new GithubService(Environment.GetEnvironmentVariable("GITHUB_AUTH_TOKEN"));
+                if (_githubService == null)
+                    _githubService = new GithubService(Environment.GetEnvironmentVariable("GITHUB_AUTH_TOKEN"));
 
-                return _service;
+                return _githubService;
             }
         }
 
-
+        private static TwilioService _twilioService { get; set; }
+        public static TwilioService TwilioService
+        {
+            get
+            {
+                if(_twilioService == null)
+                {
+                    _twilioService = new TwilioService(Logger);
+                }
+                return _twilioService;
+            }
+        }
 
 
         static void Main(string[] args)
         {
             Environment.GetEnvironmentVariable("ADMIN_ARGS");
 
-            TwilioClient.Init(accountSid, authToken);
-
-            SendSMS($"******* CODELIFTER:API Starting *******");
-
+            TwilioService.SendSMS($"******* CODELIFTER:API Starting *******");
 
             if (args.Length == 1 && args[0] == "-a")
             {
@@ -81,8 +88,8 @@ namespace CodeLifter.Covid19.Admin
             string downloadUrl = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/" + fileName;
             try
             {
-                await Service.ParseAndDeleteFile(downloadUrl, fileName);
-                await Service.SaveEntriesToDataModel(fileName);
+                await GithubService.ParseAndDeleteFile(downloadUrl, fileName);
+                await GithubService.SaveEntriesToDataModel(fileName);
             }
             catch
             {
@@ -110,7 +117,7 @@ namespace CodeLifter.Covid19.Admin
 
             List<DataFile> files = new List<DataFile>();
 
-            files = await Service.GetListOfFiles("CSSEGISandData",
+            files = await GithubService.GetListOfFiles("CSSEGISandData",
                                                 "COVID-19",
                                                 "csse_covid_19_data/csse_covid_19_daily_reports");
             foreach (DataFile file in files)
@@ -119,13 +126,13 @@ namespace CodeLifter.Covid19.Admin
                 {
                     DateTime fileStart = DateTime.Now;
 
-                    await Service.ParseAndDeleteFile(file);
-                    await Service.SaveEntriesToDataModel(file.FileName);
+                    await GithubService.ParseAndDeleteFile(file);
+                    await GithubService.SaveEntriesToDataModel(file.FileName);
 
                     DateTime fileComplete = DateTime.Now;
                     var elapsed = fileComplete - fileStart;
 
-                    SendSMS($"File {file.FileName} completed in {elapsed.Seconds}");
+                    TwilioService.SendSMS($"File {file.FileName} completed in {elapsed.Seconds}");
                 }
 
                 if (file.FileName == lastFile)
@@ -134,20 +141,7 @@ namespace CodeLifter.Covid19.Admin
                 }
             }
 
-            SendSMS("SUCCESS - UP TO DATE");
-        }
-
-
-        public static void SendSMS(string smsText)
-        {
-            var message = MessageResource.Create(
-                body: smsText,
-                from: new Twilio.Types.PhoneNumber("+12057514753"),
-                to: new Twilio.Types.PhoneNumber("+13603331197")
-            );
-            Console.WriteLine(message.Sid);
-
-            Logger.LogEntry(smsText, Logging.LogLevels.Info);
+            TwilioService.SendSMS("SUCCESS - UP TO DATE");
         }
     }
 }

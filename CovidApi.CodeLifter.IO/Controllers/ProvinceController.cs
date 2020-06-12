@@ -65,13 +65,13 @@ namespace CovidApi.CodeLifter.IO.Controllers
             }
         }
 
-        protected async Task<List<Statistic>> GetTimeSeriesStatistics(DbSet<DataPoint> dbSet, Entity entity)
+        protected async Task<List<Totals>> GetTimeSeriesStatistics(DbSet<DataPoint> dbSet, Entity entity)
         {
             var query = await dbSet.Where(dp => dp.ProvinceId == entity.Id)
                         .GroupBy(dp => dp.SourceFile)
                         .Where(s => s.Count() >= 0)
                         .OrderBy(s => s.Key)
-                        .Select(s => new Statistic()
+                        .Select(s => new Totals()
                         {
                             SourceFile = s.Key,
                             Deaths = (int)s.Sum(x => x.Deaths),

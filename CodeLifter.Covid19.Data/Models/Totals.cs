@@ -2,8 +2,7 @@
 
 namespace CodeLifter.Covid19.Data.Models
 {
-    [NotMapped]
-    public class Statistic
+    public class Totals : Entity
     {
         public int Count { get; set; }
         public int Confirmed { get; set; }
@@ -17,5 +16,14 @@ namespace CodeLifter.Covid19.Data.Models
                 return Confirmed + Deaths + Active + Recovered;
             }
         }
+
+        public int? CountryId { get; set; }
+        public Country Country { get; set; }
+
+        public int? ProvinceId { get; set; }
+        public Province Province { get; set; }
+
+        public int? DistrictId { get; set; }
+        public District District { get; set; }
     }
 }

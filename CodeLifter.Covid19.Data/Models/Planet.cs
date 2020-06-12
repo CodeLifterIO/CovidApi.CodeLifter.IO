@@ -15,10 +15,10 @@ namespace CodeLifter.Covid19.Data.Models
         public long Population { get; set; } = 7594000000;
 
         [NotMapped]
-        public Statistic CurrentData { get; set; }
+        public Totals CurrentData { get; set; }
 
         [NotMapped]
-        public List<Statistic> TimeSeries { get; set; }
+        public List<Totals> TimeSeries { get; set; }
 
         [NotMapped]
         public string CountriesUrl { get { return $"countries"; } }

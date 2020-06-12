@@ -265,7 +265,6 @@ namespace CodeLifter.IO.Github.Services
             dp.Deaths = entry.Deaths;
             dp.Recovered = entry.Recovered;
             dp.Active = entry.Active;
-            dp.CombinedKey = entry.CombinedKey;
             dp.SourceFile = entry.SourceFile.Replace(".csv", "");
 
             GeoCoordinate geo = UpsertGeo(entry);

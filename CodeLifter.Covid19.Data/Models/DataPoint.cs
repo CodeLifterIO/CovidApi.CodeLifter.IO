@@ -12,7 +12,6 @@ namespace CodeLifter.Covid19.Data.Models
         public int? Active { get; set; }
         public double? IncidenceRate { get; set; }
         public double? CaseFatalityRatio { get; set; }
-        public string CombinedKey { get; set; }
         public string SourceFile { get; set; }
 
         public int? CountryId { get; set; }

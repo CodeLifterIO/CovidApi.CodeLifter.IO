@@ -8,37 +8,50 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Twilio;
+using Twilio.Rest.Api.V2010.Account;
 
 namespace CodeLifter.Covid19.Admin
 {
     class Program
     {
+
         public const string GithubFolderPath = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/";
         
         public static ILogger Logger => new ConsoleLogger();
         
         
-        protected static GithubService _service { get; private set; }
-        public static GithubService Service
+        private static GithubService _githubService { get; set; }
+        public static GithubService GithubService
         {
             get
             {
-                if (_service == null)
-                    _service = new GithubService(Environment.GetEnvironmentVariable("GITHUB_AUTH_TOKEN"));
+                if (_githubService == null)
+                    _githubService = new GithubService(Environment.GetEnvironmentVariable("GITHUB_AUTH_TOKEN"));
 
-                return _service;
+                return _githubService;
             }
         }
 
+        private static TwilioService _twilioService { get; set; }
+        public static TwilioService TwilioService
+        {
+            get
+            {
+                if(_twilioService == null)
+                {
+                    _twilioService = new TwilioService(Logger);
+                }
+                return _twilioService;
+            }
+        }
+
+
         static void Main(string[] args)
         {
-            string[] adminArgs = Environment.GetEnvironmentVariable("ADMIN_ARGS").Split(" ");
-            if(adminArgs != null)
-            {
-                args = adminArgs;
-            }
-            
-            Logger.LogEntry("******* STARTING UP ******", Logging.LogLevels.Info);
+            Environment.GetEnvironmentVariable("ADMIN_ARGS");
+
+            TwilioService.SendSMS($"******* CODELIFTER:API Starting *******");
 
             if (args.Length == 1 && args[0] == "-a")
             {
@@ -75,8 +88,8 @@ namespace CodeLifter.Covid19.Admin
             string downloadUrl = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/" + fileName;
             try
             {
-                await Service.ParseAndDeleteFile(downloadUrl, fileName);
-                await Service.SaveEntriesToDataModel(fileName);
+                await GithubService.ParseAndDeleteFile(downloadUrl, fileName);
+                await GithubService.SaveEntriesToDataModel(fileName);
             }
             catch
             {
@@ -86,38 +99,40 @@ namespace CodeLifter.Covid19.Admin
         }
 
 
-        public static async Task DownloadAllFiles(string startFile = null)
+        public static async Task DownloadAllFiles()
         {
             bool isStarted = false;
-            
+            isStarted = true;
             string lastFile = "";
-            using (var context = new CovidContext())
-            {
-                List<DataCollectionStatistic> startFileStat = await context.DataCollectionStatistics.ToListAsync();
-                lastFile = startFileStat?.Last()?.FileName;
-            }
+            //using (var context = new CovidContext())
+            //{
+            //    List<DataCollectionStatistic> startFileStat = await context.DataCollectionStatistics.ToListAsync();
+            //    lastFile = startFileStat?.Last()?.FileName;
+            //}
 
-            if (string.IsNullOrWhiteSpace(startFile) && string.IsNullOrWhiteSpace(lastFile))
-            {
-                isStarted = true;
-            }
+            //if (string.IsNullOrWhiteSpace(startFile) && string.IsNullOrWhiteSpace(lastFile))
+            //{
+            //    isStarted = true;
+            //}
 
             List<DataFile> files = new List<DataFile>();
 
-            files = await Service.GetListOfFiles("CSSEGISandData",
+            files = await GithubService.GetListOfFiles("CSSEGISandData",
                                                 "COVID-19",
                                                 "csse_covid_19_data/csse_covid_19_daily_reports");
             foreach (DataFile file in files)
             {
-                if (file.FileName == startFile)
-                {
-                    isStarted = true;
-                }
-
                 if (isStarted == true)
                 {
-                    await Service.ParseAndDeleteFile(file);
-                    await Service.SaveEntriesToDataModel(file.FileName);
+                    DateTime fileStart = DateTime.Now;
+
+                    await GithubService.ParseAndDeleteFile(file);
+                    await GithubService.SaveEntriesToDataModel(file.FileName);
+
+                    DateTime fileComplete = DateTime.Now;
+                    var elapsed = fileComplete - fileStart;
+
+                    TwilioService.SendSMS($"File {file.FileName} completed in {elapsed.Seconds}");
                 }
 
                 if (file.FileName == lastFile)
@@ -125,8 +140,8 @@ namespace CodeLifter.Covid19.Admin
                     isStarted = true;
                 }
             }
-            
-            Logger.LogEntry("SUCCESS - UP TO DATE", Logging.LogLevels.Info);
+
+            TwilioService.SendSMS("SUCCESS - UP TO DATE");
         }
     }
 }

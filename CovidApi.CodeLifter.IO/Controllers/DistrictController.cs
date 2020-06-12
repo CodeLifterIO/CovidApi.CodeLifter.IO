@@ -15,7 +15,7 @@ namespace CovidApi.CodeLifter.IO.Controllers
     {
         [HttpGet]
         [Route("[controller]/{slug}")]
-        public async Task<IActionResult> Data(string slug)
+        public async Task<IActionResult> District(string slug)
         {
             using (var context = new CovidContext())
             {

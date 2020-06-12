@@ -1,0 +1,22 @@
+﻿  covidapi-codelifter-functions:
+    container_name: covidapi-codelifter-functions
+    image: mcr.microsoft.com/azure-functions/dotnet:3.0
+    build:
+      context: .
+      dockerfile: CodeLifter.IO.CovidApi.Functions/Dockerfile
+    networks:
+      - covidapinet
+    ports:
+      - "8080:80"
+      - "8443:443"
+    depends_on:
+      - covidapi-codelifter-data
+      - covidapi-codelifter-redis
+    environment:
+      SQLSERVER_DATASOURCE: ${SQLSERVER_DATASOURCE}
+      SQLSERVER_CATALOG: ${SQLSERVER_CATALOG}
+      SQLSERVER_USER_ID: ${SQLSERVER_USER_ID}
+      SQLSERVER_USER_PASSWORD: ${SQLSERVER_USER_PASSWORD}
+    links:
+      - covidapi-codelifter-data
+      - covidapi-codelifter-redis

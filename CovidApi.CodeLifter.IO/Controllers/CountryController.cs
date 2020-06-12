@@ -67,7 +67,7 @@ namespace CovidApi.CodeLifter.IO.Controllers
 
         [HttpGet]
         [Route("[controller]/{slug}")]
-        public async Task<IActionResult> Data([FromRoute]string slug)
+        public async Task<IActionResult> Country([FromRoute]string slug)
         {
             Country country = null;
             using (var context = new CovidContext())

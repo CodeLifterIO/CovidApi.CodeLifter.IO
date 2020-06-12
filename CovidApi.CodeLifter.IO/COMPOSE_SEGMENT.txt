@@ -1,0 +1,21 @@
+﻿  covidapi.codelifter.io:
+    container_name: covidapi-codelifter-io
+    image: codelifterio/covidapi-codelifter-io
+    build:
+      context: .
+      dockerfile: CovidApi.CodeLifter.IO/Dockerfile
+    networks:
+      - covidapinet
+    ports:
+      - "6680:80"
+      - "6666:443"
+    depends_on:
+      - covidapi-codelifter-data
+      - covidapi-codelifter-redis
+    environment:
+      SQLSERVER_DATASOURCE: ${SQLSERVER_DATASOURCE}
+      SQLSERVER_CATALOG: ${SQLSERVER_CATALOG}
+      SQLSERVER_USER_ID: ${SQLSERVER_USER_ID}
+      SQLSERVER_USER_PASSWORD: ${SQLSERVER_USER_PASSWORD}
+    links:
+      - covidapi-codelifter-data

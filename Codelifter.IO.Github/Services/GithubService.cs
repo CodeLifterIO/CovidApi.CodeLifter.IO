@@ -1,18 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Codelifter.IO.Github.Services;
+using CodeLifter.Covid19.Data;
 using CodeLifter.Covid19.Data.Models;
 using CodeLifter.IO.Github.Models;
 using CodeLifter.Logging;
 using CodeLifter.Logging.Loggers;
+using Microsoft.EntityFrameworkCore;
 using Octokit;
 
 namespace CodeLifter.IO.Github.Services
 {
     public class GithubService
     {
+        public const string GithubFolderPath = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/";
         private const string ProductHeaderValue = "CodeLifter-Covid-Parser";
         private LogRunner Log;
         private GitHubClient Client { get; set; }
@@ -53,21 +58,70 @@ namespace CodeLifter.IO.Github.Services
             }
         }
 
-        public async Task<ApiLimitReport> ReportAPILimits()
+        public async Task DownloadAllFiles(string startFile = null)
         {
-            ApiLimitReport report = new ApiLimitReport();
+            TwilioService twilioService = new TwilioService();
 
-            var miscellaneousRateLimit = await Client.Miscellaneous.GetRateLimits();
+            bool isStarted = false;
 
-            //  The "core" object provides your rate limit status except for the Search API.
-            var coreRateLimit = miscellaneousRateLimit.Resources.Core;
+            string lastFile = "";
+            using (var context = new CovidContext())
+            {
+                List<DataCollectionStatistic> startFileStat = await context.DataCollectionStatistics.ToListAsync();
+                lastFile = startFileStat?.Last()?.FileName;
+            }
 
-            report.RequestsPerHour = coreRateLimit.Limit;
-            report.RemainingRequests = coreRateLimit.Remaining;
-            report.LimitResetTime = coreRateLimit.Reset; // UTC time
+            if (string.IsNullOrWhiteSpace(startFile) && string.IsNullOrWhiteSpace(lastFile))
+            {
+                isStarted = true;
+            }
 
-            return report;
+            List<DataFile> files = new List<DataFile>();
+
+            files = await GetListOfFiles("CSSEGISandData",
+                                                "COVID-19",
+                                                "csse_covid_19_data/csse_covid_19_daily_reports");
+            foreach (DataFile file in files)
+            {
+                if (file.FileName == startFile)
+                {
+                    isStarted = true;
+                }
+
+                if (isStarted == true)
+                {
+                    DateTime startTime = DateTime.Now;
+                    await ParseAndDeleteFile(file);
+                    await SaveEntriesToDataModel(file.FileName);
+                    DateTime fileComplete = DateTime.Now;
+                    var elapsed = fileComplete - startTime;
+                    twilioService.SendSMS($"COVIDAP -> File {file.FileName}. Records:{Entries.Count} Completed in {elapsed.Minutes}:{elapsed.Seconds}");
+                    Entries.Clear();
+                }
+
+                if (file.FileName == lastFile)
+                {
+                    isStarted = true;
+                }
+            }
+            twilioService.SendSMS("COVIDAP -> SUCCESS - UP TO DATE");
         }
+
+        // public async Task<ApiLimitReport> ReportAPILimits()
+        // {
+        //     ApiLimitReport report = new ApiLimitReport();
+
+        //     var miscellaneousRateLimit = await Client.Miscellaneous.GetRateLimits();
+
+        //     //  The "core" object provides your rate limit status except for the Search API.
+        //     var coreRateLimit = miscellaneousRateLimit.Resources.Core;
+
+        //     report.RequestsPerHour = coreRateLimit.Limit;
+        //     report.RemainingRequests = coreRateLimit.Remaining;
+        //     report.LimitResetTime = coreRateLimit.Reset; // UTC time
+
+        //     return report;
+        // }
 
         public async Task<List<DataFile>> GetListOfFiles(string repoOwner, string repoName, string folderPath)
         {
@@ -249,7 +303,6 @@ namespace CodeLifter.IO.Github.Services
             stat.LastRunCompleted = DateTime.Now;
             stat.RecordsProcessed = i;
             Entity.Update(stat);
-            Entries.Clear();
 
             ///STored Procedure work 
             StoredProcedure.SummarizeEntities();
@@ -370,3 +423,4 @@ namespace CodeLifter.IO.Github.Services
         }
     }
 }
+

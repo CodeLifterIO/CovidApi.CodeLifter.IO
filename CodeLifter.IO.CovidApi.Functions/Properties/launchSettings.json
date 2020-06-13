@@ -1,7 +1,11 @@
 {
   "profiles": {
     "CodeLifter.IO.CovidApi.Functions": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "environmentVariables": {
+        "TWILIO_AUTH_TOKEN": "c84b2198ae855a7fc53dc305325fc6d1",
+        "TWILIO_ACCOUNT_SID": "ACf88381998d155e9618b0ec6566a77401"
+      }
     },
     "Docker": {
       "commandName": "Docker",

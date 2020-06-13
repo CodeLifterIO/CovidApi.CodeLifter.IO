@@ -14,87 +14,87 @@ namespace CovidApi.CodeLifter.IO.Controllers
 {
     public class CountryController : BaseController
     {
-        //    [HttpGet]
-        //    [Route("[controller]/{slug}/[action]")]
-        //    public async Task<IActionResult> Provinces([FromRoute]string slug, [FromQuery]string searchTerm = "")
-        //    {
-        //        Country country = null;
-        //        using (var context = new CovidContext())
-        //        {
-        //            country = await context.Countries
-        //                .Where(c => c.Slug == slug)
-        //                .Include(c => c.GeoCoordinate)
-        //                .FirstOrDefaultAsync();
+        [HttpGet]
+        [Route("[controller]/{slug}/[action]")]
+        public async Task<IActionResult> Provinces([FromRoute] string slug, [FromQuery] string searchTerm = "")
+        {
+            Country country = null;
+            using (var context = new CovidContext())
+            {
+                country = await context.Countries
+                    .Where(c => c.Slug == slug)
+                    .Include(c => c.GeoCoordinate)
+                    .FirstOrDefaultAsync();
 
-        //            var query = from dp in context.Set<DataPoint>()
-        //                        where dp.CountryId == country.Id
-        //                        group dp by dp.SourceFile into s
-        //                        where s.Count() > 0
-        //                        orderby s.Key
-        //                        select new Statistic()
-        //                        {
-        //                            SourceFile = s.Key,
-        //                            Deaths = (int)s.Sum(x => x.Deaths),
-        //                            Confirmed = (int)s.Sum(x => x.Deaths),
-        //                            Recovered = (int)s.Sum(x => x.Deaths),
-        //                            Active = (int)s.Sum(x => x.Active),
-        //                            Count = s.Count()
-        //                        };
-        //        }
+                var query = from dp in context.Set<DataPoint>()
+                            where dp.CountryId == country.Id
+                            group dp by dp.SourceFile into s
+                            where s.Count() > 0
+                            orderby s.Key
+                            select new Totals()
+                            {
+                                SourceFile = s.Key,
+                                Deaths = (int)s.Sum(x => x.Deaths),
+                                Confirmed = (int)s.Sum(x => x.Deaths),
+                                Recovered = (int)s.Sum(x => x.Deaths),
+                                Active = (int)s.Sum(x => x.Active),
+                                Count = s.Count()
+                            };
+            }
 
-        //        List<Province> provinces = null;
-        //        if (null != country)
-        //        {
-        //            using (var context = new CovidContext())
-        //            {
-        //                var query = context.Provinces
-        //                    .Where(p => p.CountryId == country.Id);
+            List<Province> provinces = null;
+            if (null != country)
+            {
+                using (var context = new CovidContext())
+                {
+                    var query = context.Provinces
+                        .Where(p => p.CountryId == country.Id);
 
-        //                if(!string.IsNullOrWhiteSpace(searchTerm))
-        //                {
-        //                    query = query.Where(p => p.Name.Contains(searchTerm) || p.Slug.Contains(searchTerm));
-        //                }
+                    if (!string.IsNullOrWhiteSpace(searchTerm))
+                    {
+                        query = query.Where(p => p.Name.Contains(searchTerm) || p.Slug.Contains(searchTerm));
+                    }
 
-        //                provinces = await query.Include(p => p.Country)
-        //                    .Include(p => p.GeoCoordinate)
-        //                    .ToListAsync();
-        //            }
-        //        }
+                    provinces = await query.Include(p => p.Country)
+                        .Include(p => p.GeoCoordinate)
+                        .ToListAsync();
+                }
+            }
 
-        //        return new OkObjectResult(provinces);
-        //    }
-
-
-        //    [HttpGet]
-        //    [Route("[controller]/{slug}")]
-        //    public async Task<IActionResult> Data([FromRoute]string slug)
-        //    {
-        //        Country country = null;
-        //        using (var context = new CovidContext())
-        //        {
-        //            country = await context.Countries
-        //                .Where(c => c.Slug == slug)
-        //                .Include(c => c.GeoCoordinate)
-        //                .FirstOrDefaultAsync();
+            return new OkObjectResult(provinces);
+        }
 
 
-        //            var query = from dp in context.Set<DataPoint>()
-        //                        where dp.CountryId == country.Id
-        //                        group dp by dp.SourceFile into s
-        //                        where s.Count() > 0
-        //                        orderby s.Key
-        //                        select new Statistic()
-        //                        {
-        //                            SourceFile = s.Key,
-        //                            Deaths = (int)s.Sum(x => x.Deaths),
-        //                            Confirmed = (int)s.Sum(x => x.Deaths),
-        //                            Recovered = (int)s.Sum(x => x.Deaths),
-        //                            Active = (int)s.Sum(x => x.Active),
-        //                            Count = s.Count()
-        //                        };
-        //            country.TimeSeries = query.ToList();
-        //            return new OkObjectResult(country);
-        //        }
-        //    }
+        [HttpGet]
+        [Route("[controller]/{slug}")]
+        public async Task<IActionResult> Data([FromRoute] string slug)
+        {
+            Country country = null;
+            using (var context = new CovidContext())
+            {
+                country = await context.Countries
+                    .Where(c => c.Slug == slug)
+                    .Include(c => c.GeoCoordinate)
+                    .FirstOrDefaultAsync();
+
+
+                var query = from dp in context.Set<DataPoint>()
+                            where dp.CountryId == country.Id
+                            group dp by dp.SourceFile into s
+                            where s.Count() > 0
+                            orderby s.Key
+                            select new Totals()
+                            {
+                                SourceFile = s.Key,
+                                Deaths = (int)s.Sum(x => x.Deaths),
+                                Confirmed = (int)s.Sum(x => x.Deaths),
+                                Recovered = (int)s.Sum(x => x.Deaths),
+                                Active = (int)s.Sum(x => x.Active),
+                                Count = s.Count()
+                            };
+                country.TimeSeries = query.ToList();
+                return new OkObjectResult(country);
+            }
+        }
     }
 }

@@ -13,6 +13,8 @@
       - covidapi-codelifter-data
       - covidapi-codelifter-redis
     environment:
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN}
       SQLSERVER_DATASOURCE: ${SQLSERVER_DATASOURCE}
       SQLSERVER_CATALOG: ${SQLSERVER_CATALOG}
       SQLSERVER_USER_ID: ${SQLSERVER_USER_ID}

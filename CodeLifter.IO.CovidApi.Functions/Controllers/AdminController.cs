@@ -21,7 +21,7 @@ namespace CodeLifter.IO.CovidApi.Functions.Controllers
         }
 
         [FunctionName("AdminController")]
-        public static async Task Run([TimerTrigger("0 0 */1 * * *")] TimerInfo myTimer, ILogger log)  //every two hours
+        public static async Task Run([TimerTrigger("0 0 14-22 * * *")] TimerInfo myTimer, ILogger log)  //every two hours
         {
             await Service.DownloadAllFiles();
         }

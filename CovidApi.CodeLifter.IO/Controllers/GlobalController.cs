@@ -22,7 +22,7 @@ namespace CovidApi.CodeLifter.IO.Controllers
                               group dp by dp.SourceFile into s
                               where s.Count() > 0
                               orderby s.Key
-                              select new Totals()
+                              select new Total()
                               {
                                   SourceFile = s.Key,
                                   Deaths = (int)s.Sum(x => x.Deaths),

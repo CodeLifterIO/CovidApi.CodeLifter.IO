@@ -1,0 +1,58 @@
+version: '3.6'
+
+services:
+
+  covidapi.codelifter.io:
+    container_name: "${ENVIRONMENT}-covidapi-codelifter-io"
+    image: codelifterio/covidapi-codelifter-io
+    build:
+      context: .
+      dockerfile: CovidApi.CodeLifter.IO/Dockerfile
+    networks:
+      - covidapinet
+    ports:
+      - "5000:5000"
+      - "5001:5001"
+    depends_on:
+      - covidapi-codelifter-data
+    env_file: 
+      - ./Docker/ENV/dev.env
+    links:
+      - covidapi-codelifter-data
+
+  covidapi-codelifter-functions:
+    container_name: "${ENVIRONMENT}-covidapi-codelifter-functions"
+    image: mcr.microsoft.com/azure-functions/dotnet:3.0
+    build:
+      context: .
+      dockerfile: CodeLifter.IO.CovidApi.Functions/Dockerfile
+    ports:
+      - "8080:80"
+      - "8443:443"
+    depends_on:
+      - covidapi-codelifter-data
+    env_file: 
+      - ./Docker/ENV/dev.env
+    links:
+      - covidapi-codelifter-data
+
+  covidapi-codelifter-data:
+    container_name: "${ENVIRONMENT}-covidapi-codelifter-data"
+    image: codelifterio/covidapi-codelifter-data
+    networks:
+      - covidapinet
+    ports:
+      - "1431:1433"
+    volumes:
+      - mssql-data:/var/opt/mssql
+    env_file: 
+      - ./Docker/ENV/dev.env
+    environment:
+      ACCEPT_EULA: "Y"
+
+volumes:
+  mssql-data:
+
+networks:
+  covidapinet: 
+    name: covidapinet

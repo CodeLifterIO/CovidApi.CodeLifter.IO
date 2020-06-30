@@ -14,7 +14,7 @@
 
 								DECLARE @sourceFile varchar(14);
 								SELECT @sourceFile = (SELECT TOP (1) FileName
-													  FROM [Covid19].[dbo].[DataCollectionStatistics]
+													  FROM [Covid19].[dbo].[JHDataFiles]
 													  ORDER BY Id DESC);
 
                                 DECLARE @fullPath varchar(100);

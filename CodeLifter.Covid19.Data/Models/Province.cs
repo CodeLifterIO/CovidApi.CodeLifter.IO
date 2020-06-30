@@ -1,105 +1,72 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text.Json.Serialization;
-
+using System.Threading.Tasks;
+using CodeLifter.Covid19.Data.Models.BaseEntities;
+using Microsoft.EntityFrameworkCore;
 using Slugify;
 
 namespace CodeLifter.Covid19.Data.Models
 {
-    public class Province : Entity
+    public class Province : SluggableEntity
     {
-        [JsonIgnore]
-        public int? CountryId { get; set; }
-        [JsonIgnore]
-        public Country Country { get; set; }
+        public Province() { }
+        public Province(string name)
+        {
+            Name = name;
+            SlugHelper slugger = new SlugHelper();
+            SlugId = slugger.GenerateSlug(Name);
+        }
 
-        [JsonIgnore]
-        public List<District> Districts { get; } = new List<District>();
-
-        public string Name { get; set; }
-        public string Slug { get; set; }
-
-        [JsonIgnore]
+        public string CountrySlugId { get; set; }
+        //public Country Country { get; set; }
         public int? GeoCoordinateId { get; set; }
-        public GeoCoordinate GeoCoordinate {get; set;}
-
-        [NotMapped]
-        public string CountryUrl
-        {
-            get
-            {
-                return (null != Country?.Slug) ? $"country/{Country.Slug}" : null;
-            }
-        }
-        //[NotMapped]
-        //public string TotalsUrl
-        //{
-        //    get { return $"province/{Slug}"; }
-        //}
-
-        [NotMapped]
-        public string DistrictsUrl
-        {
-            get { return $"province/{Slug}/districts"; }
-        }
-
-        [NotMapped]
-        public string TimeSeriesUrl
-        {
-            get { return $"province/{Slug}/timeseries"; }
-        }
+        public GeoCoordinate GeoCoordinate { get; set; }
 
         //[NotMapped]
-        //public Statistic CurrentData { get; set; }
+        //public Total CurrentData { get; set; }
 
-        [NotMapped]
-        public List<Totals> TimeSeries { get; set; }
+        //[NotMapped]
+        //public List<Total> TimeSeries { get; set; }
 
-
-        public static Province Find(Province entity)
+        public static Province Find(string slug)
         {
             using (var context = new CovidContext())
             {
-                // Province province = context.Provinces.Find(entity);
-                // if(null != province) return province;
-
-                return context.Provinces
-                    .Where(p => p.Name == entity.Name || p.Slug == entity.Slug)
-                    .FirstOrDefault();
+                return Find(slug, context);
             }
         }
 
-        public static Province Upsert(Province entity)
+        public static Province Find(string slug, CovidContext context)
         {
-            if(null == entity)
-            {
-                return null;
-            }
-            else if(string.IsNullOrWhiteSpace(entity.Name))
-            {
-                return null;
-            }
-            else if(string.IsNullOrWhiteSpace(entity.Slug))
-            {
-                SlugHelper slugger = new SlugHelper();
-                entity.Slug = slugger.GenerateSlug(entity.Name);
-            }
+            return context.Provinces
+                .Where(c => c.SlugId == slug)
+                .FirstOrDefault();
+        }
 
-            Province province = Find(entity);
-
-            if(null == province)
+        public static Province Upsert(Province newProvince)
+        {
+            using (var context = new CovidContext())
             {
-                Insert(entity);
-                return entity;
+                return Upsert(newProvince, context);
             }
-            else
-            {
-                Province.ShallowCopy(province, entity);
-                Update(province);
-            }
+        }
 
-            return province;
+        public static Province Upsert(Province newProvince, CovidContext context)
+        {
+            int result = context.Provinces.Upsert(newProvince)
+               .On(e => e.SlugId)
+               .WhenMatched((eDB, eIn) => new Province
+               {
+                   Name = newProvince.Name,
+                   UpdatedAt = DateTime.UtcNow,
+                   GeoCoordinateId = newProvince.GeoCoordinateId,
+                   CountrySlugId = newProvince.CountrySlugId
+               })
+               .Run();
+            return Find(newProvince.SlugId);
         }
     }
 }

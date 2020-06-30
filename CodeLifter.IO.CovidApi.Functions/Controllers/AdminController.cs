@@ -20,8 +20,11 @@ namespace CodeLifter.IO.CovidApi.Functions.Controllers
             }
         }
 
+        //("0 0 21 15 * *")
+        //("0 15 20-21 * * *")  
         [FunctionName("AdminController")]
-        public static async Task Run([TimerTrigger("0 0 14-22 * * *")] TimerInfo myTimer, ILogger log)  //every two hours
+        //public static async Task Run([TimerTrigger("0 0 8 * * *")] TimerInfo myTimer, ILogger log)  //every two hours
+        public static async Task Run([TimerTrigger("0 0 */1 * * *", RunOnStartup = true)] TimerInfo myTimer, ILogger log)  //every two hours
         {
             await Service.DownloadAllFiles();
         }

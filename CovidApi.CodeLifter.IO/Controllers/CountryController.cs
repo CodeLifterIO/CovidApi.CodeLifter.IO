@@ -22,16 +22,16 @@ namespace CovidApi.CodeLifter.IO.Controllers
             using (var context = new CovidContext())
             {
                 country = await context.Countries
-                    .Where(c => c.Slug == slug)
+                    .Where(c => c.SlugId == slug)
                     .Include(c => c.GeoCoordinate)
                     .FirstOrDefaultAsync();
 
                 var query = from dp in context.Set<DataPoint>()
-                            where dp.CountryId == country.Id
+                            where dp.CountrySlugId == country.SlugId
                             group dp by dp.SourceFile into s
                             where s.Count() > 0
                             orderby s.Key
-                            select new Totals()
+                            select new Total()
                             {
                                 SourceFile = s.Key,
                                 Deaths = (int)s.Sum(x => x.Deaths),
@@ -48,14 +48,15 @@ namespace CovidApi.CodeLifter.IO.Controllers
                 using (var context = new CovidContext())
                 {
                     var query = context.Provinces
-                        .Where(p => p.CountryId == country.Id);
+                        .Where(p => p.CountrySlugId == country.SlugId);
 
                     if (!string.IsNullOrWhiteSpace(searchTerm))
                     {
-                        query = query.Where(p => p.Name.Contains(searchTerm) || p.Slug.Contains(searchTerm));
+                        query = query.Where(p => p.Name.Contains(searchTerm) || p.SlugId.Contains(searchTerm));
                     }
 
-                    provinces = await query.Include(p => p.Country)
+                    provinces = await query
+                        //.Include(p => p.Country)
                         .Include(p => p.GeoCoordinate)
                         .ToListAsync();
                 }
@@ -73,17 +74,17 @@ namespace CovidApi.CodeLifter.IO.Controllers
             using (var context = new CovidContext())
             {
                 country = await context.Countries
-                    .Where(c => c.Slug == slug)
+                    .Where(c => c.SlugId == slug)
                     .Include(c => c.GeoCoordinate)
                     .FirstOrDefaultAsync();
 
 
                 var query = from dp in context.Set<DataPoint>()
-                            where dp.CountryId == country.Id
+                            where dp.CountrySlugId == country.SlugId
                             group dp by dp.SourceFile into s
                             where s.Count() > 0
                             orderby s.Key
-                            select new Totals()
+                            select new Total()
                             {
                                 SourceFile = s.Key,
                                 Deaths = (int)s.Sum(x => x.Deaths),
@@ -92,7 +93,7 @@ namespace CovidApi.CodeLifter.IO.Controllers
                                 Active = (int)s.Sum(x => x.Active),
                                 Count = s.Count()
                             };
-                country.TimeSeries = query.ToList();
+                //country.TimeSeries = query.ToList();
                 return new OkObjectResult(country);
             }
         }

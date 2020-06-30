@@ -20,18 +20,18 @@ namespace CovidApi.CodeLifter.IO.Controllers
             using (var context = new CovidContext())
             {
                 District district = await context.Districts
-                    .Where(d => d.Slug == slug)
+                    .Where(d => d.SlugId == slug)
                     .Include(d => d.GeoCoordinate)
                     //.Include(d => d.TimeSeries)
                     .FirstOrDefaultAsync();
 
 
                 var query = from dp in context.Set<DataPoint>()
-                            where dp.DistrictId == district.Id
+                            where dp.DistrictSlugId == district.SlugId
                             group dp by dp.SourceFile into s
                             where s.Count() > 0
                             orderby s.Key
-                            select new Totals()
+                            select new Total()
                             {
                                 SourceFile = s.Key,
                                 Deaths = (int)s.Sum(x => x.Deaths),

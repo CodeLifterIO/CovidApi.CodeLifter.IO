@@ -39,6 +39,7 @@ namespace CodeLifter.IO.CovidApi.Functions
             using (var context = new CovidContext())
             {
                 context.Database.Migrate();
+                Console.Out.WriteLine("*** DB Migrated ***");
             }
 
             //builder.AddSwashBuckle(Assembly.GetExecutingAssembly());

@@ -20,12 +20,14 @@ namespace CodeLifter.Covid19.Data.Migrations
 
 								DECLARE @sourceFile varchar(10);
 								SELECT @sourceFile = (SELECT TOP (1) REPLACE([FileName], '.csv', '') 
-													  FROM [Covid19].[dbo].[DataCollectionStatistics]
+													  FROM [Covid19].[dbo].[JHDataFiles]
 													  ORDER BY Id DESC);
 
-								INSERT INTO Totals (CountryId, Count, Confirmed, Deaths, Recovered, Active, SourceFile)
+                                DELETE FROM Totals WHERE SourceFile = @sourceFile AND CountrySlugId != null;
+
+								INSERT INTO Totals (CountrySlugId, Count, Confirmed, Deaths, Recovered, Active, SourceFile)
 								SELECT	
-									dp.CountryId AS CountryId,
+									dp.CountrySlugId AS CountrySlugId,
 									COUNT(*) AS Count,
 									SUM(dp.Confirmed) AS Confirmed,
                                     SUM(dp.Deaths) AS Deaths,
@@ -34,7 +36,7 @@ namespace CodeLifter.Covid19.Data.Migrations
 									dp.SourceFile AS SourceFile
                                 FROM dbo.DataPoints dp
                                 WHERE dp.SourceFile = @sourceFile
-                                GROUP BY dp.CountryId, dp.SourceFile
+                                GROUP BY dp.CountrySlugId, dp.SourceFile
 
                                 END
                                 GO
@@ -54,12 +56,14 @@ namespace CodeLifter.Covid19.Data.Migrations
 
 								DECLARE @sourceFile varchar(10);
 								SELECT @sourceFile = (SELECT TOP (1) REPLACE([FileName], '.csv', '') 
-													  FROM [Covid19].[dbo].[DataCollectionStatistics]
+													  FROM [Covid19].[dbo].[JHDataFiles]
 													  ORDER BY Id DESC);
 
-								INSERT INTO Totals (ProvinceId, Count, Confirmed, Deaths, Recovered, Active, SourceFile)
+                                DELETE FROM Totals WHERE SourceFile = @sourceFile AND ProvinceSlugId != null;
+
+								INSERT INTO Totals (ProvinceSlugId, Count, Confirmed, Deaths, Recovered, Active, SourceFile)
 								SELECT	
-									dp.ProvinceId AS CountryId,
+									dp.SlugId AS ProvinceSlugId,
 									COUNT(*) AS Count,
 									SUM(dp.Confirmed) AS Confirmed,
                                     SUM(dp.Deaths) AS Deaths,
@@ -68,7 +72,7 @@ namespace CodeLifter.Covid19.Data.Migrations
 									dp.SourceFile AS SourceFile
                                 FROM dbo.DataPoints dp
                                 WHERE dp.SourceFile = @sourceFile
-                                GROUP BY dp.ProvinceId, dp.SourceFile
+                                GROUP BY dp.ProvinceSlugId, dp.SourceFile
 
                                 END
                                 GO
@@ -88,12 +92,14 @@ namespace CodeLifter.Covid19.Data.Migrations
 
 								DECLARE @sourceFile varchar(10);
 								SELECT @sourceFile = (SELECT TOP (1) REPLACE([FileName], '.csv', '') 
-													  FROM [Covid19].[dbo].[DataCollectionStatistics]
+													  FROM [Covid19].[dbo].[JHDataFiles]
 													  ORDER BY Id DESC);
 
-								INSERT INTO Totals (DistrictId, Count, Confirmed, Deaths, Recovered, Active, SourceFile)
+                                DELETE FROM Totals WHERE SourceFile = @sourceFile AND DistrictSlugId != null;
+
+								INSERT INTO Totals (DistrictSlugId, Count, Confirmed, Deaths, Recovered, Active, SourceFile)
 								SELECT	
-									dp.DistrictId AS CountryId,
+									dp.DistrictSlugId AS CountrySlugId,
 									COUNT(*) AS Count,
 									SUM(dp.Confirmed) AS Confirmed,
                                     SUM(dp.Deaths) AS Deaths,
@@ -102,7 +108,7 @@ namespace CodeLifter.Covid19.Data.Migrations
 									dp.SourceFile AS SourceFile
                                 FROM dbo.DataPoints dp
                                 WHERE dp.SourceFile = @sourceFile
-                                GROUP BY dp.DistrictId, dp.SourceFile
+                                GROUP BY dp.DistrictSlugId, dp.SourceFile
 
 
                                 END

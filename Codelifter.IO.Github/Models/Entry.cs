@@ -15,6 +15,8 @@ namespace CodeLifter.IO.Github.Models
         public int? Recovered { get; set; }
         public int? Active { get; set; }
         public string CombinedKey { get; set; }
+        public double IncidenceRate { get; set; }
+        public double CaseFatalityRatio { get; set; }
         public string SourceFile { get; set; }
 
         //easy printing

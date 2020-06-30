@@ -21,61 +21,72 @@ namespace CodeLifter.Covid19.Data.Migrations
 
             modelBuilder.Entity("CodeLifter.Covid19.Data.Models.Country", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int?>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<int?>("GeoCoordinateId")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SlugId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("Slug")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("GeoCoordinateId");
+                    b.HasAlternateKey("SlugId");
 
-                    b.HasIndex("Name")
-                        .IsUnique()
-                        .HasFilter("[Name] IS NOT NULL");
+                    b.HasIndex("GeoCoordinateId");
 
                     b.ToTable("Countries");
                 });
 
-            modelBuilder.Entity("CodeLifter.Covid19.Data.Models.DataCollectionStatistic", b =>
+            modelBuilder.Entity("CodeLifter.Covid19.Data.Models.DataFile", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int?>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<bool>("Completed")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("CompletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("FileName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("LastRunCompleted")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("LastRunStarted")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("FileUrl")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("RecordsProcessed")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("Id")
-                        .IsUnique();
-
-                    b.ToTable("DataCollectionStatistics");
+                    b.ToTable("DataFiles");
                 });
 
             modelBuilder.Entity("CodeLifter.Covid19.Data.Models.DataPoint", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int?>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
@@ -86,17 +97,23 @@ namespace CodeLifter.Covid19.Data.Migrations
                     b.Property<double?>("CaseFatalityRatio")
                         .HasColumnType("float");
 
+                    b.Property<string>("CombinedKey")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int?>("Confirmed")
                         .HasColumnType("int");
 
-                    b.Property<int?>("CountryId")
-                        .HasColumnType("int");
+                    b.Property<string>("CountrySlugId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<int?>("Deaths")
                         .HasColumnType("int");
 
-                    b.Property<int?>("DistrictId")
-                        .HasColumnType("int");
+                    b.Property<string>("DistrictSlugId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<double?>("IncidenceRate")
                         .HasColumnType("float");
@@ -104,76 +121,113 @@ namespace CodeLifter.Covid19.Data.Migrations
                     b.Property<DateTime>("LastUpdate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("ProvinceId")
-                        .HasColumnType("int");
+                    b.Property<string>("ProvinceSlugId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int?>("Recovered")
                         .HasColumnType("int");
 
                     b.Property<string>("SourceFile")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CountryId");
-
-                    b.HasIndex("DistrictId");
-
-                    b.HasIndex("ProvinceId");
-
-                    b.HasIndex("LastUpdate", "CountryId", "ProvinceId", "DistrictId")
+                    b.HasIndex("SourceFile", "CountrySlugId", "ProvinceSlugId", "DistrictSlugId")
                         .IsUnique()
-                        .HasFilter("[LastUpdate] IS NOT NULL AND [CountryId] IS NOT NULL");
+                        .HasFilter("[SourceFile] IS NOT NULL AND [CountrySlugId] IS NOT NULL");
 
                     b.ToTable("DataPoints");
                 });
 
-            modelBuilder.Entity("CodeLifter.Covid19.Data.Models.District", b =>
+            modelBuilder.Entity("CodeLifter.Covid19.Data.Models.DataUpdate", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int?>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int?>("CountryId")
+                    b.Property<bool>("Completed")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("CompletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastCompletedFileName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("RecordsProcessed")
                         .HasColumnType("int");
 
+                    b.Property<string>("StartFileName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Id")
+                        .IsUnique();
+
+                    b.ToTable("DataUpdates");
+                });
+
+            modelBuilder.Entity("CodeLifter.Covid19.Data.Models.District", b =>
+                {
+                    b.Property<int?>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("CountrySlugId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("FIPS")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("GeoCoordinateId")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProvinceSlugId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SlugId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int?>("ProvinceId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Slug")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CountryId");
+                    b.HasAlternateKey("SlugId");
 
                     b.HasIndex("GeoCoordinateId");
-
-                    b.HasIndex("ProvinceId");
-
-                    b.HasIndex("FIPS", "Name")
-                        .IsUnique()
-                        .HasFilter("[FIPS] IS NOT NULL AND [Name] IS NOT NULL");
 
                     b.ToTable("Districts");
                 });
 
             modelBuilder.Entity("CodeLifter.Covid19.Data.Models.GeoCoordinate", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int?>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<double?>("Latitude")
                         .HasColumnType("float");
@@ -181,50 +235,55 @@ namespace CodeLifter.Covid19.Data.Migrations
                     b.Property<double?>("Longitude")
                         .HasColumnType("float");
 
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("Latitude", "Longitude")
-                        .IsUnique()
-                        .HasFilter("[Latitude] IS NOT NULL AND [Longitude] IS NOT NULL");
+                    b.HasIndex("Id")
+                        .IsUnique();
 
                     b.ToTable("GeoCoordinates");
                 });
 
             modelBuilder.Entity("CodeLifter.Covid19.Data.Models.Province", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int?>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int?>("CountryId")
-                        .HasColumnType("int");
+                    b.Property<string>("CountrySlugId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<int?>("GeoCoordinateId")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SlugId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("Slug")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CountryId");
+                    b.HasAlternateKey("SlugId");
 
                     b.HasIndex("GeoCoordinateId");
-
-                    b.HasIndex("Name")
-                        .IsUnique()
-                        .HasFilter("[Name] IS NOT NULL");
 
                     b.ToTable("Provinces");
                 });
 
-            modelBuilder.Entity("CodeLifter.Covid19.Data.Models.Totals", b =>
+            modelBuilder.Entity("CodeLifter.Covid19.Data.Models.Total", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int?>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
@@ -238,17 +297,20 @@ namespace CodeLifter.Covid19.Data.Migrations
                     b.Property<int?>("Count")
                         .HasColumnType("int");
 
-                    b.Property<int?>("CountryId")
-                        .HasColumnType("int");
+                    b.Property<string>("CountrySlugId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<int?>("Deaths")
                         .HasColumnType("int");
 
-                    b.Property<int?>("DistrictId")
-                        .HasColumnType("int");
+                    b.Property<string>("DistrictSlugId")
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<int?>("ProvinceId")
-                        .HasColumnType("int");
+                    b.Property<string>("ProvinceSlugId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int?>("Recovered")
                         .HasColumnType("int");
@@ -256,17 +318,14 @@ namespace CodeLifter.Covid19.Data.Migrations
                     b.Property<string>("SourceFile")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("CountryId");
-
-                    b.HasIndex("DistrictId");
-
-                    b.HasIndex("ProvinceId");
-
-                    b.HasIndex("SourceFile", "CountryId", "ProvinceId", "DistrictId")
+                    b.HasIndex("SourceFile", "CountrySlugId", "ProvinceSlugId", "DistrictSlugId")
                         .IsUnique()
-                        .HasFilter("[SourceFile] IS NOT NULL AND [CountryId] IS NOT NULL AND [ProvinceId] IS NOT NULL AND [DistrictId] IS NOT NULL");
+                        .HasFilter("[SourceFile] IS NOT NULL AND [CountrySlugId] IS NOT NULL AND [ProvinceSlugId] IS NOT NULL AND [DistrictSlugId] IS NOT NULL");
 
                     b.ToTable("Totals");
                 });
@@ -278,60 +337,18 @@ namespace CodeLifter.Covid19.Data.Migrations
                         .HasForeignKey("GeoCoordinateId");
                 });
 
-            modelBuilder.Entity("CodeLifter.Covid19.Data.Models.DataPoint", b =>
-                {
-                    b.HasOne("CodeLifter.Covid19.Data.Models.Country", "Country")
-                        .WithMany("DataPoints")
-                        .HasForeignKey("CountryId");
-
-                    b.HasOne("CodeLifter.Covid19.Data.Models.District", "District")
-                        .WithMany()
-                        .HasForeignKey("DistrictId");
-
-                    b.HasOne("CodeLifter.Covid19.Data.Models.Province", "Province")
-                        .WithMany()
-                        .HasForeignKey("ProvinceId");
-                });
-
             modelBuilder.Entity("CodeLifter.Covid19.Data.Models.District", b =>
                 {
-                    b.HasOne("CodeLifter.Covid19.Data.Models.Country", "Country")
-                        .WithMany()
-                        .HasForeignKey("CountryId");
-
                     b.HasOne("CodeLifter.Covid19.Data.Models.GeoCoordinate", "GeoCoordinate")
                         .WithMany()
                         .HasForeignKey("GeoCoordinateId");
-
-                    b.HasOne("CodeLifter.Covid19.Data.Models.Province", "Province")
-                        .WithMany("Districts")
-                        .HasForeignKey("ProvinceId");
                 });
 
             modelBuilder.Entity("CodeLifter.Covid19.Data.Models.Province", b =>
                 {
-                    b.HasOne("CodeLifter.Covid19.Data.Models.Country", "Country")
-                        .WithMany("Provinces")
-                        .HasForeignKey("CountryId");
-
                     b.HasOne("CodeLifter.Covid19.Data.Models.GeoCoordinate", "GeoCoordinate")
                         .WithMany()
                         .HasForeignKey("GeoCoordinateId");
-                });
-
-            modelBuilder.Entity("CodeLifter.Covid19.Data.Models.Totals", b =>
-                {
-                    b.HasOne("CodeLifter.Covid19.Data.Models.Country", "Country")
-                        .WithMany()
-                        .HasForeignKey("CountryId");
-
-                    b.HasOne("CodeLifter.Covid19.Data.Models.District", "District")
-                        .WithMany()
-                        .HasForeignKey("DistrictId");
-
-                    b.HasOne("CodeLifter.Covid19.Data.Models.Province", "Province")
-                        .WithMany()
-                        .HasForeignKey("ProvinceId");
                 });
 #pragma warning restore 612, 618
         }

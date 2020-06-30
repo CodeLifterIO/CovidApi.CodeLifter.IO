@@ -1,4 +1,8 @@
+using CodeLifter.Covid19.Data.Models.BaseEntities;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace CodeLifter.Covid19.Data.Models  
 {
@@ -6,44 +10,45 @@ namespace CodeLifter.Covid19.Data.Models
     {
         public double? Latitude { get; set; }
         public double? Longitude { get; set; }
-
-        public static GeoCoordinate Find(GeoCoordinate entity)
+        
+        public static GeoCoordinate Find(double latitude, double longitude)
         {
-            if(0 != entity.Id)
-                return entity;
-
             using (var context = new CovidContext())
             {
-                return context.GeoCoordinates
-                    .Where(g => g.Latitude == entity.Latitude && g.Longitude == entity.Longitude)
-                    .FirstOrDefault();
+                return Find(latitude, longitude, context);
             }
         }
 
-        public static GeoCoordinate Upsert(GeoCoordinate entity)
+        public static GeoCoordinate Find(double latitude, double longitude, CovidContext context)
         {
-            if(null == entity)
+            return context.GeoCoordinates
+                .Where(geo => geo.Latitude == latitude && geo.Longitude == longitude)
+                .FirstOrDefault();
+        }
+
+        public static GeoCoordinate Upsert(GeoCoordinate newGeo)
+        {
+            using (var context = new CovidContext())
             {
+                return Upsert(newGeo, context);
+            }
+        }
+
+        public static GeoCoordinate Upsert(GeoCoordinate newGeo, CovidContext context)
+        {
+            if (newGeo?.Latitude == null || newGeo?.Longitude == null)
                 return null;
-            }
-            else if(null == entity.Latitude || null == entity.Longitude)
-            {
-                return null;
-            }
 
-            GeoCoordinate geo = Find(entity);
-
-            if(null == geo)
-            {
-                Insert(entity);
-            }
-            else
-            {
-                GeoCoordinate.ShallowCopy(geo, entity);
-                Update(geo);
-            }
-
-            return geo;
+            int result = context.GeoCoordinates.Upsert(newGeo)
+               .On(g => new { g.Latitude, g.Longitude } )
+               .WhenMatched((eDB, eIn) => new GeoCoordinate
+               {
+                   Latitude = newGeo.Latitude,
+                   Longitude = newGeo.Longitude,
+                   UpdatedAt = DateTime.UtcNow,
+               })
+               .Run();
+            return Find((double)newGeo.Latitude, (double)newGeo.Longitude, context);
         }
     }
 }

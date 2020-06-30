@@ -3,8 +3,10 @@
     "CodeLifter.IO.CovidApi.Functions": {
       "commandName": "Project",
       "environmentVariables": {
-        "TWILIO_AUTH_TOKEN": "c84b2198ae855a7fc53dc305325fc6d1",
-        "TWILIO_ACCOUNT_SID": "ACf88381998d155e9618b0ec6566a77401"
+        "SQLSERVER_USER_PASSWORD": "S@berh@gen01SqlServer",
+        "SQLSERVER_USER_ID": "sa",
+        "SQLSERVER_CATALOG": "DevCovid19",
+        "SQLSERVER_DATASOURCE": "10.200.200.100"
       }
     },
     "Docker": {

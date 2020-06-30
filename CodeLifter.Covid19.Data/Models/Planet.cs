@@ -8,17 +8,15 @@ namespace CodeLifter.Covid19.Data.Models
     [NotMapped]
     public class Planet
     {
-        [JsonIgnore]
-        public int Id { get; private set; } = 3;
         public string Name { get; set; } = "Earth";
-        public string Slug { get; set; } = "earth";
+        public string PlanetId { get; set; } = "earth";
         public long Population { get; set; } = 7594000000;
 
         [NotMapped]
-        public Totals CurrentData { get; set; }
+        public Total CurrentData { get; set; }
 
         [NotMapped]
-        public List<Totals> TimeSeries { get; set; }
+        public List<Total> TimeSeries { get; set; }
 
         [NotMapped]
         public string CountriesUrl { get { return $"countries"; } }

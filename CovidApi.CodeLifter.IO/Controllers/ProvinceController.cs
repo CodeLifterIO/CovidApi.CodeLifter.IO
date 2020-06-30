@@ -19,7 +19,7 @@ namespace CovidApi.CodeLifter.IO.Controllers
             using (var context = new CovidContext())
             {
                 province = await context.Provinces
-                    .Where(p => p.Slug == slug)
+                    .Where(p => p.SlugId == slug)
                     .Include(p => p.GeoCoordinate)
                     .Include(p => p.Country)
                     .FirstOrDefaultAsync();
@@ -31,7 +31,7 @@ namespace CovidApi.CodeLifter.IO.Controllers
                 using (var context = new CovidContext())
                 {
                     var query = context.Districts
-                        .Where(p => p.ProvinceId == province.Id);
+                        .Where(p => p.ProvinceSlugId == province.SlugId);
 
                     if (!string.IsNullOrWhiteSpace(searchTerm))
                     {
@@ -55,7 +55,7 @@ namespace CovidApi.CodeLifter.IO.Controllers
             using (var context = new CovidContext())
             {
                 Province province = await context.Provinces
-                    .Where(p => p.Slug == slug)
+                    .Where(p => p.SlugId == slug)
                     .Include(p => p.Country)
                     .Include(p => p.GeoCoordinate)
                     .FirstOrDefaultAsync();
@@ -65,13 +65,13 @@ namespace CovidApi.CodeLifter.IO.Controllers
             }
         }
 
-        protected async Task<List<Totals>> GetTimeSeriesStatistics(DbSet<DataPoint> dbSet, Entity entity)
+        protected async Task<List<Total>> GetTimeSeriesStatistics(DbSet<DataPoint> dbSet, Entity entity)
         {
-            var query = await dbSet.Where(dp => dp.ProvinceId == entity.Id)
+            var query = await dbSet.Where(dp => dp.ProvinceSlugId == entity.Id)
                         .GroupBy(dp => dp.SourceFile)
                         .Where(s => s.Count() >= 0)
                         .OrderBy(s => s.Key)
-                        .Select(s => new Totals()
+                        .Select(s => new Total()
                         {
                             SourceFile = s.Key,
                             Deaths = (int)s.Sum(x => x.Deaths),

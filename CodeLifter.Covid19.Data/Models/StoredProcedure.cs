@@ -14,7 +14,7 @@ namespace CodeLifter.Covid19.Data.Models
         {
             using (var context = new CovidContext())
             {
-                int result = context.Database.ExecuteSqlRaw("EXEC SP_Backup_Database;");
+                //int result = context.Database.ExecuteSqlRaw("EXEC SP_Backup_Database;");
                 //context.StoredProcedures.FromSqlRaw("EXEC SP_Backup_Database;").FirstOrDefaultAsync();
             }
         }
@@ -31,8 +31,7 @@ namespace CodeLifter.Covid19.Data.Models
         {
             using (var context = new CovidContext())
             {
-                int result = context.Database.ExecuteSqlRaw($"EXEC SP_Update_Summary_On_Country;");
-                //context.StoredProcedures.FromSqlRaw("EXEC SP_Update_Summary_On_Country;").FirstOrDefaultAsync();
+                //int result = context.Database.ExecuteSqlRaw($"EXEC SP_Update_Summary_On_Country;");
             }
         }
 
@@ -40,8 +39,7 @@ namespace CodeLifter.Covid19.Data.Models
         {
             using (var context = new CovidContext())
             {
-                int result = context.Database.ExecuteSqlRaw($"EXEC SP_Update_Summary_On_Province;");
-                //context.StoredProcedures.FromSqlRaw("EXEC SP_Update_Summary_On_Province;").FirstOrDefaultAsync();
+                //int result = context.Database.ExecuteSqlRaw($"EXEC SP_Update_Summary_On_Province;");
             }
         }
 
@@ -49,8 +47,7 @@ namespace CodeLifter.Covid19.Data.Models
         {
             using (var context = new CovidContext())
             {
-                int result = context.Database.ExecuteSqlRaw($"EXEC SP_Update_Summary_On_District;");
-                //context.StoredProcedures.FromSqlRaw("EXEC SP_Update_Summary_On_District;").FirstOrDefaultAsync();
+                //int result = context.Database.ExecuteSqlRaw($"EXEC SP_Update_Summary_On_District;");
             }
         }
     }

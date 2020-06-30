@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -12,120 +13,129 @@ using CodeLifter.Logging;
 using CodeLifter.Logging.Loggers;
 using Microsoft.EntityFrameworkCore;
 using Octokit;
+using Slugify;
 
 namespace CodeLifter.IO.Github.Services
 {
+    public class StdOutLogger : ILogger
+    {
+        public void LogEntry(string message, LogLevels level = LogLevels.Trace)
+        {
+            Console.Out.WriteLine(message);
+        }
+    }
+
+
     public class GithubService
     {
+        //github info
         public const string GithubFolderPath = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/";
         private const string ProductHeaderValue = "CodeLifter-Covid-Parser";
+
+        //TODO: Needs cleaned up
+        //services
         private LogRunner Log;
         private GitHubClient Client { get; set; }
         WebClient WebClient { get; set; }
         private IReadOnlyList<RepositoryContent> GlobalDataFileInfos { get; set; }
-        public List<Entry> Entries { get; private set; }
+
+        //Collection Services 
+        DataUpdateService Update { get; set; }
+
+        //Helper tools
+        SlugHelper Slugger => new SlugHelper();
 
         public GithubService(string token, List<Entry> entries = null, LogRunner log = null)
         {
-            if (entries == null)
-            {
-                this.Entries = new List<Entry>();
-            }
-            else
-            {
-                this.Entries = entries;
-            }
-
             if (log == null)
             {
                 Log = new LogRunner();
-                Log.AddLogger(new ConsoleLogger());
+                Log.Loggers.Clear();
             }
             else
             {
                 Log = log;
             }
-            Log.AddLogger(new DebugLogger());
+            Log.AddLogger(new StdOutLogger());
 
             WebClient = new WebClient();
 
             Client = new GitHubClient(new ProductHeaderValue(ProductHeaderValue));
 
+            Update = new DataUpdateService();
+
             if (!string.IsNullOrWhiteSpace(token))
             {
-                var tokenAuth = new Credentials(token); // NOTE: not real token
+                var tokenAuth = new Credentials(token);
                 Client.Credentials = tokenAuth;
+                Log.LogMessage("*** Instantiating Github Service ***");
+            }
+            else if(!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("GITHUB_TOKEN")))
+            {
+                var tokenAuth = new Credentials(Environment.GetEnvironmentVariable("GITHUB_TOKEN")); // NOTE: not real token
+                Client.Credentials = tokenAuth;
+                Log.LogMessage("*** Instantiating Github Service with Auth ***");
             }
         }
 
         public async Task DownloadAllFiles(string startFile = null)
         {
-            TwilioService twilioService = new TwilioService();
-
-            bool isStarted = false;
-
-            string lastFile = "";
-            using (var context = new CovidContext())
+            if (string.IsNullOrEmpty(startFile))
             {
-                List<DataCollectionStatistic> startFileStat = await context.DataCollectionStatistics.ToListAsync();
-                lastFile = startFileStat?.Last()?.FileName;
+                using (var context = new CovidContext())
+                {
+                    var fileList = await context.DataFiles.ToListAsync();
+                    
+                    if(fileList.Count > 0)
+                        startFile = fileList.Last()?.FileName;
+                }
             }
 
-            if (string.IsNullOrWhiteSpace(startFile) && string.IsNullOrWhiteSpace(lastFile))
-            {
-                isStarted = true;
-            }
 
-            List<DataFile> files = new List<DataFile>();
+            List<GithubDataFile> gFiles = new List<GithubDataFile>();
 
-            files = await GetListOfFiles("CSSEGISandData",
+            gFiles = await GetListOfFiles("CSSEGISandData",
                                                 "COVID-19",
                                                 "csse_covid_19_data/csse_covid_19_daily_reports");
-            foreach (DataFile file in files)
+
+            foreach (GithubDataFile gFile in gFiles)
             {
-                if (file.FileName == startFile)
+                if (gFile.FileName == startFile || string.IsNullOrEmpty(startFile))
                 {
-                    isStarted = true;
+                    Update.StartRun(gFile);
                 }
 
-                if (isStarted == true)
+                if (Update.IsStarted == true)
                 {
-                    DateTime startTime = DateTime.Now;
-                    await ParseAndDeleteFile(file);
-                    await SaveEntriesToDataModel(file.FileName);
-                    DateTime fileComplete = DateTime.Now;
-                    var elapsed = fileComplete - startTime;
-                    twilioService.SendSMS($"COVIDAP -> File {file.FileName}. Records:{Entries.Count} Completed in {elapsed.Minutes}:{elapsed.Seconds}");
-                    Entries.Clear();
-                }
-
-                if (file.FileName == lastFile)
-                {
-                    isStarted = true;
+                    Update.StartFile(gFile);
+                    int recordCount = ParseAndDeleteFile(gFile.DownloadUrl, gFile.FileName);
+                    Update.FinishFile(recordCount);
                 }
             }
-            twilioService.SendSMS("COVIDAP -> SUCCESS - UP TO DATE");
+
+            Update.Finish();
+            Log.LogMessage($"COVIDAP -> SUCCESS - UP TO DATE. File: {Update.CurrentUpdateState.LastCompletedFileName}");
         }
 
-        // public async Task<ApiLimitReport> ReportAPILimits()
-        // {
-        //     ApiLimitReport report = new ApiLimitReport();
-
-        //     var miscellaneousRateLimit = await Client.Miscellaneous.GetRateLimits();
-
-        //     //  The "core" object provides your rate limit status except for the Search API.
-        //     var coreRateLimit = miscellaneousRateLimit.Resources.Core;
-
-        //     report.RequestsPerHour = coreRateLimit.Limit;
-        //     report.RemainingRequests = coreRateLimit.Remaining;
-        //     report.LimitResetTime = coreRateLimit.Reset; // UTC time
-
-        //     return report;
-        // }
-
-        public async Task<List<DataFile>> GetListOfFiles(string repoOwner, string repoName, string folderPath)
+        public async Task<ApiLimitReport> ReportAPILimits()
         {
-            List<DataFile> files = new List<DataFile>();
+            ApiLimitReport report = new ApiLimitReport();
+
+            var miscellaneousRateLimit = await Client.Miscellaneous.GetRateLimits();
+
+            //  The "core" object provides your rate limit status except for the Search API.
+            var coreRateLimit = miscellaneousRateLimit.Resources.Core;
+
+            report.RequestsPerHour = coreRateLimit.Limit;
+            report.RemainingRequests = coreRateLimit.Remaining;
+            report.LimitResetTime = coreRateLimit.Reset; // UTC time
+
+            return report;
+        }
+
+        public async Task<List<Models.GithubDataFile>> GetListOfFiles(string repoOwner, string repoName, string folderPath)
+        {
+            List<Models.GithubDataFile> files = new List<Models.GithubDataFile>();
             GlobalDataFileInfos = await Client.Repository
                 .Content
                 .GetAllContents(repoOwner, repoName, folderPath);
@@ -134,7 +144,7 @@ namespace CodeLifter.IO.Github.Services
             {
                 if (rc.Name.EndsWith(".csv"))
                 {
-                    DataFile file = new DataFile()
+                    Models.GithubDataFile file = new Models.GithubDataFile()
                     {
                         FileName = rc.Name,
                         DownloadUrl = rc.DownloadUrl,
@@ -146,18 +156,15 @@ namespace CodeLifter.IO.Github.Services
             return files;
         }
 
-        public async Task ParseAndDeleteFile(DataFile file)
-        {
-            await ParseAndDeleteFile(file.DownloadUrl, file.FileName);
-        }
 
-        public async Task ParseAndDeleteFile(string path, string fileName)
+        public int ParseAndDeleteFile(string path, string fileName)
         {
-            await WebClient.DownloadFileTaskAsync(new Uri(path), fileName);
+            WebClient.DownloadFile(new Uri(path), fileName);
 
             string[] csvRows = File.ReadAllLines(fileName);
             string[] headers = csvRows[0].Replace("/", "")
                                         .Replace("_", "")
+                                        .Replace("-", "")
                                         .Replace(" ", "")
                                         .Split(',');
             for (int i = 1; i < csvRows.Length; i++)
@@ -165,10 +172,14 @@ namespace CodeLifter.IO.Github.Services
                 string[] row = csvRows[i]
                                             .Replace(", ", "/")
                                             .Split(',');
-                Entries.Add(GenerateEntryFromDelimitedFields(fileName, headers, row));
+                GenerateEntryFromDelimitedFields(fileName, headers, row);
+                StoredProcedure.SummarizeEntities();
+                StoredProcedure.GenerateDatabaseBackup();
             }
 
             File.Delete($"{fileName}");
+
+            return csvRows.Length;
         }
 
 
@@ -179,7 +190,7 @@ namespace CodeLifter.IO.Github.Services
         /// <param name="headers"></param>
         /// <param name="row"></param>
         /// <returns></returns>
-        private Entry GenerateEntryFromDelimitedFields(string fileName, string[] headers, string[] row)
+        private void GenerateEntryFromDelimitedFields(string fileName, string[] headers, string[] row)
         {
             if (headers.Length > row.Length)
             {
@@ -189,7 +200,15 @@ namespace CodeLifter.IO.Github.Services
                 row = altRow;
             }
 
-            Entry entry = new Entry();
+            string fips = string.Empty;
+            District district = null;
+            Province province = null;
+            Country country = null;
+            GeoCoordinate geoCoordinate = null;
+            double latitude = 0.0;
+            double longitude = 0.0;
+
+            DataPoint dataPoint = new DataPoint();
 
             for (int i = 0; i < headers.Length; i++)
             {
@@ -198,58 +217,66 @@ namespace CodeLifter.IO.Github.Services
                     switch (headers[i])
                     {
                         case "FIPS":
-                            entry.FIPS = row[i];
+                            fips = row[i];
                             break;
                         case "Admin2":
-                            entry.Admin2 = row[i].Replace("/", ", ");
+                            district = new District(row[i].Replace("/", ", "), fips);
                             break;
                         case "ProvinceState":
-                            if (row[i].Contains('\"'))
+                            string provinceName;
+                            if (row[i] != null && row[i].Contains('\"'))
                             {
                                 string cleanStr = row[i].Replace("\"", "")
                                                         .Replace("/", ",");
                                 string[] splitOnComma = cleanStr.Split(",");
-                                entry.ProvinceState = splitOnComma[1];
-                                entry.Admin2 = splitOnComma[0];
+                                provinceName = splitOnComma[1];
+                                district = new District(splitOnComma[0]);
                             }
                             else
                             {
-                                entry.ProvinceState = row[i];
+                                provinceName = row[i];
                             }
+                            province = new Province(provinceName);
                             break;
                         case "CountryRegion":
-                            entry.CountryRegion = row[i].Replace("/", "")
-                                                        .Replace("\"", "");
+                            country = new Country(row[i].Replace("/", "")
+                                                        .Replace("\"", ""));
                             break;
                         case "LastUpdate":
-                            entry.LastUpdate = DateTime.Parse(fileName.Replace(".csv", ""));
+                            dataPoint.LastUpdate = DateTime.Parse(fileName.Replace(".csv", ""));
                             break;
                         case "Lat":
-                            entry.Lat = ParseDouble(row[i]);
+                            latitude = ParseDouble(row[i]);
                             break;
                         case "Latitude":
-                            entry.Lat = ParseDouble(row[i]);
+                            latitude = ParseDouble(row[i]);
                             break;
                         case "Long":
-                            entry.Long = ParseDouble(row[i]);
+                            longitude = ParseDouble(row[i]);
                             break;
                         case "Longitude":
-                            entry.Long = ParseDouble(row[i]);
+                            longitude = ParseDouble(row[i]);
                             break;
                         case "Confirmed":
-                            entry.Confirmed = ParseInt(row[i]);
+                            dataPoint.Confirmed = ParseInt(row[i]);
                             break;
                         case "Deaths":
-                            entry.Deaths = ParseInt(row[i]);
+                            dataPoint.Deaths = ParseInt(row[i]);
                             break;
                         case "Recovered":
-                            entry.Recovered = ParseInt(row[i]);
+                            dataPoint.Recovered = ParseInt(row[i]);
                             break;
                         case "Active":
-                            entry.Active = ParseInt(row[i]);
+                            dataPoint.Active = ParseInt(row[i]);
                             break;
                         case "CombinedKey":
-                            entry.CombinedKey = row[i];
+                            dataPoint.CombinedKey = row[i];
+                            break;
+                        case "IncidenceRate":
+                            dataPoint.IncidenceRate = ParseDouble(row[i]);
+                            break;
+                        case "CaseFatalityRatio":
+                            dataPoint.CaseFatalityRatio = ParseDouble(row[i]);
                             break;
                         default:
                             Log.LogMessage($"{fileName} - {row[i]} Rows:{row.Length} Headers: {headers.Length}");
@@ -261,8 +288,66 @@ namespace CodeLifter.IO.Github.Services
                     Log.LogMessage(exc.Message, LogLevels.Warning);
                 }
             }
-            entry.SourceFile = fileName;
-            return entry;
+            dataPoint.SourceFile = fileName.Replace(".csv", "");
+            if (latitude != 0.0 && longitude != 0.0) geoCoordinate = new GeoCoordinate() { Latitude = latitude, Longitude = longitude};
+            ProcessDataPoint(dataPoint, geoCoordinate, district, province, country);
+        }
+
+
+
+        public void ProcessDataPoint(DataPoint dp, GeoCoordinate geo, District district,
+                                    Province province, Country country)
+        {
+            using (var context = new CovidContext())
+            {
+
+
+                if (null != geo)
+                {
+                    geo = GeoCoordinate.Upsert(geo, context);
+                    //Update.GeoCoordinates.Add(geo);
+                }
+
+                if (country != null)
+                {
+                    if (district == null && province == null && geo != null)
+                    {
+                        country.GeoCoordinateId = geo.Id;
+                    }
+                    dp.CountrySlugId = country.SlugId;
+                    country = Country.Upsert(country, context);
+                    //Update.Countries.Add(country.SlugId, country);
+                }
+
+                if (province != null)
+                {
+                    province.CountrySlugId = country.SlugId;
+                    if (district == null && geo != null)
+                    {
+                        province.GeoCoordinateId = geo.Id;
+                    }
+                    province.CountrySlugId = country?.SlugId;
+                    dp.ProvinceSlugId = province.SlugId;
+                    province = Province.Upsert(province, context);
+                    //Update.Provinces.Add(province.SlugId, province);
+                }
+
+                if (null != district)
+                {
+                    if (geo != null)
+                    {
+                        district.GeoCoordinateId = geo.Id;
+                    }
+                    district.CountrySlugId = country?.SlugId;
+                    district.ProvinceSlugId = province?.SlugId;
+                    district = District.Upsert(district);
+                    
+                    //Update.Districts.Add(district.SlugId, district);
+                }
+
+                DataPoint.Upsert(dp);
+                //Update.DataPoints.Add(dp);
+            }
         }
 
         private double ParseDouble(string source)
@@ -283,144 +368,6 @@ namespace CodeLifter.IO.Github.Services
             return 0;
         }
 
-        public async Task SaveEntriesToDataModel(string fileName)
-        {
-            DataCollectionStatistic stat = new DataCollectionStatistic()
-            {
-                RecordsProcessed = Entries.Count,
-                LastRunStarted = DateTime.Now,
-                FileName = fileName
-            };
-            Entity.Insert(stat);
-
-            int i = 0;
-            foreach (Entry entry in Entries)
-            {
-                ProcessEntry(entry);
-                i++;
-            }
-
-            stat.LastRunCompleted = DateTime.Now;
-            stat.RecordsProcessed = i;
-            Entity.Update(stat);
-
-            ///STored Procedure work 
-            StoredProcedure.SummarizeEntities();
-            Log.LogMessage(stat.ToString(), LogLevels.Trace);
-        }
-
-        public void ProcessEntry(Entry entry)
-        {
-            DataPoint dp = new DataPoint();
-
-            dp.LastUpdate = entry.LastUpdate;
-            dp.Confirmed = entry.Confirmed;
-            dp.Deaths = entry.Deaths;
-            dp.Recovered = entry.Recovered;
-            dp.Active = entry.Active;
-            dp.SourceFile = entry.SourceFile.Replace(".csv", "");
-
-            GeoCoordinate geo = UpsertGeo(entry);
-            Country country = UpsertCountry(entry);
-            Province province = UpsertProvince(entry, country);
-            District district = UpsertDistrict(entry, country, province);
-
-            AssignGeoCoordinateAppropriately(geo, country, province, district);
-
-            if (null != country)
-                dp.CountryId = country.Id;
-
-            if (null != province)
-                dp.ProvinceId = province.Id;
-
-            if (null != district)
-                dp.DistrictId = district.Id;
-
-            DataPoint.Upsert(dp);
-        }
-
-        public void AssignGeoCoordinateAppropriately(GeoCoordinate geo, Country country, Province province, District district)
-        {
-            if (null == geo || geo.Id == 0)
-            {
-                return;
-            }
-
-            if (null != district && district.Id != 0)
-            {
-                district.GeoCoordinateId = geo.Id;
-                District.Update(district);
-            }
-            else if (null != province && province.Id != 0)
-            {
-                province.GeoCoordinateId = geo.Id;
-                Province.Update(province);
-            }
-            else if (null != country && country.Id != 0)
-            {
-                country.GeoCoordinateId = geo.Id;
-                Country.Update(country);
-            }
-            return;
-        }
-
-        public GeoCoordinate UpsertGeo(Entry entry)
-        {
-            GeoCoordinate geo = new GeoCoordinate()
-            {
-                Latitude = entry.Lat,
-                Longitude = entry.Long
-            };
-            return GeoCoordinate.Upsert(geo);
-        }
-
-        public Country UpsertCountry(Entry entry)
-        {
-            Country country = new Country()
-            {
-                Name = entry.CountryRegion
-            };
-            return Country.Upsert(country);
-        }
-
-        public Province UpsertProvince(Entry entry, Country country)
-        {
-            if (string.IsNullOrWhiteSpace(entry.ProvinceState))
-            {
-                return null;
-            }
-            Province province = new Province()
-            {
-                Name = entry.ProvinceState
-            };
-            if (null != country)
-            {
-                province.CountryId = country.Id;
-            }
-            return Province.Upsert(province);
-        }
-
-        public District UpsertDistrict(Entry entry, Country country, Province province)
-        {
-            if (string.IsNullOrWhiteSpace(entry.ProvinceState) && string.IsNullOrWhiteSpace(entry.FIPS))
-            {
-                return null;
-            }
-            District district = new District()
-            {
-                Name = entry.Admin2,
-                FIPS = entry.FIPS
-            };
-            if (null != province)
-            {
-                district.ProvinceId = province.Id;
-            }
-            if (null != country)
-            {
-                district.CountryId = country.Id;
-            }
-            return District.Upsert(district);
-        }
     }
 }
 

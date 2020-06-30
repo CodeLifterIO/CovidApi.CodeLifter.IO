@@ -1,107 +1,81 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
+using CodeLifter.Covid19.Data.Models.BaseEntities;
+using Microsoft.EntityFrameworkCore;
 using Slugify;
 
 namespace CodeLifter.Covid19.Data.Models
 {
-    public class District : Entity
+    public class District : SluggableEntity
     {
+        public District() { }
+        public District(string name, string fips = null)
+        {
+            Name = name;
+            SlugHelper slugger = new SlugHelper();
+            SlugId = slugger.GenerateSlug(Name);
+
+            if (!string.IsNullOrWhiteSpace(fips)) FIPS = fips;
+        }
+
         public string FIPS { get; set; }
-        public string Name { get; set; }
-        public string Slug { get; set; }
 
         [JsonIgnore]
         public int? GeoCoordinateId { get; set; }
-        public GeoCoordinate GeoCoordinate {get; set;}
+        public GeoCoordinate GeoCoordinate { get; set; }
 
-        [JsonIgnore]
-        public int? ProvinceId { get; set; }
-        [JsonIgnore]
-        public Province Province { get; set; }
-
-        [JsonIgnore]
-        public int? CountryId { get; set; }
-        [JsonIgnore]
-        public Country Country { get; set; }
+        public string ProvinceSlugId { get; set; }
+        //public Province Province { get; set; }
+        public string CountrySlugId { get; set; }
+        //public Country Country { get; set; }
 
         [NotMapped]
-        public string CountryUrl
-        {
-            get {
-                return (null != Country?.Slug) ? $"country/{Country.Slug}" : null;
-            }
-        }
+        public Total CurrentData { get; set; }
 
         [NotMapped]
-        public string ProvinceUrl
-        {
-            get
-            {
-                return (null != Province?.Slug) ? $"province/{Province.Slug}" : null;
-            }
-        }
+        public List<Total> TimeSeries { get; set; }
 
-        //[NotMapped]
-        //public string TotalsUrl
-        //{
-        //    get { return $"district/{Slug}"; }
-        //}
-
-        [NotMapped]
-        public string TimeSeriessUrl
-        {
-            get { return $"district/{Slug}/timeseries"; }
-        }
-
-        //[NotMapped]
-        //public Statistic CurrentData { get; set; }
-
-        [NotMapped]
-        public List<Totals> TimeSeries { get; set; }
-
-
-        public static District Find(District entity)
+        public static District Find(string slug)
         {
             using (var context = new CovidContext())
             {
                 return context.Districts
-                    .Where(p => p.Name == entity.Name || p.Slug == entity.Slug)
+                    .Where(c => c.SlugId == slug)
                     .FirstOrDefault();
             }
         }
 
-        public static District Upsert(District entity)
+        public static District Find(string slug, CovidContext context)
         {
-            if(null == entity)
-            {
-                return null;
-            }
-            else if(string.IsNullOrWhiteSpace(entity.Name))
-            {
-                return null;
-            }
-            else if(string.IsNullOrWhiteSpace(entity.Slug))
-            {
-                SlugHelper slugger = new SlugHelper();
-                entity.Slug = slugger.GenerateSlug(entity.Name);
-            }
+            return context.Districts
+                .Where(c => c.SlugId == slug)
+                .FirstOrDefault();
+        }
 
-            District district = Find(entity);
-
-            if(null == district)
+        public static District Upsert(District newDistrict)
+        {
+            using (var context = new CovidContext())
             {
-                Insert(entity);
-                return entity;
+                return Upsert(newDistrict, context);
             }
-            else
-            {
-                District.ShallowCopy(district, entity);
-                Update(district);
-            }
+        }
 
-            return district;
+        public static District Upsert(District newDistrict, CovidContext context)
+        {
+            int result = context.Districts.Upsert(newDistrict)
+               .On(e => e.SlugId)
+               .WhenMatched((eDB, eIn) => new District
+               {
+                   Name = newDistrict.Name,
+                   UpdatedAt = DateTime.UtcNow,
+                   GeoCoordinateId = newDistrict.GeoCoordinateId,
+               })
+               .Run();
+            return Find(newDistrict.SlugId, context);
         }
     }
 }

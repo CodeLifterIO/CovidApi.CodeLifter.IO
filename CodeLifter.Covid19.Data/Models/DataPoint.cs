@@ -1,5 +1,9 @@
-﻿using System;
+﻿using CodeLifter.Covid19.Data.Models.BaseEntities;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace CodeLifter.Covid19.Data.Models
 {
@@ -13,55 +17,84 @@ namespace CodeLifter.Covid19.Data.Models
         public double? IncidenceRate { get; set; }
         public double? CaseFatalityRatio { get; set; }
         public string SourceFile { get; set; }
+        public string CombinedKey { get; set; }
+        public string CountrySlugId { get; set; }
+        public string ProvinceSlugId { get; set; }
+        public string DistrictSlugId { get; set; }
 
-        public int? CountryId { get; set; }
-        public Country Country { get; set; }
-
-        public int? ProvinceId { get; set; }
-        public Province Province { get; set; }
-
-        public int? DistrictId { get; set; }
-        public District District { get; set; }
-
-
-
-        public static DataPoint Find(DataPoint entity)
+        public static void Upsert(DataPoint newDp)
         {
-            if(0 != entity.Id)
-                return entity;
-
             using (var context = new CovidContext())
             {
-                return context.DataPoints
-                    .Where(dp => dp.LastUpdate == entity.LastUpdate 
-                                && dp.CountryId == entity.CountryId
-                                && dp.ProvinceId == entity.ProvinceId
-                                && dp.DistrictId == entity.DistrictId)
-                    .FirstOrDefault();
+                Upsert(newDp, context);
             }
         }
 
-
-        public static DataPoint Upsert(DataPoint entity)
+        public static void Upsert(DataPoint newDp, CovidContext context)
         {
-            if(null == entity)
-            {
-                return null;
-            }
+            int result = context.DataPoints.Upsert(newDp)
+                .On(dp => new { dp.LastUpdate, dp.CountrySlugId, dp.ProvinceSlugId, dp.DistrictSlugId})
+                .WhenMatched((eDB, eIn) => new DataPoint
+                {
+                    UpdatedAt = DateTime.UtcNow,
+                    Confirmed = newDp.Confirmed,
+                    Deaths = newDp.Deaths,
+                    Recovered = newDp.Recovered,
+                    Active = newDp.Active,
+                    IncidenceRate = newDp.IncidenceRate,
+                    CaseFatalityRatio = newDp.CaseFatalityRatio,
+                    SourceFile = newDp.SourceFile,
+                    CombinedKey = newDp.CombinedKey,
+                    CountrySlugId = newDp.CountrySlugId,
+                    ProvinceSlugId = newDp.ProvinceSlugId,
+                    DistrictSlugId = newDp.DistrictSlugId
+                })
+                .Run();
+        }
 
-            DataPoint dataPt = Find(entity);
-
-            if(null == dataPt)
+        public static void UpsertRange(List<DataPoint> newDps)
+        {
+            using (var context = new CovidContext())
             {
-                Insert(entity);
+                UpsertRange(newDps, context);
             }
-            else
-            {
-                DataPoint.ShallowCopy(dataPt, entity);
-                Update(dataPt);
-            }
+        }
 
-            return dataPt;
+        public static void UpsertRange(List<DataPoint> newDps, CovidContext context)
+        {
+            int result = context.DataPoints.UpsertRange(newDps)
+                .On(dp => new { dp.LastUpdate, dp.CountrySlugId, dp.ProvinceSlugId, dp.DistrictSlugId })
+                .WhenMatched((eDB, eIn) => new DataPoint
+                {
+                    UpdatedAt = DateTime.UtcNow,
+                    Confirmed = eIn.Confirmed,
+                    Deaths = eIn.Deaths,
+                    Recovered = eIn.Recovered,
+                    Active = eIn.Active,
+                    IncidenceRate = eIn.IncidenceRate,
+                    CaseFatalityRatio = eIn.CaseFatalityRatio,
+                    SourceFile = eIn.SourceFile,
+                    CombinedKey = eIn.CombinedKey,
+                    CountrySlugId = eIn.CountrySlugId,
+                    ProvinceSlugId = eIn.ProvinceSlugId,
+                    DistrictSlugId = eIn.DistrictSlugId
+                })
+                .Run();
+        }
+
+
+        public static void AddRange(List<DataPoint> newDps)
+        {
+            using (var context = new CovidContext())
+            {
+                AddRange(newDps, context);
+            }
+        }
+
+        public static void AddRange(List<DataPoint> newDps, CovidContext context)
+        {
+            context.DataPoints.AddRange(newDps);
+            context.SaveChanges();
         }
     }
 }

@@ -3,6 +3,7 @@
   "http": {
     "routePrefix": ""
   },
+  "functionTimeout": "06:00:00",
   "logging": {
     "applicationInsights": {
       "samplingExcludedTypes": "Request",

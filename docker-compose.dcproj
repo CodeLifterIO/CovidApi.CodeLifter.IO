@@ -9,8 +9,24 @@
     <DockerServiceName>covidapi.codelifter.io</DockerServiceName>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="cd.sh" />
+    <None Include="docker-compose.dev.yml" />
     <None Include="docker-compose.yml" />
+    <None Include="docker-compose.staging.yml" />
+    <None Include="docker-compose.release.yml" />
     <None Include=".dockerignore" />
-    <None Include=".env" />
+    <None Include="Docker\ENV\dev.env" />
+    <None Include="Docker\ENV\dev.env.sample" />
+    <None Include="Docker\ENV\release.env" />
+    <None Include="Docker\ENV\release.env.sample" />
+    <None Include="Docker\ENV\staging.env" />
+    <None Include="Docker\ENV\staging.env.sample" />
+    <None Include="Docker\ENV\vs.env" />
+    <None Include="Docker\ENV\vs.env.sample" />
+    <None Include="Docker\Scripts\database_backup.sh" />
+    <None Include="Docker\Scripts\database_restore.sh" />
+    <None Include="Docker\Scripts\docker_push.sh" />
+    <None Include="cr.sh" />
+    <None Include="cs.sh" />
   </ItemGroup>
 </Project>

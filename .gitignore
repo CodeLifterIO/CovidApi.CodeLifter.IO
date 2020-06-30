@@ -404,3 +404,11 @@ ASALocalRun/
 # Local History for Visual Studio
 .localhistory/
 .env
+ENV/dev.env
+ENV/release.env
+ENV/staging.env
+Docker/ENV/dev.env
+Docker/ENV/release.env
+Docker/ENV/staging.env
+.env
+vs.env

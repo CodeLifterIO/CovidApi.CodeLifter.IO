@@ -1,12 +1,15 @@
 version: '3.6'
 
 services:
+
+
+
   covidapi.codelifter.io:
-    container_name: "VS-covidapi-codelifter-io"
+    container_name: covidapi-codelifter-io
     image: codelifterio/covidapi-codelifter-io
     build:
       context: .
-      dockerfile: CovidApi.CodeLifter.IO/Dockerfile
+      dockerfile: CovidApi/Dockerfile
     networks:
       - covidapinet
     ports:
@@ -14,33 +17,41 @@ services:
       - "8143:443"
     depends_on:
       - covidapi-codelifter-data
-    env_file: 
-      - ./Docker/ENV/vs.env
+      - covidapi-codelifter-redis
+    environment:
+      SQLSERVER_DATASOURCE: ${SQLSERVER_DATASOURCE}
+      SQLSERVER_CATALOG: ${SQLSERVER_CATALOG}
+      SQLSERVER_USER_ID: ${SQLSERVER_USER_ID}
+      SQLSERVER_USER_PASSWORD: ${SQLSERVER_USER_PASSWORD}
     links:
       - covidapi-codelifter-data
+      - covidapi-codelifter-redis
 
   covidapi-codelifter-data:
-    container_name: "VS-covidapi-codelifter-data"
+    container_name: covidapi-codelifter-data
     image: codelifterio/covidapi-codelifter-data
     networks:
       - covidapinet
     ports:
-      - "1431:1433"
+      - "1433:1433"
     volumes:
       - mssql-data:/var/opt/mssql
-    env_file: 
-      - ./Docker/ENV/vs.env
     environment:
+      SQLSERVER_DATASOURCE: ${SQLSERVER_DATASOURCE}
+      SQLSERVER_CATALOG: ${SQLSERVER_CATALOG}
+      SQLSERVER_USER_ID: ${SQLSERVER_USER_ID}
+      SQLSERVER_USER_PASSWORD: ${SQLSERVER_USER_PASSWORD}
       ACCEPT_EULA: "Y"
 
-  covidapi-codelifter-azurite:
-    container_name: "VS-covidapi-codelifter-azurite"
-    image: mcr.microsoft.com/azure-storage/azurite:latest
+  covidapi-codelifter-redis:
+    container_name: covidapi-codelifter-redis
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    hostname: redis
     networks:
       - covidapinet
-    ports:
-      - "12000:10000"
-      - "12001:10001"
 
 volumes:
   mssql-data:

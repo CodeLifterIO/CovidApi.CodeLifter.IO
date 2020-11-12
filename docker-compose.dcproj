@@ -1,32 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" Sdk="Microsoft.Docker.Sdk" DefaultTargets="Build">
+<Project ToolsVersion="15.0" Sdk="Microsoft.Docker.Sdk">
   <PropertyGroup Label="Globals">
     <ProjectVersion>2.1</ProjectVersion>
     <DockerTargetOS>Linux</DockerTargetOS>
-    <ProjectGuid>{95988778-F1CB-49AE-8DBA-D0B4FA684E6F}</ProjectGuid>
-    <DockerLaunchBrowser>True</DockerLaunchBrowser>
-    <DockerServiceUrl>{Scheme}://localhost:{ServicePort}/swagger</DockerServiceUrl>
-    <DockerServiceName>covidapi.codelifter.io</DockerServiceName>
+    <ProjectGuid>e243c799-99d8-4205-989e-8b8774635a84</ProjectGuid>
+    <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
+    <DockerServiceUrl>{Scheme}://localhost:{ServicePort}</DockerServiceUrl>
+    <DockerServiceName>covidapi</DockerServiceName>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="cd.sh" />
-    <None Include="docker-compose.dev.yml" />
+    <None Include="docker-compose.override.yml">
+      <DependentUpon>docker-compose.yml</DependentUpon>
+    </None>
     <None Include="docker-compose.yml" />
-    <None Include="docker-compose.staging.yml" />
-    <None Include="docker-compose.release.yml" />
     <None Include=".dockerignore" />
-    <None Include="Docker\ENV\dev.env" />
-    <None Include="Docker\ENV\dev.env.sample" />
-    <None Include="Docker\ENV\release.env" />
-    <None Include="Docker\ENV\release.env.sample" />
-    <None Include="Docker\ENV\staging.env" />
-    <None Include="Docker\ENV\staging.env.sample" />
-    <None Include="Docker\ENV\vs.env" />
-    <None Include="Docker\ENV\vs.env.sample" />
-    <None Include="Docker\Scripts\database_backup.sh" />
-    <None Include="Docker\Scripts\database_restore.sh" />
-    <None Include="Docker\Scripts\docker_push.sh" />
-    <None Include="cr.sh" />
-    <None Include="cs.sh" />
   </ItemGroup>
 </Project>

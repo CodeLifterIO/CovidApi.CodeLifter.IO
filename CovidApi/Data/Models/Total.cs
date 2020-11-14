@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CovidApi.Models
 {
-    public class Total : Entity
+    public class Total : BaseEntity
     {
         [DefaultValue(0)]
         public int? Count { get; set; }

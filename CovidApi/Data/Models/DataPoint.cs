@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CovidApi.Models
 {
-    public class DataPoint : Entity
+    public class DataPoint : BaseEntity
     {
         public DateTime LastUpdate { get; set; }
         public int? Confirmed { get; set; }

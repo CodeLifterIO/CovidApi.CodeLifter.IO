@@ -14,26 +14,7 @@ namespace CovidApi.Data
 {
     public partial class CovidContext : IdentityDbContext<ApplicationUser>, IDataProtectionKeyContext
     {
-        public static string SQL_CONNECTION_STRING
-        {
-            get
-            {
-                //string SQLSERVER_CONNECTION_STRING = "Data Source=10.200.200.100;Initial Catalog=Covid19;trusted_connection=False;User Id=sa;Password=S@berh@gen01SqlServer";
-                //string SQLSERVER_CONNECTION_STRING = "Data Source=10.200.200.100;Initial Catalog=DevCovid19;trusted_connection=False;User Id=sa;Password=S@berh@gen01SqlServer";
-                string SQLSERVER_CONNECTION_STRING = Environment.GetEnvironmentVariable("SQLSERVER_CONNECTION_STRING");
-                if (string.IsNullOrEmpty(SQLSERVER_CONNECTION_STRING))
-                {
-                    string dataSource = Environment.GetEnvironmentVariable("SQLSERVER_DATASOURCE");
-                    string catalog = Environment.GetEnvironmentVariable("SQLSERVER_CATALOG");
-                    string userId = Environment.GetEnvironmentVariable("SQLSERVER_USER_ID");
-                    string password = Environment.GetEnvironmentVariable("SQLSERVER_USER_PASSWORD");
-                    SQLSERVER_CONNECTION_STRING = $"Data Source={dataSource};Initial Catalog={catalog};trusted_connection=False;User Id={userId};Password={password}";
-                }
-                return SQLSERVER_CONNECTION_STRING;
-            }
-        }
-
-        public string CurrentUserId { get; set; } = "";
+        public string CurrentUserId { get; set; } = "CodeLifterIO";
 
         //AUTH
         public DbSet<DataProtectionKey> DataProtectionKeys { get; set; } = null!;
@@ -45,7 +26,7 @@ namespace CovidApi.Data
         //public DbSet<Province> Provinces { get; set; }
         //public DbSet<GeoCoordinate> GeoCoordinates { get; set; }
         //public DbSet<Total> Totals { get; set; }
-        //public DbSet<DataFile> DataFiles {get; set;}
+        public DbSet<DataFile> DataFiles { get; set; }
         public DbSet<DataUpdate> DataUpdates { get; set; }
         //public DbSet<StoredProcedure> StoredProcedures { get; set; }
 
@@ -53,9 +34,9 @@ namespace CovidApi.Data
         {
         }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder options)
+        protected override void OnConfiguring(DbContextOptionsBuilder options) 
         {
-            options.UseSqlServer(SQL_CONNECTION_STRING);
+            base.OnConfiguring(options);
         }
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -91,12 +72,12 @@ namespace CovidApi.Data
                 entity.ToTable(name: "ApplicationUsers");
             });
 
-            OnDataPointModelCreating(builder);
-            OnCountrytModelCreating(builder);
-            OnProvinceModelCreating(builder);
-            OnDistrictModelCreating(builder);
-            OnGeoCoordinateModelCreating(builder);
-            OnTotalModelCreating(builder);
+            //OnDataPointModelCreating(builder);
+            //OnCountrytModelCreating(builder);
+            //OnProvinceModelCreating(builder);
+            //OnDistrictModelCreating(builder);
+            //OnGeoCoordinateModelCreating(builder);
+            //OnTotalModelCreating(builder);
             OnDataFileModelCreating(builder);
             OnDataUpdateModelCreating(builder);
         }
@@ -105,17 +86,19 @@ namespace CovidApi.Data
         {
             var entries = ChangeTracker
                 .Entries()
-                .Where(e => e.Entity is Entity && (
+                .Where(e => e.Entity is IBaseEntity && (
                         e.State == EntityState.Added
                         || e.State == EntityState.Modified));
 
             foreach (var entityEntry in entries)
             {
-                ((Entity)entityEntry.Entity).UpdatedAt = DateTime.UtcNow;
+                ((IBaseEntity)entityEntry.Entity).UpdatedAt = DateTime.Now;
+                ((IBaseEntity)entityEntry.Entity).UpdatedBy = CurrentUserId;
 
                 if (entityEntry.State == EntityState.Added)
                 {
-                    ((Entity)entityEntry.Entity).CreatedAt = DateTime.UtcNow;
+                    ((IBaseEntity)entityEntry.Entity).CreatedAt = DateTime.Now;
+                    ((IBaseEntity)entityEntry.Entity).CreatedBy = CurrentUserId;
                 }
             }
 

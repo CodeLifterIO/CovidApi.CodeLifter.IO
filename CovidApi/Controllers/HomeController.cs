@@ -1,188 +1,187 @@
-//using System.Diagnostics;
-//using System.Threading.Tasks;
-//using CovidApi.Infrastructure;
-//using CovidApi.Infrastructure.ErrorHandling;
-//using Microsoft.AspNetCore.Mvc;
-//using CovidApi.Models;
-//using CovidApi.Models;
-//using Microsoft.AspNetCore.Authorization;
-//using Microsoft.AspNetCore.Diagnostics;
-//using Microsoft.AspNetCore.Identity;
-//using Microsoft.AspNetCore.WebUtilities;
-//using Microsoft.Extensions.Logging;
-//using CovidApi.ViewModels;
+using System.Diagnostics;
+using System.Threading.Tasks;
+using CovidApi.Infrastructure;
+using CovidApi.Infrastructure.ErrorHandling;
+using Microsoft.AspNetCore.Mvc;
+using CovidApi.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Logging;
+using CovidApi.ViewModels;
 
-//namespace CovidApi.Controllers
-//{
-//    [Authorize]
-//    public class HomeController : BaseController
-//    {
-//        private readonly ILogger<HomeController> _logger;
-//        private readonly UserManager<ApplicationUser> _userManager;
-//        private readonly SignInManager<ApplicationUser> _signInManager;
+namespace CovidApi.Controllers
+{
+    [Authorize]
+    public class HomeController : BaseController
+    {
+        private readonly ILogger<HomeController> _logger;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
 
-//        [TempData]
-//        public string StatusMessage { get; set; }
+        [TempData]
+        public string StatusMessage { get; set; }
 
-//        public HomeController(
-//            ILogger<HomeController> logger,
-//            UserManager<ApplicationUser> userManager,
-//            SignInManager<ApplicationUser> signInManager)
-//        {
-//            _logger = logger;
-//            _userManager = userManager;
-//            _signInManager = signInManager;
-//        }
+        public HomeController(
+            ILogger<HomeController> logger,
+            UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager)
+        {
+            _logger = logger;
+            _userManager = userManager;
+            _signInManager = signInManager;
+        }
 
-//        [HttpGet("/")]
-//        public IActionResult Index()
-//        {
-//            return View();
-//        }
+        [HttpGet("/")]
+        public IActionResult Index()
+        {
+            return View();
+        }
 
-//        [HttpGet("/icons")]
-//        public IActionResult Icons()
-//        {
-//            return View();
-//        }
+        [HttpGet("/icons")]
+        public IActionResult Icons()
+        {
+            return View();
+        }
 
-//        [HttpGet("/maps")]
-//        public IActionResult Maps()
-//        {
-//            return View();
-//        }
+        [HttpGet("/maps")]
+        public IActionResult Maps()
+        {
+            return View();
+        }
 
-//        [ImportModelState]
-//        [HttpGet("/profile")]
-//        public async Task<IActionResult> Profile()
-//        {
-//            var user = await _userManager.GetUserAsync(User);
-//            if (user == null)
-//            {
-//                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
-//            }
+        [ImportModelState]
+        [HttpGet("/profile")]
+        public async Task<IActionResult> Profile()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            }
 
-//            return View(new ProfileViewModel
-//            {
-//                Username = user.UserName,
-//                Email = user.Email,
-//                FullName = user.FullName
-//            });
-//        }
+            return View(new ProfileViewModel
+            {
+                Username = user.UserName,
+                Email = user.Email,
+                FullName = user.FullName
+            });
+        }
 
-//        [ExportModelState]
-//        [HttpPost("/profile")]
-//        public async Task<IActionResult> UpdateProfile(
-//            [FromForm]
-//            ProfileViewModel input)
-//        {
-//            if (!ModelState.IsValid)
-//            { 
-//                return RedirectToAction(nameof(Profile));
-//            }
+        [ExportModelState]
+        [HttpPost("/profile")]
+        public async Task<IActionResult> UpdateProfile(
+            [FromForm]
+            ProfileViewModel input)
+        {
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction(nameof(Profile));
+            }
 
-//            var user = await _userManager.GetUserAsync(User);
-//            if (user == null)
-//            {
-//                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
-//            }
-            
-//            var email = await _userManager.GetEmailAsync(user);
-//            if (input.Email != email)
-//            {
-//                var setEmailResult = await _userManager.SetEmailAsync(user, input.Email);
-//                if (!setEmailResult.Succeeded)
-//                {
-//                    foreach (var error in setEmailResult.Errors)
-//                    {
-//                        ModelState.AddModelError(string.Empty, error.Description);
-//                    }
-//                }
-//            }
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            }
 
-//            // Model state might not be valid anymore if we weren't able to change the e-mail address
-//            // so we need to check for that before proceeding
-//            if (ModelState.IsValid)
-//            {
-//                if (input.FullName != user.FullName)
-//                {
-//                    // If we receive an empty string, set a null full name instead
-//                    user.FullName = string.IsNullOrWhiteSpace(input.FullName) ? null : input.FullName;
-//                }
+            var email = await _userManager.GetEmailAsync(user);
+            if (input.Email != email)
+            {
+                var setEmailResult = await _userManager.SetEmailAsync(user, input.Email);
+                if (!setEmailResult.Succeeded)
+                {
+                    foreach (var error in setEmailResult.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
+                }
+            }
 
-//                await _userManager.UpdateAsync(user);
+            // Model state might not be valid anymore if we weren't able to change the e-mail address
+            // so we need to check for that before proceeding
+            if (ModelState.IsValid)
+            {
+                if (input.FullName != user.FullName)
+                {
+                    // If we receive an empty string, set a null full name instead
+                    user.FullName = string.IsNullOrWhiteSpace(input.FullName) ? null : input.FullName;
+                }
 
-//                await _signInManager.RefreshSignInAsync(user);
+                await _userManager.UpdateAsync(user);
 
-//                StatusMessage = "Your profile has been updated";
-//            }
+                await _signInManager.RefreshSignInAsync(user);
 
-//            return RedirectToAction(nameof(Profile));
-//        }
+                StatusMessage = "Your profile has been updated";
+            }
 
-//        [HttpGet("/tables")]
-//        public IActionResult Tables()
-//        {
-//            return View();
-//        }
-        
-//        [HttpGet("/upgrade")]
-//        public IActionResult Upgrade()
-//        {
-//            return View();
-//        }
+            return RedirectToAction(nameof(Profile));
+        }
 
-//        [HttpGet("/privacy")]
-//        public IActionResult Privacy()
-//        {
-//            return View();
-//        }
+        [HttpGet("/tables")]
+        public IActionResult Tables()
+        {
+            return View();
+        }
 
-//        [HttpPost("/logout")]
-//        public async Task<IActionResult> Logout(string returnUrl = null)
-//        {
-//            await _signInManager.SignOutAsync();
-//            _logger.LogInformation("User logged out.");
-//            if (returnUrl != null)
-//            {
-//                return LocalRedirect(returnUrl);
-//            }
-//            else
-//            {
-//                return RedirectToAction(nameof(Index));
-//            }
-//        }
+        [HttpGet("/upgrade")]
+        public IActionResult Upgrade()
+        {
+            return View();
+        }
 
-//        [HttpGet("/error")]
-//        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-//        public IActionResult Error()
-//        {
-//            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-//        }
+        [HttpGet("/privacy")]
+        public IActionResult Privacy()
+        {
+            return View();
+        }
 
-//        [HttpGet("/status-code")]
-//        public IActionResult StatusCodeHandler(int code)
-//        {
-//            ViewBag.StatusCode = code;
-//            ViewBag.StatusCodeDescription = ReasonPhrases.GetReasonPhrase(code);
-//            ViewBag.OriginalUrl = null;
+        [HttpPost("/logout")]
+        public async Task<IActionResult> Logout(string returnUrl = null)
+        {
+            await _signInManager.SignOutAsync();
+            _logger.LogInformation("User logged out.");
+            if (returnUrl != null)
+            {
+                return LocalRedirect(returnUrl);
+            }
+            else
+            {
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        [HttpGet("/error")]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        [HttpGet("/status-code")]
+        public IActionResult StatusCodeHandler(int code)
+        {
+            ViewBag.StatusCode = code;
+            ViewBag.StatusCodeDescription = ReasonPhrases.GetReasonPhrase(code);
+            ViewBag.OriginalUrl = null;
 
 
-//            var statusCodeReExecuteFeature = HttpContext.Features.Get<IStatusCodeReExecuteFeature>();
-//            if (statusCodeReExecuteFeature != null)
-//            {
-//                ViewBag.OriginalUrl =
-//                    statusCodeReExecuteFeature.OriginalPathBase
-//                    + statusCodeReExecuteFeature.OriginalPath
-//                    + statusCodeReExecuteFeature.OriginalQueryString;
-//            }
+            var statusCodeReExecuteFeature = HttpContext.Features.Get<IStatusCodeReExecuteFeature>();
+            if (statusCodeReExecuteFeature != null)
+            {
+                ViewBag.OriginalUrl =
+                    statusCodeReExecuteFeature.OriginalPathBase
+                    + statusCodeReExecuteFeature.OriginalPath
+                    + statusCodeReExecuteFeature.OriginalQueryString;
+            }
 
-//            if (code == 404)
-//            {
-//                return View("Status404");
-//            }
+            if (code == 404)
+            {
+                return View("Status404");
+            }
 
-//            return View("Status4xx");
-//        }
-//    }
-//}
+            return View("Status4xx");
+        }
+    }
+}

@@ -1,41 +1,49 @@
-//using CovidApi.Models;
-//using CovidApi.Data;
-//using System;
-//using System.Collections.Generic;
-//using System.Linq;
+using CovidApi.Models;
+using CovidApi.Data;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
-//namespace CovidApi.Services
-//{
-//    public class DataUpdateService
-//    {
-//        public bool IsStarted { get; set; } = false;
+namespace CovidApi.Services
+{
+    public interface IDataUpdateService
+    {
 
-//        public DataUpdate CurrentUpdateState { get; set; } = new DataUpdate();
-//        public DataFile CurrentFile { get; private set; }
+    }
 
-//        public Dictionary<string, Country> Countries { get; set; } = new Dictionary<string, Country>();
-//        public int CountriesCount { get { return Countries.Count; } }
+    public class DataUpdateService : IDataUpdateService
+    {
+        public bool IsStarted { get; set; } = false;
 
-//        public Dictionary<string, Province> Provinces { get; set; } = new Dictionary<string, Province>();
-//        public int ProvincesCount { get { return Provinces.Count; } }
+        public DataUpdate CurrentUpdateState { get; set; } = new DataUpdate();
+        public DataFile CurrentFile { get; private set; }
 
-//        public Dictionary<string, District> Districts { get; set; } = new Dictionary<string, District>();
-//        public int DistrictsCount { get { return Districts.Count; } }
+        //public Dictionary<string, Country> Countries { get; set; } = new Dictionary<string, Country>();
+        //public int CountriesCount { get { return Countries.Count; } }
 
-//        public Dictionary<string, GeoCoordinate> GeoCoordinates { get; set; } = new Dictionary<string, GeoCoordinate>();
-//        public int GeoCoordinatesCount { get { return GeoCoordinates.Count; } }
+        //public Dictionary<string, Province> Provinces { get; set; } = new Dictionary<string, Province>();
+        //public int ProvincesCount { get { return Provinces.Count; } }
 
-//        public List<DataPoint> DataPoints { get; set; } = new List<DataPoint>();
-//        public int DataPointsCount{ get { return DataPoints.Count; } }
+        //public Dictionary<string, District> Districts { get; set; } = new Dictionary<string, District>();
+        //public int DistrictsCount { get { return Districts.Count; } }
 
-//        public void StartRun(GithubDataFile gFile)
-//        {
-//            if (IsStarted == true) return;
+        //public Dictionary<string, GeoCoordinate> GeoCoordinates { get; set; } = new Dictionary<string, GeoCoordinate>();
+        //public int GeoCoordinatesCount { get { return GeoCoordinates.Count; } }
 
-//            IsStarted = true;
-//            if (null != gFile) CurrentUpdateState.StartFileName = gFile.FileName;
-//            DataUpdate.Add(CurrentUpdateState);
-//        }
+        //public List<DataPoint> DataPoints { get; set; } = new List<DataPoint>();
+        //public int DataPointsCount { get { return DataPoints.Count; } }
+
+        public void StartRun()
+        {
+            if (IsStarted == true) return;
+            IsStarted = true;
+
+            //if (null != gFile) CurrentUpdateState.StartFileName = gFile.FileName;
+            //DataUpdate.Add(CurrentUpdateState);
+        }
+    }
+}
+
 
 //        public void StartFile(GithubDataFile gFile)
 //        {
@@ -94,7 +102,7 @@
 
 //            //District.UpsertRange(Districts.Values.ToList(), context);
 //            //Districts.Clear();
- 
+
 //            DataPoint.AddRange(DataPoints, context);  //uses UpsertRange on later runs for integrity reasons
 //            DataPoints.Clear();
 

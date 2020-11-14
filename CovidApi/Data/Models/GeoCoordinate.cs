@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CovidApi.Models  
 {
-    public class GeoCoordinate : Entity
+    public class GeoCoordinate : BaseEntity
     {
         public double? Latitude { get; set; }
         public double? Longitude { get; set; }

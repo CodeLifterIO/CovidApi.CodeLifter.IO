@@ -18,22 +18,65 @@ using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using CovidApi.Infrastructure.Startup;
+using CovidApi.Data.Repositories;
+using CovidApi.Services;
+using CovidApi.Settings;
+using Slugify;
+using Octokit;
+using System.Net;
 
 namespace CovidApi
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public IWebHostEnvironment Env { get; }
+        public IConfiguration Configuration { get; }
+
+        public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             Configuration = configuration;
+            Env = env;
         }
 
-        public IConfiguration Configuration { get; }
+        public void ConfigureDataRepositories(IServiceCollection services)
+        {
+            services.AddScoped<IDatabaseRepository, DatabaseRepository>();
+            services.AddScoped<IDataFileRepository, DataFileRepository>();
+        }
+
+        public void ConfigureAppServices(IServiceCollection services)
+        {
+            services.AddScoped<IEnvironmentService, EnvironmentService>();
+            services.AddSingleton<IDataUpdateService, DataUpdateService>();
+            services.AddScoped<Slugify.ISlugHelper, Slugify.SlugHelper>();
+            //services.AddScoped<Octokit.IGitHubClient, Octokit.GitHubClient>();
+            services.AddTransient<WebClient>();
+            //services.AddScoped<IGithubService, GithubService>();
+
+        }
+
+        public void ConfigureBuiltInServices(IServiceCollection services)
+        {
+            //built into ASPNet
+            services.AddHttpContextAccessor();
+            services.AddLogging();
+        }
+
+        public void ConfigureSettingsAndKeys(IServiceCollection services)
+        {
+            services.Configure<GithubSettings>(Configuration.GetSection("GithubSettings"));
+        }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            ConfigureBuiltInServices(services);
+            ConfigureDataRepositories(services);
+            ConfigureAppServices(services);
+            ConfigureSettingsAndKeys(services);
+
             services.Configure<ForwardedHeadersOptions>(options =>
             {
                 options.ForwardedHeaders =
@@ -48,7 +91,7 @@ namespace CovidApi
                 options.MinimumSameSitePolicy = SameSiteMode.Strict;
             });
 
-            services.AddDbContextPool<CovidContext>(ctx => ctx.UseSqlServer(CovidContext.SQL_CONNECTION_STRING));
+            services.AddDbContextPool<CovidContext>(ctx => ctx.UseNpgsql(Configuration.GetConnectionString("DatabaseConnection")));
 
             services.AddDefaultIdentity<ApplicationUser>()
                 .AddRoles<IdentityRole>()
@@ -151,8 +194,8 @@ namespace CovidApi
             services.AddSession(options =>
             {
                 // Set a short timeout for easy testing.
-                options.IdleTimeout = TimeSpan.FromMinutes(60);
-                options.Cookie.Name = "CreativeTim.Argon.DotNetCore.SessionCookie";
+                options.IdleTimeout = TimeSpan.FromDays(365);
+                options.Cookie.Name = "CovidApi.CodeLifter.IO";
                 // You might want to only set the application cookies over a secure connection:
                 // options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                 options.Cookie.SameSite = SameSiteMode.Strict;

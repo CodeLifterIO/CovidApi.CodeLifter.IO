@@ -8,89 +8,50 @@ using System.Threading.Tasks;
 using CovidApi.Services;
 using CovidApi.Data;
 using CovidApi.Models;
-using CodeLifter.Logging;
-using CodeLifter.Logging.Loggers;
 using Microsoft.EntityFrameworkCore;
 using Octokit;
 using Slugify;
+using Microsoft.Extensions.Logging;
+using CovidApi.Settings;
 
 namespace CovidApi.Services
 {
-    public class StdOutLogger : ILogger
+    public interface IGithubService
     {
-        public void LogEntry(string message, LogLevels level = LogLevels.Trace)
-        {
-            Console.Out.WriteLine(message);
-        }
+        Task DownloadAllFiles(string startFile = null);
+        Task<List<GithubDataFile>> GetListOfFiles(string repoOwner, string repoName, string folderPath);
+        int ParseAndDeleteFile(string path, string fileName);
+        Task<ApiLimitReport> ReportAPILimits();
     }
 
-
-    public class GithubService
+    public class GithubService : IGithubService
     {
-        //github info
-        public const string GithubFolderPath = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/";
-        private const string ProductHeaderValue = "CodeLifter-Covid-Parser";
-
-        //TODO: Needs cleaned up
-        //services
-        private LogRunner Log;
-        private GitHubClient Client { get; set; }
-        WebClient WebClient { get; set; }
+        private readonly GithubSettings _githubSettings;
+        private ILogger _logger;
+        private GitHubClient _githubClient;
+        private WebClient _webClient;
         private IReadOnlyList<RepositoryContent> GlobalDataFileInfos { get; set; }
+        private ISlugHelper _slugHelper;
 
-        //Collection Services 
-        //DataUpdateService Update { get; set; }
-
-        //Helper tools
-        SlugHelper Slugger => new SlugHelper();
-
-        public GithubService(string token, List<Entry> entries = null, LogRunner log = null)
+        public GithubService(ILogger logger,
+                             GithubSettings githubSettings,
+                             //GitHubClient githubClient,
+                             WebClient webClient,
+                             ISlugHelper slugHelper)
         {
-            if (log == null)
-            {
-                Log = new LogRunner();
-                Log.Loggers.Clear();
-            }
-            else
-            {
-                Log = log;
-            }
-            Log.AddLogger(new StdOutLogger());
+            _logger = logger;
+            _githubSettings = githubSettings;
+            _githubClient = new GitHubClient(new ProductHeaderValue(_githubSettings.Token));
+            _webClient = webClient;
+            _slugHelper = slugHelper;
 
-            WebClient = new WebClient();
-
-            Client = new GitHubClient(new ProductHeaderValue(ProductHeaderValue));
-
-            //Update = new DataUpdateService();
-
-            if (!string.IsNullOrWhiteSpace(token))
-            {
-                var tokenAuth = new Credentials(token);
-                Client.Credentials = tokenAuth;
-                Log.LogMessage("*** Instantiating Github Service ***");
-            }
-            else if(!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("GITHUB_TOKEN")))
-            {
-                var tokenAuth = new Credentials(Environment.GetEnvironmentVariable("GITHUB_TOKEN")); // NOTE: not real token
-                Client.Credentials = tokenAuth;
-                Log.LogMessage("*** Instantiating Github Service with Auth ***");
-            }
+            //configure Services
+            //_githubClient.Credentials = new Credentials(_githubSettings.Token);
+            _logger.LogInformation("*** Instantiating Github Service ***");
         }
 
         public async Task DownloadAllFiles(string startFile = null)
         {
-            //if (string.IsNullOrEmpty(startFile))
-            //{
-            //    using (var context = new CovidContext())
-            //    {
-            //        var fileList = await context.DataFiles.ToListAsync();
-                    
-            //        if(fileList.Count > 0)
-            //            startFile = fileList.Last()?.FileName;
-            //    }
-            //}
-
-
             List<GithubDataFile> gFiles = new List<GithubDataFile>();
 
             gFiles = await GetListOfFiles("CSSEGISandData",
@@ -99,28 +60,29 @@ namespace CovidApi.Services
 
             foreach (GithubDataFile gFile in gFiles)
             {
-                if (gFile.FileName == startFile || string.IsNullOrEmpty(startFile))
-                {
-                    Update.StartRun(gFile);
-                }
+                _logger.LogInformation($"File: {gFile.FileName}");
+                //    if (gFile.FileName == startFile || string.IsNullOrEmpty(startFile))
+                //    {
+                //        Update.StartRun(gFile);
+                //    }
 
-                if (Update.IsStarted == true && startFile != gFile.FileName)
-                {
-                    Update.StartFile(gFile);
-                    int recordCount = ParseAndDeleteFile(gFile.DownloadUrl, gFile.FileName);
-                    Update.FinishFile(recordCount);
-                }
+                //    if (Update.IsStarted == true && startFile != gFile.FileName)
+                //    {
+                //        Update.StartFile(gFile);
+                //        int recordCount = ParseAndDeleteFile(gFile.DownloadUrl, gFile.FileName);
+                //        Update.FinishFile(recordCount);
+                //    }
             }
 
-            Update.Finish();
-            Log.LogMessage($"COVIDAP -> SUCCESS - UP TO DATE. File: {Update.CurrentUpdateState.LastCompletedFileName}");
+            //Update.Finish();
+            //_logger.LogMessage($"COVIDAP -> SUCCESS - UP TO DATE. File: {Update.CurrentUpdateState.LastCompletedFileName}");
         }
 
         public async Task<ApiLimitReport> ReportAPILimits()
         {
             ApiLimitReport report = new ApiLimitReport();
 
-            var miscellaneousRateLimit = await Client.Miscellaneous.GetRateLimits();
+            var miscellaneousRateLimit = await _githubClient.Miscellaneous.GetRateLimits();
 
             //  The "core" object provides your rate limit status except for the Search API.
             var coreRateLimit = miscellaneousRateLimit.Resources.Core;
@@ -135,7 +97,7 @@ namespace CovidApi.Services
         public async Task<List<Models.GithubDataFile>> GetListOfFiles(string repoOwner, string repoName, string folderPath)
         {
             List<Models.GithubDataFile> files = new List<Models.GithubDataFile>();
-            GlobalDataFileInfos = await Client.Repository
+            GlobalDataFileInfos = await _githubClient.Repository
                 .Content
                 .GetAllContents(repoOwner, repoName, folderPath);
 
@@ -158,7 +120,7 @@ namespace CovidApi.Services
 
         public int ParseAndDeleteFile(string path, string fileName)
         {
-            WebClient.DownloadFile(new Uri(path), fileName);
+            _webClient.DownloadFile(new Uri(path), fileName);
 
             string[] csvRows = File.ReadAllLines(fileName);
             string[] headers = csvRows[0].Replace("/", "")

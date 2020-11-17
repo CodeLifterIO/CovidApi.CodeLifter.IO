@@ -41,13 +41,16 @@ namespace CovidApi.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("FullName")
+                    b.Property<string>("FirstName")
                         .HasColumnType("text");
 
                     b.Property<string>("Github")
                         .HasColumnType("text");
 
                     b.Property<string>("JobDescription")
+                        .HasColumnType("text");
+
+                    b.Property<string>("LastName")
                         .HasColumnType("text");
 
                     b.Property<string>("LinkedIn")
@@ -58,6 +61,9 @@ namespace CovidApi.Migrations
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("MiddleName")
+                        .HasColumnType("text");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
@@ -79,6 +85,9 @@ namespace CovidApi.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text");
 
+                    b.Property<string>("Twitter")
+                        .HasColumnType("text");
+
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("boolean");
 
@@ -98,6 +107,44 @@ namespace CovidApi.Migrations
                     b.ToTable("ApplicationUsers");
                 });
 
+            modelBuilder.Entity("CovidApi.Models.Country", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("GeoCoordinateId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SlugId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("SlugId");
+
+                    b.HasIndex("GeoCoordinateId");
+
+                    b.ToTable("Countries");
+                });
+
             modelBuilder.Entity("CovidApi.Models.DataFile", b =>
                 {
                     b.Property<int>("Id")
@@ -105,10 +152,10 @@ namespace CovidApi.Migrations
                         .HasColumnType("integer")
                         .UseIdentityByDefaultColumn();
 
-                    b.Property<bool>("Completed")
+                    b.Property<bool?>("Completed")
                         .HasColumnType("boolean");
 
-                    b.Property<DateTime>("CompletedAt")
+                    b.Property<DateTime?>("CompletedAt")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime>("CreatedAt")
@@ -117,13 +164,16 @@ namespace CovidApi.Migrations
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
+                    b.Property<byte[]>("FileData")
+                        .HasColumnType("bytea");
+
                     b.Property<string>("FileName")
                         .HasColumnType("text");
 
                     b.Property<string>("FileUrl")
                         .HasColumnType("text");
 
-                    b.Property<int>("RecordsProcessed")
+                    b.Property<int?>("RecordsProcessed")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -135,6 +185,66 @@ namespace CovidApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("DataFiles");
+                });
+
+            modelBuilder.Entity("CovidApi.Models.DataPoint", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<int?>("Active")
+                        .HasColumnType("integer");
+
+                    b.Property<double?>("CaseFatalityRatio")
+                        .HasColumnType("double precision");
+
+                    b.Property<string>("CombinedKey")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("Confirmed")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("CountrySlugId")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("Deaths")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("DistrictSlugId")
+                        .HasColumnType("text");
+
+                    b.Property<double?>("IncidenceRate")
+                        .HasColumnType("double precision");
+
+                    b.Property<DateTime>("LastUpdate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("ProvinceSlugId")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("Recovered")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SourceFile")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DataPoints");
                 });
 
             modelBuilder.Entity("CovidApi.Models.DataUpdate", b =>
@@ -177,6 +287,186 @@ namespace CovidApi.Migrations
                         .IsUnique();
 
                     b.ToTable("DataUpdates");
+                });
+
+            modelBuilder.Entity("CovidApi.Models.District", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<string>("CountrySlugId")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FIPS")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("GeoCoordinateId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ProvinceSlugId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SlugId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("SlugId");
+
+                    b.HasIndex("GeoCoordinateId");
+
+                    b.ToTable("Districts");
+                });
+
+            modelBuilder.Entity("CovidApi.Models.GeoCoordinate", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("double precision");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Id")
+                        .IsUnique();
+
+                    b.ToTable("GeoCoordinates");
+                });
+
+            modelBuilder.Entity("CovidApi.Models.Province", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<int?>("CountryId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("CountrySlugId")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("GeoCoordinateId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SlugId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("SlugId");
+
+                    b.HasIndex("CountryId");
+
+                    b.HasIndex("GeoCoordinateId");
+
+                    b.ToTable("Provinces");
+                });
+
+            modelBuilder.Entity("CovidApi.Models.Total", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<int?>("Active")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("Confirmed")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("Count")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("CountrySlugId")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("Deaths")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("DistrictSlugId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ProvinceSlugId")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("Recovered")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SourceFile")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SourceFile", "CountrySlugId", "ProvinceSlugId", "DistrictSlugId")
+                        .IsUnique();
+
+                    b.ToTable("Totals");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.DataProtection.EntityFrameworkCore.DataProtectionKey", b =>
@@ -331,6 +621,39 @@ namespace CovidApi.Migrations
                     b.ToTable("UserTokens");
                 });
 
+            modelBuilder.Entity("CovidApi.Models.Country", b =>
+                {
+                    b.HasOne("CovidApi.Models.GeoCoordinate", "GeoCoordinate")
+                        .WithMany()
+                        .HasForeignKey("GeoCoordinateId");
+
+                    b.Navigation("GeoCoordinate");
+                });
+
+            modelBuilder.Entity("CovidApi.Models.District", b =>
+                {
+                    b.HasOne("CovidApi.Models.GeoCoordinate", "GeoCoordinate")
+                        .WithMany()
+                        .HasForeignKey("GeoCoordinateId");
+
+                    b.Navigation("GeoCoordinate");
+                });
+
+            modelBuilder.Entity("CovidApi.Models.Province", b =>
+                {
+                    b.HasOne("CovidApi.Models.Country", "Country")
+                        .WithMany("Provinces")
+                        .HasForeignKey("CountryId");
+
+                    b.HasOne("CovidApi.Models.GeoCoordinate", "GeoCoordinate")
+                        .WithMany()
+                        .HasForeignKey("GeoCoordinateId");
+
+                    b.Navigation("Country");
+
+                    b.Navigation("GeoCoordinate");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -380,6 +703,11 @@ namespace CovidApi.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("CovidApi.Models.Country", b =>
+                {
+                    b.Navigation("Provinces");
                 });
 #pragma warning restore 612, 618
         }

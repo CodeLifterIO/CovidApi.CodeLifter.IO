@@ -2,18 +2,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CovidApi.Data;
 using CovidApi.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace CovidApi.Data.Repositories
+namespace CovidApi.Repositories
 {
     public interface IDataFileRepository
     {
         Task<List<DataFile>> GetAllAsync();
         Task<DataFile> FindAsync(int id);
-        Task UpdateAsync(DataFile dataFile);
-        Task DeleteAsync(int id);
+        Task<DataFile> FindAsync(string fileName);
+        Task AddAsync(DataFile dataFile);
     }
 
     public class DataFileRepository : IDataFileRepository
@@ -29,7 +30,7 @@ namespace CovidApi.Data.Repositories
 
         public async Task<List<DataFile>> GetAllAsync()
         {
-            return await _context.DataFiles.ToListAsync();
+            return await _context.DataFiles.OrderByDescending(x => x.FileName).ToListAsync();
         }
 
         public async Task<DataFile> FindAsync(int id)
@@ -38,18 +39,22 @@ namespace CovidApi.Data.Repositories
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
 
-        public async Task UpdateAsync(DataFile dataFile)
+        public async Task<DataFile> FindAsync(string fileName)
         {
-            _context.Update(dataFile);
-            await _context.SaveChangesAsync();
-            return;
+            return await _context.DataFiles
+                .FirstOrDefaultAsync(c => c.FileName == fileName);
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task AddAsync(DataFile dataFile)
         {
-            var DataFile = await FindAsync(id);
-            _context.DataFiles.Remove(DataFile);
+            var existing = await FindAsync(dataFile.FileName);
+            if (null != existing)
+            {
+                return;
+            }
+            _context.DataFiles.Add(dataFile);
             await _context.SaveChangesAsync();
         }
+
     }
 }

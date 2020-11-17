@@ -40,7 +40,7 @@ namespace CovidApi.Data.Seeders
             {
                 user = new TIdentityUser
                 {
-                    UserName = DefaultAdminUserName,
+                    UserName = DefaultAdminUserEmail,
                     Email = DefaultAdminUserEmail,
                     EmailConfirmed = true,
                 };

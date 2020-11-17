@@ -2,8 +2,6 @@ version: '3.6'
 
 services:
 
-
-
   covidapi.codelifter.io:
     container_name: covidapi-codelifter-io
     image: codelifterio/covidapi-codelifter-io
@@ -18,44 +16,37 @@ services:
     depends_on:
       - covidapi-codelifter-data
       - covidapi-codelifter-redis
-    environment:
-      SQLSERVER_DATASOURCE: ${SQLSERVER_DATASOURCE}
-      SQLSERVER_CATALOG: ${SQLSERVER_CATALOG}
-      SQLSERVER_USER_ID: ${SQLSERVER_USER_ID}
-      SQLSERVER_USER_PASSWORD: ${SQLSERVER_USER_PASSWORD}
+    env_file:
+      - docker.Debug.env
     links:
       - covidapi-codelifter-data
       - covidapi-codelifter-redis
 
   covidapi-codelifter-data:
     container_name: covidapi-codelifter-data
-    image: codelifterio/covidapi-codelifter-data
+    image: "postgres" 
+    ports: 
+      - "5434:5432"
+    env_file:
+      - docker.Debug.env
+    restart: unless-stopped
+    volumes:
+      - covid-data:/var/lib/postgresql/data/
     networks:
       - covidapinet
-    ports:
-      - "1433:1433"
-    volumes:
-      - mssql-data:/var/opt/mssql
-    environment:
-      SQLSERVER_DATASOURCE: ${SQLSERVER_DATASOURCE}
-      SQLSERVER_CATALOG: ${SQLSERVER_CATALOG}
-      SQLSERVER_USER_ID: ${SQLSERVER_USER_ID}
-      SQLSERVER_USER_PASSWORD: ${SQLSERVER_USER_PASSWORD}
-      ACCEPT_EULA: "Y"
 
   covidapi-codelifter-redis:
     container_name: covidapi-codelifter-redis
     image: redis:alpine
     ports:
-      - "6379:6379"
+      - "6381:6379"
     command: ["redis-server", "--appendonly", "yes"]
     hostname: redis
     networks:
       - covidapinet
 
 volumes:
-  mssql-data:
+  covid-data:
 
 networks:
   covidapinet: 
-    name: covidapinet

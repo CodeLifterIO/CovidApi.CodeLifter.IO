@@ -65,7 +65,9 @@ namespace CovidApi.Controllers
             {
                 Username = user.UserName,
                 Email = user.Email,
-                FullName = user.FullName
+                FirstName = user.FirstName,
+                MiddleName = user.MiddleName,
+                LastName = user.LastName
             });
         }
 
@@ -103,12 +105,6 @@ namespace CovidApi.Controllers
             // so we need to check for that before proceeding
             if (ModelState.IsValid)
             {
-                if (input.FullName != user.FullName)
-                {
-                    // If we receive an empty string, set a null full name instead
-                    user.FullName = string.IsNullOrWhiteSpace(input.FullName) ? null : input.FullName;
-                }
-
                 await _userManager.UpdateAsync(user);
 
                 await _signInManager.RefreshSignInAsync(user);

@@ -20,15 +20,15 @@ namespace CovidApi.Data
         public DbSet<DataProtectionKey> DataProtectionKeys { get; set; } = null!;
 
         //Self Contained Entities
-        //public DbSet<DataPoint> DataPoints { get; set; }
-        //public DbSet<Country> Countries { get; set; }
-        //public DbSet<District> Districts { get; set; }
-        //public DbSet<Province> Provinces { get; set; }
-        //public DbSet<GeoCoordinate> GeoCoordinates { get; set; }
-        //public DbSet<Total> Totals { get; set; }
+        public DbSet<Country> Countries { get; set; }
         public DbSet<DataFile> DataFiles { get; set; }
+        public DbSet<DataPoint> DataPoints { get; set; }
         public DbSet<DataUpdate> DataUpdates { get; set; }
-        //public DbSet<StoredProcedure> StoredProcedures { get; set; }
+        public DbSet<District> Districts { get; set; }
+        public DbSet<GeoCoordinate> GeoCoordinates { get; set; }
+        //Planet
+        public DbSet<Province> Provinces { get; set; }
+        public DbSet<Total> Totals { get; set; }
 
         public CovidContext(DbContextOptions<CovidContext> options): base(options)
         {
@@ -72,13 +72,13 @@ namespace CovidApi.Data
                 entity.ToTable(name: "ApplicationUsers");
             });
 
-            //OnDataPointModelCreating(builder);
-            //OnCountrytModelCreating(builder);
-            //OnProvinceModelCreating(builder);
-            //OnDistrictModelCreating(builder);
-            //OnGeoCoordinateModelCreating(builder);
-            //OnTotalModelCreating(builder);
             OnDataFileModelCreating(builder);
+            OnDataPointModelCreating(builder);
+            OnCountrytModelCreating(builder);
+            OnProvinceModelCreating(builder);
+            OnDistrictModelCreating(builder);
+            OnGeoCoordinateModelCreating(builder);
+            OnTotalModelCreating(builder);
             OnDataUpdateModelCreating(builder);
         }
 
@@ -103,6 +103,13 @@ namespace CovidApi.Data
             }
 
             return base.SaveChanges();
+        }
+
+        //DataFile
+        protected void OnDataFileModelCreating(ModelBuilder builder)
+        {
+            builder.Entity<DataFile>()
+                .HasKey(d => new { d.Id });
         }
 
         //DataPoint
@@ -148,15 +155,6 @@ namespace CovidApi.Data
             builder.Entity<Total>()
                 .HasIndex(d => new { d.SourceFile, d.CountrySlugId, d.ProvinceSlugId, d.DistrictSlugId, })
                 .IsUnique();
-        }
-
-        //DataFile
-        protected void OnDataFileModelCreating(ModelBuilder builder)
-        {
-            builder.Entity<DataFile>()
-                .HasKey(df => df.Id);
-
-            //builder.Entity<DataFile>().Property(e.Id).ValueGeneratedOnAdd();
         }
 
         protected void OnDataUpdateModelCreating(ModelBuilder builder)

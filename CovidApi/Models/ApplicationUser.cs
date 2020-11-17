@@ -7,7 +7,13 @@ namespace CovidApi.Models
     public class ApplicationUser : IdentityUser
     {
         [PersonalData]
-        public string FullName { get; set; }
+        public string FirstName { get; set; }
+
+        [PersonalData]
+        public string MiddleName { get; set; }
+        
+        [PersonalData]
+        public string LastName { get; set; }
 
         [PersonalData]
         public string JobDescription { get; set; }
@@ -21,5 +27,8 @@ namespace CovidApi.Models
 
         [PersonalData]
         public string LinkedIn { get; set; }
+
+        [PersonalData]
+        public string Twitter { get; set; }
     }
 }

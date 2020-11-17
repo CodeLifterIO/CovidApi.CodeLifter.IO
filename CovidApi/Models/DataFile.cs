@@ -8,10 +8,11 @@ namespace CovidApi.Models
 {
     public class DataFile : BaseEntity
     {
-        public int RecordsProcessed { get; set; }
-        public bool Completed { get; set; }
-        public DateTime CompletedAt { get; set; }
+        public int? RecordsProcessed { get; set; }
+        public bool? Completed { get; set; }
+        public DateTime? CompletedAt { get; set; }
         public string FileName { get; set; }
         public string FileUrl { get; set; }
+        public byte[]? FileData { get; set; }
     }
 }

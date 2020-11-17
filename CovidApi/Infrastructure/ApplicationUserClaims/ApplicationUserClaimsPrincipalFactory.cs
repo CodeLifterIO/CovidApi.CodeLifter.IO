@@ -19,14 +19,49 @@ namespace CovidApi.Infrastructure.ApplicationUserClaims
         {
             var principal = await base.CreateAsync(user);
 
-            if (!string.IsNullOrWhiteSpace(user.FullName))
+            if (!string.IsNullOrWhiteSpace(user.FirstName))
             {
                 ((ClaimsIdentity)principal.Identity).AddClaims(new[] {
-                    new Claim("FullName", user.FullName)
+                    new Claim("FirstName", user.FirstName)
                 });
             }
 
             // You can add more properties that you want to expose on the User object below
+
+            if (!string.IsNullOrWhiteSpace(user.MiddleName))
+            {
+                ((ClaimsIdentity)principal.Identity).AddClaims(new[] {
+                    new Claim("MiddleName", user.MiddleName)
+                });
+            }
+
+            if (!string.IsNullOrWhiteSpace(user.LastName))
+            {
+                ((ClaimsIdentity)principal.Identity).AddClaims(new[] {
+                    new Claim("LastName", user.LastName)
+                });
+            }
+
+            if (!string.IsNullOrWhiteSpace(user.Github))
+            {
+                ((ClaimsIdentity)principal.Identity).AddClaims(new[] {
+                    new Claim("Github", user.Github)
+                });
+            }
+
+            if (!string.IsNullOrWhiteSpace(user.LinkedIn))
+            {
+                ((ClaimsIdentity)principal.Identity).AddClaims(new[] {
+                    new Claim("LinkedIn", user.LinkedIn)
+                });
+            }
+
+            if (!string.IsNullOrWhiteSpace(user.Twitter))
+            {
+                ((ClaimsIdentity)principal.Identity).AddClaims(new[] {
+                    new Claim("Twitter", user.Twitter)
+                });
+            }
 
             return principal;
         }

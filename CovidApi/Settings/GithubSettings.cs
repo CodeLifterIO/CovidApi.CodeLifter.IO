@@ -10,5 +10,7 @@ namespace CovidApi.Settings
         public string GithubFolderPath { get; set; }
         public string ProductHeaderValue { get; set; }
         public string Token { get; set; }
+        public string RepoOwner { get; set; }
+        public string RepoName { get; set; }
     }
 }

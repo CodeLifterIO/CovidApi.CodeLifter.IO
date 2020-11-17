@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using CovidApi.Data.Repositories;
+using CovidApi.Repositories;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

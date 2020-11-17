@@ -14,7 +14,10 @@ namespace CovidApi.Repositories
         Task<List<DataFile>> GetAllAsync();
         Task<DataFile> FindAsync(int id);
         Task<DataFile> FindAsync(string fileName);
+        Task<bool> ExistsAsync(int id);
+        Task<bool> ExistsAsync(string fileName);
         Task AddAsync(DataFile dataFile);
+        Task UpdateAsync(DataFile dataFile);
     }
 
     public class DataFileRepository : IDataFileRepository
@@ -35,6 +38,7 @@ namespace CovidApi.Repositories
 
         public async Task<DataFile> FindAsync(int id)
         {
+            if (id < 1) return null;
             return await _context.DataFiles
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
@@ -45,6 +49,15 @@ namespace CovidApi.Repositories
                 .FirstOrDefaultAsync(c => c.FileName == fileName);
         }
 
+        public async Task<bool> ExistsAsync(int id)
+        {
+            return await _context.DataFiles.AnyAsync(c => c.Id == id);
+        }
+        public async Task<bool> ExistsAsync(string fileName)
+        {
+            return await _context.DataFiles.AnyAsync(c => c.FileName == fileName);
+        }
+
         public async Task AddAsync(DataFile dataFile)
         {
             var existing = await FindAsync(dataFile.FileName);
@@ -53,6 +66,12 @@ namespace CovidApi.Repositories
                 return;
             }
             _context.DataFiles.Add(dataFile);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateAsync(DataFile dataFile)
+        {
+            _context.DataFiles.Update(dataFile);
             await _context.SaveChangesAsync();
         }
 

@@ -1,53 +1,132 @@
-//using System;
-//using System.Collections.Generic;
-//using System.Diagnostics;
-//using System.IO;
-//using System.Linq;
-//using System.Net;
-//using System.Threading.Tasks;
-//using CovidApi.Services;
-//using CovidApi.Data;
-//using CovidApi.Models;
-//using Microsoft.EntityFrameworkCore;
-//using Octokit;
-//using Slugify;
-//using Microsoft.Extensions.Logging;
-//using CovidApi.Settings;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
+using CovidApi.Services;
+using CovidApi.Data;
+using CovidApi.Models;
+using Microsoft.EntityFrameworkCore;
+using Octokit;
+using Slugify;
+using Microsoft.Extensions.Logging;
+using CovidApi.Settings;
+using CovidApi.Repositories;
+using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Mvc;
+using System.Net.Http;
 
-//namespace CovidApi.Services
-//{
-//    public interface IGithubService
-//    {
-//        Task DownloadAllFilesAsync();
-//        Task<List<GithubDataFile>> GetListOfFilesAsync();
-//        //int ParseAndDeleteFile(string path, string fileName);
-//        Task<ApiLimitReport> ReportAPILimitsAsync();
-//    }
+namespace CovidApi.Services
+{
+    public interface IGithubService
+    {
+        Task<ApiLimitReport> GetLimitsAsync();
+        Task<List<DataFile>> GetFilesListFromGithubAsync();
+    }
 
-//    public class GithubService : IGithubService
-//    {
-//        private readonly GithubSettings _githubSettings;
-//        private ILogger<GithubService> _logger;
-//        private GitHubClient _githubClient;
-//        private WebClient _webClient;
-//        private IReadOnlyList<RepositoryContent> GlobalDataFileInfos { get; set; }
-//        private ISlugHelper _slugHelper;
+    public class GithubService : IGithubService
+    {
+        private readonly HttpClient _httpClient;
+        //private IReadOnlyList<RepositoryContent> GlobalDataFileInfos { get; set; }
+        //private ISlugHelper _slugHelper;
 
-//        public GithubService(ILogger<GithubService> logger,
-//                             GithubSettings githubSettings)
-//                             //GitHubClient githubClient,
-//                             //WebClient webClient)
-//                             //ISlugHelper slugHelper)
-//        {
-//            _logger = logger;
-//            //_githubSettings = githubSettings;
-//            //_githubClient = new GitHubClient(new ProductHeaderValue(_githubSettings.Token));
-//            //_webClient = webClient;
-//            //_slugHelper = slugHelper;
+        private ILogger<GithubService> _logger;
+        private readonly GithubSettings _githubSettings;
+        private IGitHubClient _githubClient;
+        private IDataFileRepository _datafileRepo;
 
-//            //configure Services
-//            //_githubClient.Credentials = new Credentials(_githubSettings.Token);
-//        }
+        public GithubService(ILogger<GithubService> logger,
+                               IOptionsMonitor<GithubSettings> optionsMonitor,
+                               IDataFileRepository datafileRepo,
+                               HttpClient httpClient)
+        {
+            _logger = logger;
+            _githubSettings = optionsMonitor.CurrentValue;
+            _githubClient = new GitHubClient(new ProductHeaderValue(_githubSettings.ProductHeaderValue))
+            {
+                Credentials = new Credentials(_githubSettings.Token),
+            };
+            _datafileRepo = datafileRepo;
+            _httpClient = httpClient;
+        }
+
+        public async Task<ApiLimitReport> GetLimitsAsync()
+        {
+            ApiLimitReport report = new ApiLimitReport();
+
+            var miscellaneousRateLimit = await _githubClient.Miscellaneous.GetRateLimits();
+
+            //  The "core" object provides your rate limit status except for the Search API.
+            var coreRateLimit = miscellaneousRateLimit.Resources.Core;
+
+            report.RequestsPerHour = coreRateLimit.Limit;
+            report.RemainingRequests = coreRateLimit.Remaining;
+            report.LimitResetTime = coreRateLimit.Reset; // UTC time
+
+            return report;
+        }
+
+        public async Task<List<DataFile>> GetFilesListFromGithubAsync()
+        {
+            List<DataFile> files = new List<DataFile>();
+            var fileInfos = await _githubClient.Repository.Content
+                                                          .GetAllContents(_githubSettings.RepoOwner,
+                                                                          _githubSettings.RepoName,
+                                                                          _githubSettings.GithubFolderPath);
+            foreach (RepositoryContent rc in fileInfos)
+            {
+                if (rc.Name.EndsWith(".csv") && (null == await _datafileRepo.FindAsync(rc.Name)))
+                {
+                    DataFile file = new DataFile()
+                    {
+                        FileName = rc.Name,
+                        FileUrl = rc.DownloadUrl,
+                        FileData = await _httpClient.GetByteArrayAsync(rc.DownloadUrl),
+                    };
+                    files.Add(file);
+                    if(await _datafileRepo.ExistsAsync(file.FileName))
+                    {
+                        await _datafileRepo.UpdateAsync(file);
+                    }
+                    else
+                    {
+                        await _datafileRepo.AddAsync(file);
+                    }
+                }
+            }
+            return files;
+        }
+
+
+        //public async Task<List<DataFile>> GetUnprocessedFilesFromGithubAsync()
+        //{
+        //    List<DataFile> files = new List<DataFile>();
+        //    var fileInfos = await _githubClient.Repository.Content
+        //                                                  .GetAllContents(_githubSettings.RepoOwner,
+        //                                                                  _githubSettings.RepoName,
+        //                                                                  _githubSettings.GithubFolderPath);
+
+        //    foreach (RepositoryContent rc in fileInfos)
+        //    {
+        //        if (rc.Name.EndsWith(".csv"))
+        //        {
+        //            if (null == _datafileRepo.FindAsync(rc.Name))
+        //            {
+        //                DataFile file = new DataFile()
+        //                {
+        //                    FileName = rc.Name,
+        //                    FileUrl = rc.DownloadUrl,
+        //                };
+        //                files.Add(file);
+        //            }
+        //        }
+        //    }
+        //    return files;
+        //}
+    }
+}
 
 //        public async Task DownloadAllFilesAsync()
 //        {

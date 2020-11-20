@@ -412,3 +412,4 @@ Docker/ENV/release.env
 Docker/ENV/staging.env
 .env
 vs.env
+CovidApi/appsettings.Development.json

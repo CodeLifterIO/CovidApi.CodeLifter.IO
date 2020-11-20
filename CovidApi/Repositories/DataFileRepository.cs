@@ -12,6 +12,7 @@ namespace CovidApi.Repositories
     public interface IDataFileRepository
     {
         Task<List<DataFile>> GetAllAsync();
+        Task<DataFile> GetLast();
         Task<DataFile> FindAsync(int id);
         Task<DataFile> FindAsync(string fileName);
         Task<bool> ExistsAsync(int id);
@@ -75,5 +76,9 @@ namespace CovidApi.Repositories
             await _context.SaveChangesAsync();
         }
 
+        public async Task<DataFile> GetLast()
+        {
+            return await _context.DataFiles.LastAsync();
+        }
     }
 }

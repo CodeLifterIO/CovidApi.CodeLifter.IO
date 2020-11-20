@@ -29,17 +29,21 @@ using System.Net;
 using CovidApi.Data.Repositories;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using System.Collections.Generic;
+using System.Net.Http.Headers;
+using System.Net.Http;
+using Amazon.S3;
 
 namespace CovidApi
 {
     public class Startup
     {
         public IWebHostEnvironment Env { get; }
-        public IConfiguration Configuration { get; }
+        public IConfiguration _configuration { get; }
 
         public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
-            Configuration = configuration;
+            _configuration = configuration;
             Env = env;
         }
 
@@ -54,7 +58,11 @@ namespace CovidApi
             services.AddScoped<IEnvironmentService, EnvironmentService>();
             services.AddScoped<IDataUpdateService, DataUpdateService>();
             services.AddScoped<Slugify.ISlugHelper, Slugify.SlugHelper>();
-
+            services.AddHttpClient<IGithubService, GithubService>(client =>
+                {
+                    client.BaseAddress = new Uri("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/");
+                });
+            services.AddScoped<IGithubService, GithubService>();
 
             //Octokit.GitHubClient octo = new GitHubClient(r);
             //services.AddSingleton<Octokit.IGitHubClient, Octokit.GitHubClient>();
@@ -73,12 +81,19 @@ namespace CovidApi
 
         public void ConfigureSettingsAndKeys(IServiceCollection services)
         {
-            services.Configure<GithubSettings>(Configuration.GetSection("GithubSettings"));
+            services.Configure<ConnectionStrings>(_configuration.GetSection(nameof(ConnectionStrings)));
+            services.Configure<GithubSettings>(_configuration.GetSection(nameof(GithubSettings)));
+            services.Configure<EmailSettings>(_configuration.GetSection(nameof(EmailSettings)));
+            services.Configure<ScriptTags>(_configuration.GetSection(nameof(ScriptTags)));
+            services.Configure<LoggingSettings>(_configuration.GetSection("Logging"));
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDefaultAWSOptions(_configuration.GetAWSOptions());
+            services.AddAWSService<IAmazonS3>();
+
             ConfigureSettingsAndKeys(services);
             ConfigureBuiltInServices(services);
             ConfigureDataRepositories(services);
@@ -104,7 +119,7 @@ namespace CovidApi
                 options.MinimumSameSitePolicy = SameSiteMode.Strict;
             });
 
-            services.AddDbContextPool<CovidContext>(ctx => ctx.UseNpgsql(Configuration.GetConnectionString("DatabaseConnection")));
+            services.AddDbContextPool<CovidContext>(ctx => ctx.UseNpgsql(_configuration.GetConnectionString("DatabaseConnection")));
 
             services.AddDefaultIdentity<ApplicationUser>()
                 .AddRoles<IdentityRole>()
@@ -189,7 +204,7 @@ namespace CovidApi
 
             services.AddAntiforgery();
 
-            services.Configure<ScriptTags>(Configuration.GetSection(nameof(ScriptTags)));
+            
 
             services.AddControllersWithViews(options =>
             { 
@@ -224,7 +239,7 @@ namespace CovidApi
             });
 
             // You probably want to use in-memory cache if not developing using docker-compose
-            services.AddDistributedRedisCache(action => { action.Configuration = Configuration["Redis:InstanceName"]; });
+            services.AddDistributedRedisCache(action => { action.Configuration = _configuration["Redis:InstanceName"]; });
 
             services.AddSession(options =>
             {

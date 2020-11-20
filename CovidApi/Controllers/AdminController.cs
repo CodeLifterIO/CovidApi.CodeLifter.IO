@@ -20,94 +20,49 @@ namespace CovidApi.Controllers
     public class AdminController : Controller
     {
         private ILogger<AdminController> _logger;
-        private readonly GithubSettings _githubSettings;
-        private IGitHubClient _githubClient;
+        //private readonly GithubSettings _githubSettings;
+        //private IGitHubClient _githubClient;
         private IDataFileRepository _datafileRepo;
+        private IGithubService _gitService;
 
         public AdminController(ILogger<AdminController> logger,
-                               IOptionsMonitor<GithubSettings> optionsMonitor,
-                               IDataFileRepository datafileRepo)
+                               //IOptionsMonitor<GithubSettings> optionsMonitor,
+                               IDataFileRepository datafileRepo,
+                               IGithubService githubService)
         {
+            _gitService = githubService;
+
             _logger = logger;
-            _githubSettings = optionsMonitor.CurrentValue;
-            _githubClient = new GitHubClient(new ProductHeaderValue(_githubSettings.ProductHeaderValue))
-            {
-                Credentials = new Credentials(_githubSettings.Token),
-            };
+            //_githubSettings = optionsMonitor.CurrentValue;
+            //_githubClient = new GitHubClient(new ProductHeaderValue(_githubSettings.ProductHeaderValue))
+            //{
+            //    Credentials = new Credentials(_githubSettings.Token),
+            //};
             _datafileRepo = datafileRepo;
         }
 
         [HttpGet("[controller]/[action]")]
         public async Task<IActionResult> Limits()
         {
-            ApiLimitReport report = new ApiLimitReport();
-
-            var miscellaneousRateLimit = await _githubClient.Miscellaneous.GetRateLimits();
-
-            //  The "core" object provides your rate limit status except for the Search API.
-            var coreRateLimit = miscellaneousRateLimit.Resources.Core;
-
-            report.RequestsPerHour = coreRateLimit.Limit;
-            report.RemainingRequests = coreRateLimit.Remaining;
-            report.LimitResetTime = coreRateLimit.Reset; // UTC time
+            var report = await _gitService.GetLimitsAsync();
 
             return Ok(report);
         }
 
         [HttpGet("[controller]/[action]")]
-        public async Task<IActionResult> FileList()
+        public async Task<IActionResult> Download()
         {
-            List<DataFile> files = new List<DataFile>();
-            var fileInfos = await _githubClient.Repository.Content
-                                                          .GetAllContents(_githubSettings.RepoOwner, 
-                                                                          _githubSettings.RepoName, 
-                                                                          _githubSettings.GithubFolderPath);
-            foreach (RepositoryContent rc in fileInfos)
-            {
-                if (rc.Name.EndsWith(".csv"))
-                {
-                    DataFile file = new DataFile()
-                    {
-                        FileName = rc.Name,
-                        FileUrl = rc.DownloadUrl,
-                    };
-                    files.Add(file);
-                }
-            }
+            var report = await _gitService.GetFilesListFromGithubAsync();
 
-            return Ok(files);
+            return Ok(report);
         }
 
         [HttpGet("[controller]/[action]")]
-        public async Task<IActionResult> UpdateFileList()
+        public async Task<IActionResult> Index()
         {
-            var fileInfos = await _githubClient.Repository.Content
-                                                          .GetAllContents(_githubSettings.RepoOwner,
-                                                                          _githubSettings.RepoName,
-                                                                          _githubSettings.GithubFolderPath);
-            foreach (RepositoryContent rc in fileInfos)
-            {
-                if (rc.Name.EndsWith(".csv"))
-                {
-                    DataFile file = new DataFile()
-                    {
-                        FileName = rc.Name,
-                        FileUrl = rc.DownloadUrl,
-                    };
-                    await _datafileRepo.AddAsync(file);
-                }
-            }
+            var report = await _datafileRepo.GetAllAsync();
 
-            return Ok(await _datafileRepo.GetAllAsync());
+            return Ok(report);
         }
-
-        //[HttpGet]
-        //[Route("[controller]/{slug}/[action]")]
-        //public async Task<IActionResult> Process()
-        //{
-        //    await _githubService.DownloadAllFilesAsync();
-        //    return new OkResult();
-        //}
-
     }
 }

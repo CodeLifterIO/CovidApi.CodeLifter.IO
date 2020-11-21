@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <partial name="_PageHeadElement" />
+
+        @RenderSection("Styles", required: false)
+        @RenderSection("HeadScripts", required: false)
+    </head>
+    <body>
+        <partial name="_GoogleTagManagerBodyElement" />
+
+        <partial name="_Sidenav" />
+        <div class="main-content">
+            <partial name="Topnav/_Topnav" />
+
+            <!-- Header -->
+            <div class="header bg-primary pb-6">
+                <div class="container-fluid">
+                    <div class="header-body">
+                        <!-- 1st Row: Crumbs and filters -->
+                        <div class="row align-items-center py-4">
+                            <partial name="_AdminBreadcrumbs" />
+                            <partial name="_AdminButtonActions" />
+                        </div>
+                        @RenderSection("DashboardCards", required: false)
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page content -->
+            <div class="container-fluid mt--6">
+                <div class="col-xl-12 order-xl-1">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col-12">
+                                    <h3 class="mb-0">@ViewData["Title"] @ViewData["SubArea"] </h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="pl-lg-4">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <!-- Page content -->
+                                        @RenderBody()
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <a asp-action="Index">Back to List</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <partial name="_Footer" />
+            </div>
+        </div>
+
+        <partial name="_ThemeScripts" />
+
+        @RenderSection("Scripts", required: false)
+    </body>
+</html>

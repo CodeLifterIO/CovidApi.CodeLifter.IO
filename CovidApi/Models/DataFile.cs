@@ -13,6 +13,5 @@ namespace CovidApi.Models
         public DateTime? CompletedAt { get; set; }
         public string FileName { get; set; }
         public string FileUrl { get; set; }
-        public byte[]? FileData { get; set; }
     }
 }

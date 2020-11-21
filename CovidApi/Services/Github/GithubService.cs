@@ -23,11 +23,12 @@ namespace CovidApi.Services
     public interface IGithubService
     {
         Task<ApiLimitReport> GetLimitsAsync();
-        Task<List<DataFile>> GetFilesListFromGithubAsync();
+        Task<List<DataFile>> DownloadNewFilesFromGithub();
     }
 
     public class GithubService : IGithubService
     {
+        private readonly WebClient _webClient; 
         private readonly HttpClient _httpClient;
         //private IReadOnlyList<RepositoryContent> GlobalDataFileInfos { get; set; }
         //private ISlugHelper _slugHelper;
@@ -50,6 +51,9 @@ namespace CovidApi.Services
             };
             _datafileRepo = datafileRepo;
             _httpClient = httpClient;
+
+            _webClient = new WebClient();
+            _webClient.Headers.Add(_githubSettings.ProductHeaderValue, _githubSettings.Token);
         }
 
         public async Task<ApiLimitReport> GetLimitsAsync()
@@ -68,7 +72,7 @@ namespace CovidApi.Services
             return report;
         }
 
-        public async Task<List<DataFile>> GetFilesListFromGithubAsync()
+        public async Task<List<DataFile>> DownloadNewFilesFromGithub()
         {
             List<DataFile> files = new List<DataFile>();
             var fileInfos = await _githubClient.Repository.Content
@@ -77,26 +81,45 @@ namespace CovidApi.Services
                                                                           _githubSettings.GithubFolderPath);
             foreach (RepositoryContent rc in fileInfos)
             {
-                if (rc.Name.EndsWith(".csv") && (null == await _datafileRepo.FindAsync(rc.Name)))
+                if (rc.Name.EndsWith(".csv") && !(await _datafileRepo.ExistsAsync(rc.Name)))
                 {
                     DataFile file = new DataFile()
                     {
                         FileName = rc.Name,
                         FileUrl = rc.DownloadUrl,
-                        FileData = await _httpClient.GetByteArrayAsync(rc.DownloadUrl),
                     };
                     files.Add(file);
-                    if(await _datafileRepo.ExistsAsync(file.FileName))
-                    {
-                        await _datafileRepo.UpdateAsync(file);
-                    }
-                    else
                     {
                         await _datafileRepo.AddAsync(file);
                     }
                 }
             }
             return files;
+        }
+
+        public int ParseAndDeleteFile(string path, string fileName)
+        {
+            _webClient.DownloadFile(new Uri(path), fileName);
+
+            string[] csvRows = File.ReadAllLines(fileName);
+            string[] headers = csvRows[0].Replace("/", "")
+                                        .Replace("_", "")
+                                        .Replace("-", "")
+                                        .Replace(" ", "")
+                                        .Split(',');
+            for (int i = 1; i < csvRows.Length; i++)
+            {
+                string[] row = csvRows[i]
+                                        .Replace(", ", "/")
+                                        .Split(',');
+                //GenerateEntryFromDelimitedFields(fileName, headers, row);
+                //StoredProcedure.SummarizeEntities();
+                //StoredProcedure.GenerateDatabaseBackup();
+            }
+
+            File.Delete($"{fileName}");
+
+            return csvRows.Length;
         }
 
 
@@ -154,70 +177,10 @@ namespace CovidApi.Services
 //            //_logger.LogMessage($"COVIDAP -> SUCCESS - UP TO DATE. File: {Update.CurrentUpdateState.LastCompletedFileName}");
 //        }
 
-//        public async Task<ApiLimitReport> ReportAPILimitsAsync()
-//        {
-//            ApiLimitReport report = new ApiLimitReport();
-
-//            var miscellaneousRateLimit = await _githubClient.Miscellaneous.GetRateLimits();
-
-//            //  The "core" object provides your rate limit status except for the Search API.
-//            var coreRateLimit = miscellaneousRateLimit.Resources.Core;
-
-//            report.RequestsPerHour = coreRateLimit.Limit;
-//            report.RemainingRequests = coreRateLimit.Remaining;
-//            report.LimitResetTime = coreRateLimit.Reset; // UTC time
-
-//            return report;
-//        }
-
-//        public async Task<List<Models.GithubDataFile>> GetListOfFilesAsync()
-//        {
-//            List<Models.GithubDataFile> files = new List<Models.GithubDataFile>();
-//            GlobalDataFileInfos = await _githubClient.Repository
-//                .Content
-//                .GetAllContents(_githubSettings.RepoOwner, _githubSettings.RepoName, _githubSettings.GithubFolderPath);
-
-//            foreach (RepositoryContent rc in GlobalDataFileInfos)
-//            {
-//                if (rc.Name.EndsWith(".csv"))
-//                {
-//                    Models.GithubDataFile file = new Models.GithubDataFile()
-//                    {
-//                        FileName = rc.Name,
-//                        DownloadUrl = rc.DownloadUrl,
-//                    };
-//                    files.Add(file);
-//                }
-//            }
-
-//            return files;
-//        }
 
 
-//        //public int ParseAndDeleteFile(string path, string fileName)
-//        //{
-//        //    _webClient.DownloadFile(new Uri(path), fileName);
 
-//        //    string[] csvRows = File.ReadAllLines(fileName);
-//        //    string[] headers = csvRows[0].Replace("/", "")
-//        //                                .Replace("_", "")
-//        //                                .Replace("-", "")
-//        //                                .Replace(" ", "")
-//        //                                .Split(',');
-//        //    for (int i = 1; i < csvRows.Length; i++)
-//        //    {
-//        //        string[] row = csvRows[i]
-//        //                                .Replace(", ", "/")
-//        //                                .Split(',');
-//        //        //GenerateEntryFromDelimitedFields(fileName, headers, row);
-//        //        //StoredProcedure.SummarizeEntities();
-//        //        //StoredProcedure.GenerateDatabaseBackup();
-//        //    }
 
-//        //    File.Delete($"{fileName}");
-
-//        //    return csvRows.Length;
-//        //}
 
 
 //        ///// <summary>

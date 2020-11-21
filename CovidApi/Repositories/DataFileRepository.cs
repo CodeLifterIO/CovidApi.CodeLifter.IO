@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
 using CovidApi.Data;
 using CovidApi.Models;
@@ -12,6 +13,11 @@ namespace CovidApi.Repositories
     public interface IDataFileRepository
     {
         Task<List<DataFile>> GetAllAsync();
+        Task<List<DataFile>> SearchAndSortAsync(string term, 
+                                                string sortColumn = null, 
+                                                string sortColumnDirection = null,
+                                                int skip = 0, 
+                                                int pageSize = 10);
         Task<DataFile> GetLast();
         Task<DataFile> FindAsync(int id);
         Task<DataFile> FindAsync(string fileName);
@@ -35,6 +41,26 @@ namespace CovidApi.Repositories
         public async Task<List<DataFile>> GetAllAsync()
         {
             return await _context.DataFiles.OrderByDescending(x => x.FileName).ToListAsync();
+        }
+
+        public async Task<List<DataFile>> SearchAndSortAsync(string term, string sortColumn = null, string sortColumnDirection = null, int skip = 0, int pageSize = 10)
+        {
+            var filteredData =  (from tempData in _context.DataFiles select tempData);
+
+            if(!string.IsNullOrWhiteSpace(term))
+            {
+                term = term.ToUpperInvariant();
+                filteredData = filteredData.Where(x => x.FileName.ToUpperInvariant().Contains(term));
+            }
+            
+            if (!string.IsNullOrWhiteSpace(sortColumn) && !string.IsNullOrWhiteSpace(sortColumnDirection))
+            {
+                filteredData = filteredData.OrderBy(sortColumn.Replace(" ", "") + " " + sortColumnDirection);
+            }
+
+            filteredData = filteredData.Skip(skip).Take(pageSize);
+
+            return await filteredData.ToListAsync();
         }
 
         public async Task<DataFile> FindAsync(int id)

@@ -20,24 +20,15 @@ namespace CovidApi.Controllers
     public class AdminController : Controller
     {
         private ILogger<AdminController> _logger;
-        //private readonly GithubSettings _githubSettings;
-        //private IGitHubClient _githubClient;
         private IDataFileRepository _datafileRepo;
         private IGithubService _gitService;
 
         public AdminController(ILogger<AdminController> logger,
-                               //IOptionsMonitor<GithubSettings> optionsMonitor,
                                IDataFileRepository datafileRepo,
                                IGithubService githubService)
         {
             _gitService = githubService;
-
             _logger = logger;
-            //_githubSettings = optionsMonitor.CurrentValue;
-            //_githubClient = new GitHubClient(new ProductHeaderValue(_githubSettings.ProductHeaderValue))
-            //{
-            //    Credentials = new Credentials(_githubSettings.Token),
-            //};
             _datafileRepo = datafileRepo;
         }
 
@@ -52,7 +43,7 @@ namespace CovidApi.Controllers
         [HttpGet("[controller]/[action]")]
         public async Task<IActionResult> Download()
         {
-            var report = await _gitService.GetFilesListFromGithubAsync();
+            var report = await _gitService.DownloadNewFilesFromGithub();
 
             return Ok(report);
         }

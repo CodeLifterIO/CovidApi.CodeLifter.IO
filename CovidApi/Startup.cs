@@ -58,6 +58,7 @@ namespace CovidApi
             services.AddScoped<IEnvironmentService, EnvironmentService>();
             services.AddScoped<IDataUpdateService, DataUpdateService>();
             services.AddScoped<Slugify.ISlugHelper, Slugify.SlugHelper>();
+            
             services.AddHttpClient<IGithubService, GithubService>(client =>
                 {
                     client.BaseAddress = new Uri("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/");
@@ -67,7 +68,7 @@ namespace CovidApi
             //Octokit.GitHubClient octo = new GitHubClient(r);
             //services.AddSingleton<Octokit.IGitHubClient, Octokit.GitHubClient>();
 
-            //services.AddScoped<WebClient>();
+            //services.AddScoped<IWebClient, WebClient>();
             //services.AddSingleton<IGithubService, GithubService>();
 
         }
@@ -99,9 +100,7 @@ namespace CovidApi
             ConfigureDataRepositories(services);
             ConfigureAppServices(services);
 
-            // Configure Email capabilities
-            //services.Configure<EmailSettings>(Configuration.GetSection("EmailSettings"));
-            //services.AddSingleton<IEmailSender, EmailSender>();
+            services.AddSingleton<IEmailSender, EmailSender>();
 
             services.AddDatabaseDeveloperPageExceptionFilter();
 

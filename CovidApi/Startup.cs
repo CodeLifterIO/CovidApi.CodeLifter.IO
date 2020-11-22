@@ -259,6 +259,7 @@ namespace CovidApi
             // You can remove this if you want to prevent the seeding process or you can change the initial data
             // to suit your needs in the IdentityDataSeeder class.
             services.AddHostedService<DbSeederHostedService>();
+            services.AddHostedService<LoggingTestHostedService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

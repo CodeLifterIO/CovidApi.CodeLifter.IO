@@ -63,14 +63,8 @@ namespace CovidApi
                 {
                     client.BaseAddress = new Uri("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/");
                 });
+
             services.AddScoped<IGithubService, GithubService>();
-
-            //Octokit.GitHubClient octo = new GitHubClient(r);
-            //services.AddSingleton<Octokit.IGitHubClient, Octokit.GitHubClient>();
-
-            //services.AddScoped<IWebClient, WebClient>();
-            //services.AddSingleton<IGithubService, GithubService>();
-
         }
 
         public void ConfigureBuiltInServices(IServiceCollection services)
@@ -259,7 +253,7 @@ namespace CovidApi
             // You can remove this if you want to prevent the seeding process or you can change the initial data
             // to suit your needs in the IdentityDataSeeder class.
             services.AddHostedService<DbSeederHostedService>();
-            services.AddHostedService<LoggingTestHostedService>();
+            services.AddHostedService<GithubDataHostedService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

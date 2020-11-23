@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using CodeLifter.Logging.Loggers;
 using CovidApi.Models;
 using CovidApi.Repositories;
 using CovidApi.Services;
@@ -40,13 +39,13 @@ namespace CovidApi.Controllers
             return Ok(report);
         }
 
-        [HttpGet("[controller]/[action]")]
-        public async Task<IActionResult> Download()
-        {
-            var report = await _gitService.DownloadNewFilesFromGithub();
+        //[HttpGet("[controller]/[action]")]
+        //public async Task<IActionResult> Download()
+        //{
+        //    var report = await _gitService.DownloadNewFilesFromGithub();
 
-            return Ok(report);
-        }
+        //    return Ok(report);
+        //}
 
         [HttpGet("[controller]/[action]")]
         public async Task<IActionResult> Index()

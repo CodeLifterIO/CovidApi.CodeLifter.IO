@@ -3,6 +3,8 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
+using System.Threading.Tasks;
 using CovidApi.Models;
 using CovidApi.Models.BaseEntities;
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
@@ -82,7 +84,19 @@ namespace CovidApi.Data
             OnDataUpdateModelCreating(builder);
         }
 
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
+        {
+            AddTimestamps();
+            return await base.SaveChangesAsync(cancellationToken);
+        }
+
         public override int SaveChanges()
+        {
+            AddTimestamps();
+            return base.SaveChanges();
+        }
+
+        private void AddTimestamps()
         {
             var entries = ChangeTracker
                 .Entries()
@@ -92,17 +106,15 @@ namespace CovidApi.Data
 
             foreach (var entityEntry in entries)
             {
-                ((IBaseEntity)entityEntry.Entity).UpdatedAt = DateTime.Now;
-                ((IBaseEntity)entityEntry.Entity).UpdatedBy = CurrentUserId;
-
                 if (entityEntry.State == EntityState.Added)
                 {
-                    ((IBaseEntity)entityEntry.Entity).CreatedAt = DateTime.Now;
+                    ((IBaseEntity)entityEntry.Entity).CreatedAt = DateTime.UtcNow;
                     ((IBaseEntity)entityEntry.Entity).CreatedBy = CurrentUserId;
                 }
-            }
 
-            return base.SaveChanges();
+                ((IBaseEntity)entityEntry.Entity).UpdatedAt = DateTime.UtcNow;
+                ((IBaseEntity)entityEntry.Entity).UpdatedBy = CurrentUserId;
+            }
         }
 
         //DataFile

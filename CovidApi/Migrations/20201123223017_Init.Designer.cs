@@ -10,8 +10,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CovidApi.Migrations
 {
     [DbContext(typeof(CovidContext))]
-    [Migration("20201120214200_RemoveFileData")]
-    partial class RemoveFileData
+    [Migration("20201123223017_Init")]
+    partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

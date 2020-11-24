@@ -35,8 +35,6 @@ namespace CovidApi.Infrastructure.Startup
                 await IdentityDataSeeder<ApplicationUser, IdentityRole>.SeedDataAsync(
                     scope.ServiceProvider, 
                     _logger);
-
-
             }
         }
 

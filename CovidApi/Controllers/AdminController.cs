@@ -39,14 +39,6 @@ namespace CovidApi.Controllers
             return Ok(report);
         }
 
-        //[HttpGet("[controller]/[action]")]
-        //public async Task<IActionResult> Download()
-        //{
-        //    var report = await _gitService.DownloadNewFilesFromGithub();
-
-        //    return Ok(report);
-        //}
-
         [HttpGet("[controller]/[action]")]
         public async Task<IActionResult> Index()
         {

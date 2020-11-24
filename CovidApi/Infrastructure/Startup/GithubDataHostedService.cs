@@ -17,32 +17,49 @@ namespace CovidApi.Infrastructure.Startup
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<GithubDataHostedService> _logger;
 
-        //private readonly IDataFileRepository _dataFilesRepository;
+        private IDataFileRepository _dataFileRepository;
+        private IDataUpdateRepository _dataUpdateRepository;
 
         private IGithubService _gitService;
 
         public GithubDataHostedService(IServiceProvider serviceProvider,
                                        ILogger<GithubDataHostedService> logger)
         {
-            _serviceProvider = serviceProvider;
             _logger = logger;
+            _serviceProvider = serviceProvider;
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            _logger.LogDebug($"Starting {nameof(GithubDataHostedService)}");
-
             using (var scope = _serviceProvider.CreateScope())
             {
                 var services = scope.ServiceProvider;
                 _gitService = services.GetRequiredService<IGithubService>();
+                _dataUpdateRepository = services.GetRequiredService<IDataUpdateRepository>();
+                _dataFileRepository = services.GetRequiredService<IDataFileRepository>();
+
                 var newFiles = await _gitService.DownloadNewFilesFromGithub();
+
+                DataUpdate update = new DataUpdate();
+                if (newFiles.Count > 0) update.StartFileName = newFiles[0].FileName;
 
                 foreach (DataFile d in newFiles)
                 {
                     _logger.LogDebug($"FileName: {d.FileName}");
                     await _gitService.ParseAndDeleteFile(d);
+
+                    d.CompletedAt = DateTime.UtcNow;
+                    d.Completed = true;
+                    await _dataFileRepository.AddAsync(d);
+
+                    update.LastCompletedFileName = d.FileName;
+                    update.RecordsProcessed += (int)d.RecordsProcessed;
                 }
+
+                update.CompletedAt = DateTime.UtcNow;
+                update.Completed = true;
+
+                await _dataUpdateRepository.AddAsync(update);
             }
         }
 

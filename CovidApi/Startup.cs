@@ -22,16 +22,8 @@ using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-
-using Octokit;
-using System.Net;
-using CovidApi.Data.Repositories;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Identity.UI.Services;
-using System.Collections.Generic;
-using System.Net.Http.Headers;
-using System.Net.Http;
 using Amazon.S3;
 
 namespace CovidApi
@@ -50,7 +42,9 @@ namespace CovidApi
         public void ConfigureDataRepositories(IServiceCollection services)
         {
             services.AddScoped<IDatabaseRepository, DatabaseRepository>();
+            services.AddScoped<IStoredProcedureRepository, StoredProcedureRepository>();
             services.AddScoped<IDataFileRepository, DataFileRepository>();
+            services.AddScoped<IDataUpdateRepository, DataUpdateRepository>();
         }
 
         public void ConfigureAppServices(IServiceCollection services)

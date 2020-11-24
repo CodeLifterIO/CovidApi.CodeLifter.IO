@@ -30,7 +30,6 @@ namespace CovidApi.Services
     public class GithubService : IGithubService
     {
         private readonly WebClient _webClient; 
-        private readonly HttpClient _httpClient;
         //private IReadOnlyList<RepositoryContent> GlobalDataFileInfos { get; set; }
         //private ISlugHelper _slugHelper;
 
@@ -41,8 +40,7 @@ namespace CovidApi.Services
 
         public GithubService(ILogger<GithubService> logger,
                                IOptionsMonitor<GithubSettings> optionsMonitor,
-                               IDataFileRepository datafileRepo,
-                               HttpClient httpClient)
+                               IDataFileRepository datafileRepo)
         {
             _logger = logger;
             _githubSettings = optionsMonitor.CurrentValue;
@@ -51,7 +49,6 @@ namespace CovidApi.Services
                 Credentials = new Credentials(_githubSettings.Token),
             };
             _datafileRepo = datafileRepo;
-            _httpClient = httpClient;
 
             _webClient = new WebClient();
             _webClient.Headers.Add(_githubSettings.ProductHeaderValue, _githubSettings.Token);
@@ -113,10 +110,12 @@ namespace CovidApi.Services
                 string[] row = csvRows[i]
                                         .Replace(", ", "/")
                                         .Split(',');
-                //GenerateEntryFromDelimitedFields(fileName, headers, row);
+                //GenerateEntryFromDelimitedFields(df.FileName, headers, row);
                 //StoredProcedure.SummarizeEntities();
                 //StoredProcedure.GenerateDatabaseBackup();
             }
+
+            df.RecordsProcessed = csvRows.Length;
 
             File.Delete($"{df.FileName}");
         }
@@ -229,7 +228,7 @@ namespace CovidApi.Services
             }
             dataPoint.SourceFile = fileName.Replace(".csv", "");
             if (latitude != 0.0 && longitude != 0.0) geoCoordinate = new GeoCoordinate() { Latitude = latitude, Longitude = longitude };
-            ProcessDataPoint(dataPoint, geoCoordinate, district, province, country);
+            //ProcessDataPoint(dataPoint, geoCoordinate, district, province, country);
         }
 
         private double ParseDouble(string source)
@@ -257,7 +256,7 @@ namespace CovidApi.Services
         //    {
         //        if (district == null && province == null && geo != null)
         //        {
-        //            geo.GeoSlug = country.GeoSlug;
+        //            country.GeoCoordinateId
         //        }
         //        dp.CountrySlugId = country.SlugId;
         //        Update.Countries[country.SlugId] = country;

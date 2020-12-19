@@ -13,14 +13,6 @@ namespace CovidApi.Models
 {
     public class Country : SluggableEntity
     {
-        public Country() { }
-        public Country(string name)
-        {
-            Name = name;
-            SlugHelper slugger = new SlugHelper();
-            SlugId = slugger.GenerateSlug(Name);
-        }
-
         [JsonIgnore]
         public List<Province> Provinces { get; } = new List<Province>();
 
@@ -30,41 +22,5 @@ namespace CovidApi.Models
         [NotMapped]
         public List<Total> TimeSeries { get; set; }
 
-        //public static Country Find(string slug)
-        //{
-        //    using (var context = new CovidContext())
-        //    {
-        //        return Find(slug, context);
-        //    }
-        //}
-
-        //public static Country Find(string slug, CovidContext context)
-        //{
-        //    return context.Countries
-        //        .Where(c => c.SlugId == slug)
-        //        .FirstOrDefault();
-        //}
-
-        //public static Country Upsert(Country newCountry)
-        //{
-        //    using (var context = new CovidContext())
-        //    {
-        //        return Upsert(newCountry, context);
-        //    }
-        //}
-
-        //public static Country Upsert(Country newCountry, CovidContext context)
-        //{
-        //    int result = context.Countries.Upsert(newCountry)
-        //        .On(e => e.SlugId)
-        //        .WhenMatched((eDB, eIn) => new Country
-        //        {
-        //            Name = newCountry.Name,
-        //            UpdatedAt = DateTime.UtcNow,
-        //            GeoCoordinateId = newCountry.GeoCoordinateId,
-        //        })
-        //        .Run();
-        //    return Find(newCountry.SlugId, context);
-        //}
     }
 }

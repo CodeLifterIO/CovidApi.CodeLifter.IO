@@ -45,6 +45,11 @@ namespace CovidApi.Data
         {
             base.OnModelCreating(builder);
 
+            builder.Entity<DataPoint>()
+                .HasIndex(d => new { d.LastUpdate, d.CountrySlugId, d.ProvinceSlugId, d.DistrictSlugId })
+                .IsUnique()
+                .HasFilter("[LastUpdate] IS NOT NULL AND [CountryId] IS NOT NULL");
+
             builder.Entity<IdentityRole>(entity =>
             {
                 entity.ToTable(name: "Roles");
@@ -157,7 +162,7 @@ namespace CovidApi.Data
         protected void OnGeoCoordinateModelCreating(ModelBuilder builder)
         {
             builder.Entity<GeoCoordinate>()
-                .HasIndex(d => new { d.Id })
+                .HasIndex(d => new { d.Latitude, d.Longitude })
                 .IsUnique();
         }
 

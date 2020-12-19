@@ -14,7 +14,6 @@ namespace CovidApi.Repositories
         Task EnsureMigratedAsync();
         Task EnsureSeedAsync();
         Task GenerateDatabaseBackupAsync();
-        Task SummarizeEntities();
     }
 
     public class DatabaseRepository : IDatabaseRepository
@@ -48,28 +47,6 @@ namespace CovidApi.Repositories
         public async Task GenerateDatabaseBackupAsync()
         {
             await _context.Database.ExecuteSqlRawAsync("EXEC SP_Backup_Database;");
-        }
-
-        public async Task SummarizeEntities()
-        {
-            await SummarizeCountriesAsync();
-            await SummarizeProvincesAsync();
-            await SummarizeDistrictsAsync();
-        }
-
-        private async Task SummarizeCountriesAsync()
-        {
-            await _context.Database.ExecuteSqlRawAsync($"EXEC SP_Update_Summary_On_Country;");
-        }
-
-        private async Task SummarizeProvincesAsync()
-        {
-            await _context.Database.ExecuteSqlRawAsync($"EXEC SP_Update_Summary_On_Province;");
-        }
-
-        private async Task SummarizeDistrictsAsync()
-        {
-            await _context.Database.ExecuteSqlRawAsync($"EXEC SP_Update_Summary_On_District;");
         }
     }
 }

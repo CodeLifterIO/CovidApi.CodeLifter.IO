@@ -8,7 +8,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CovidApi.Repositories
 {
-    public class GeoCoordinateRepository
+    public interface IGeoCoordinateRepository
+    {
+        Task<GeoCoordinate> FindAsync(double latitude, double longitude);
+        Task<GeoCoordinate> UpsertAsync(GeoCoordinate geo);
+    }
+
+    public class GeoCoordinateRepository : IGeoCoordinateRepository
     {
         private readonly CovidContext _context;
 
@@ -17,27 +23,25 @@ namespace CovidApi.Repositories
             _context = context;
         }
 
-        public GeoCoordinate Find(double latitude, double longitude)
+        public async Task<GeoCoordinate> FindAsync(double latitude, double longitude)
         {
-            return _context.GeoCoordinates
+            return await _context.GeoCoordinates
                 .Where(geo => geo.Latitude == latitude && geo.Longitude == longitude)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
         }
 
-        public GeoCoordinate Upsert(GeoCoordinate geo)
+        public async Task<GeoCoordinate> UpsertAsync(GeoCoordinate geo)
         {
             if (geo?.Latitude == null || geo?.Longitude == null)
-                return null;
+                return geo;
 
-            int result = _context.GeoCoordinates.Upsert(geo)
+            await _context.GeoCoordinates.Upsert(geo)
                .On(g => new { g.Latitude, g.Longitude })
                .WhenMatched((eDB, eIn) => new GeoCoordinate
                {
-                   Latitude = geo.Latitude,
-                   Longitude = geo.Longitude,
                    UpdatedAt = DateTime.UtcNow,
                })
-               .Run();
+               .RunAsync();
             return geo;
         }
     }

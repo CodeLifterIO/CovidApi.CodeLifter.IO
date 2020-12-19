@@ -41,16 +41,22 @@ namespace CovidApi
 
         public void ConfigureDataRepositories(IServiceCollection services)
         {
+            services.AddScoped<ICountryRepository, CountryRepository>();
             services.AddScoped<IDatabaseRepository, DatabaseRepository>();
-            services.AddScoped<IStoredProcedureRepository, StoredProcedureRepository>();
             services.AddScoped<IDataFileRepository, DataFileRepository>();
+            services.AddScoped<IDataPointRepository, DataPointRepository>();
             services.AddScoped<IDataUpdateRepository, DataUpdateRepository>();
+            services.AddScoped<IDistrictRepository, DistrictRepository>();
+            services.AddScoped<IGeoCoordinateRepository, GeoCoordinateRepository>();
+            services.AddScoped<IPlanetRepository, PlanetRepository>();
+            services.AddScoped<IProvinceRepository, ProvinceRepository>();
+            services.AddScoped<ITotalRepository, TotalRepository>();
         }
 
         public void ConfigureAppServices(IServiceCollection services)
         {
             services.AddScoped<IEnvironmentService, EnvironmentService>();
-            services.AddScoped<IDataUpdateService, DataUpdateService>();
+            //services.AddScoped<IDataUpdateService, DataUpdateService>();
             services.AddScoped<Slugify.ISlugHelper, Slugify.SlugHelper>();
             
             services.AddHttpClient<IGithubService, GithubService>(client =>
@@ -75,6 +81,7 @@ namespace CovidApi
             services.Configure<EmailSettings>(_configuration.GetSection(nameof(EmailSettings)));
             services.Configure<ScriptTags>(_configuration.GetSection(nameof(ScriptTags)));
             services.Configure<LoggingSettings>(_configuration.GetSection("Logging"));
+            services.Configure<TwilioSettings>(_configuration.GetSection(nameof(TwilioSettings)));
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -89,6 +96,7 @@ namespace CovidApi
             ConfigureAppServices(services);
 
             services.AddSingleton<IEmailSender, EmailSender>();
+            //services.AddSingleton<ISmsTextSender, TwilioSmsService>();
 
             services.AddDatabaseDeveloperPageExceptionFilter();
 

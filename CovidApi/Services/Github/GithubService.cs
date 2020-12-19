@@ -25,33 +25,67 @@ namespace CovidApi.Services
         Task<ApiLimitReport> GetLimitsAsync();
         Task<List<DataFile>> DownloadNewFilesFromGithub();
         Task ParseAndDeleteFile(DataFile df);
+        Task StoreDataAndClearMemory();
     }
 
     public class GithubService : IGithubService
     {
-        private readonly WebClient _webClient; 
-        //private IReadOnlyList<RepositoryContent> GlobalDataFileInfos { get; set; }
-        //private ISlugHelper _slugHelper;
+        private Dictionary<string, Country> Countries { get; set; } = new Dictionary<string, Country>();
+        private Dictionary<string, Province> Provinces { get; set; } = new Dictionary<string, Province>();
+        private Dictionary<string, District> Districts { get; set; } = new Dictionary<string, District>();
+        private List<DataPoint> DataPoints { get; set; } = new List<DataPoint>();
 
-        private ILogger<GithubService> _logger;
+        private readonly WebClient _webClient; //NOT INJECTED
+        private readonly IGitHubClient _githubClient; //NOT INJECTED
+
+        private readonly ILogger<GithubService> _logger;
         private readonly GithubSettings _githubSettings;
-        private IGitHubClient _githubClient;
-        private IDataFileRepository _datafileRepo;
+        private readonly ISlugHelper _slugHelper;
+
+        private readonly ICountryRepository _countryRepo;
+        private readonly IDataFileRepository _datafileRepo;
+        private readonly IDataPointRepository _dataPointRepo;
+        private readonly IDistrictRepository _districtRepo;
+        private readonly IGeoCoordinateRepository _geoCoordinateRepository;
+        private readonly IProvinceRepository _provinceRepo;
+        private readonly ITotalRepository _totalRepo;
+
+        
+        
+        
+        
+
 
         public GithubService(ILogger<GithubService> logger,
-                               IOptionsMonitor<GithubSettings> optionsMonitor,
-                               IDataFileRepository datafileRepo)
+                            IOptionsMonitor<GithubSettings> optionsMonitor,
+                            ISlugHelper slugHelper,
+                            ICountryRepository countryRepository,
+                            IDataFileRepository datafileRepo,
+                            IDataPointRepository dataPointRepository,
+                            IDistrictRepository districtRepository,
+                            IGeoCoordinateRepository geoCoordinateRepository,
+                            IProvinceRepository provinceRepository,
+                            ITotalRepository totalRepository)
         {
             _logger = logger;
             _githubSettings = optionsMonitor.CurrentValue;
+            _slugHelper = slugHelper;
+
             _githubClient = new GitHubClient(new ProductHeaderValue(_githubSettings.ProductHeaderValue))
             {
                 Credentials = new Credentials(_githubSettings.Token),
             };
-            _datafileRepo = datafileRepo;
 
             _webClient = new WebClient();
             _webClient.Headers.Add(_githubSettings.ProductHeaderValue, _githubSettings.Token);
+
+            _countryRepo = countryRepository;
+            _datafileRepo = datafileRepo;
+            _dataPointRepo = dataPointRepository;
+            _districtRepo = districtRepository;
+            _geoCoordinateRepository = geoCoordinateRepository;
+            _provinceRepo = provinceRepository;
+            _totalRepo = totalRepository;
         }
 
         public async Task<ApiLimitReport> GetLimitsAsync()
@@ -110,9 +144,7 @@ namespace CovidApi.Services
                 string[] row = csvRows[i]
                                         .Replace(", ", "/")
                                         .Split(',');
-                //GenerateEntryFromDelimitedFields(df.FileName, headers, row);
-                //StoredProcedure.SummarizeEntities();
-                //StoredProcedure.GenerateDatabaseBackup();
+                await GenerateEntriesFromDelimitedFields(df.FileName, headers, row);
             }
 
             df.RecordsProcessed = csvRows.Length;
@@ -120,15 +152,20 @@ namespace CovidApi.Services
             File.Delete($"{df.FileName}");
         }
 
+        public async Task StoreDataAndClearMemory()
+        {
+            //Add Data to the DB then clear local in memory storage
+            await _countryRepo.UpsertRangeAsync(Countries.Values.ToList());
+            Countries.Clear();
+            await _provinceRepo.UpsertRangeAsync(Provinces.Values.ToList());
+            Provinces.Clear();
+            await _districtRepo.UpsertRangeAsync(Districts.Values.ToList());
+            Districts.Clear();
+            await _dataPointRepo.AddRangeAsync(DataPoints);
+            DataPoints.Clear();
+        }
 
-        /// <summary>
-        /// TODO Replace with cleaner library implementation
-        /// </summary>
-        /// <param name="fileName"></param>
-        /// <param name="headers"></param>
-        /// <param name="row"></param>
-        /// <returns></returns>
-        private void GenerateEntryFromDelimitedFields(string fileName, string[] headers, string[] row)
+        private async Task GenerateEntriesFromDelimitedFields(string fileName, string[] headers, string[] row)
         {
             if (headers.Length > row.Length)
             {
@@ -158,7 +195,13 @@ namespace CovidApi.Services
                             fips = row[i];
                             break;
                         case "Admin2":
-                            district = new District(row[i].Replace("/", ", "), fips);
+                            string name = row[i].Replace("/", ", ");
+                            district = new District()
+                            {
+                                Name = name,
+                                SlugId = _slugHelper.GenerateSlug(name),
+                                FIPS = fips,
+                            };
                             break;
                         case "ProvinceState":
                             string provinceName;
@@ -168,17 +211,30 @@ namespace CovidApi.Services
                                                         .Replace("/", ",");
                                 string[] splitOnComma = cleanStr.Split(",");
                                 provinceName = splitOnComma[1];
-                                district = new District(splitOnComma[0]);
+                                district = new District()
+                                {
+                                    Name = splitOnComma[0],
+                                    SlugId = _slugHelper.GenerateSlug(splitOnComma[0])
+                                };
                             }
-                            else
+                            else if(row[i] != null)
                             {
                                 provinceName = row[i];
+                                province = new Province()
+                                {
+                                    Name = provinceName,
+                                    SlugId = _slugHelper.GenerateSlug(provinceName),
+                                };
                             }
-                            province = new Province(provinceName);
                             break;
                         case "CountryRegion":
-                            country = new Country(row[i].Replace("/", "")
-                                                        .Replace("\"", ""));
+                            string countryName = row[i].Replace("/", "")
+                                                        .Replace("\"", "");
+                            country = new Country()
+                            {
+                                Name = countryName,
+                                SlugId = _slugHelper.GenerateSlug(countryName),
+                            };
                             break;
                         case "LastUpdate":
                             dataPoint.LastUpdate = DateTime.Parse(fileName.Replace(".csv", ""));
@@ -228,7 +284,7 @@ namespace CovidApi.Services
             }
             dataPoint.SourceFile = fileName.Replace(".csv", "");
             if (latitude != 0.0 && longitude != 0.0) geoCoordinate = new GeoCoordinate() { Latitude = latitude, Longitude = longitude };
-            //ProcessDataPoint(dataPoint, geoCoordinate, district, province, country);
+            await ProcessDataPointAsync(dataPoint, geoCoordinate, district, province, country);
         }
 
         private double ParseDouble(string source)
@@ -249,49 +305,51 @@ namespace CovidApi.Services
             return 0;
         }
 
-        //public void ProcessDataPoint(DataPoint dp, GeoCoordinate geo, District district,
-        //                            Province province, Country country)
-        //{
-        //    if (country != null)
-        //    {
-        //        if (district == null && province == null && geo != null)
-        //        {
-        //            country.GeoCoordinateId
-        //        }
-        //        dp.CountrySlugId = country.SlugId;
-        //        Update.Countries[country.SlugId] = country;
-        //    }
+        private async Task ProcessDataPointAsync(DataPoint dp, GeoCoordinate geo, District district,
+                                    Province province, Country country)
+        {
+            if(geo != null)
+            {
+                await _geoCoordinateRepository.UpsertAsync(geo);
+            }
 
-        //    if (province != null)
-        //    {
-        //        province.CountrySlugId = country.SlugId;
-        //        if (district == null && geo != null)
-        //        {
-        //            geo.GeoSlug = province.GeoSlug;
-        //        }
-        //        province.CountrySlugId = country?.SlugId;
-        //        dp.ProvinceSlugId = province.SlugId;
-        //        Update.Provinces[province.SlugId] = province;
-        //    }
+            if (country != null)
+            {
+                if (district == null && province == null && geo != null)
+                {
+                    country.GeoCoordinateId = geo.Id;
+                }
+                dp.CountrySlugId = country.SlugId;
+                Countries[country.SlugId] = country;
+            }
 
-        //    if (null != district)
-        //    {
-        //        if (geo != null)
-        //        {
-        //            geo.GeoSlug = district.GeoSlug;
-        //        }
-        //        district.CountrySlugId = country?.SlugId;
-        //        district.ProvinceSlugId = province?.SlugId;
-        //        Update.Districts[district.SlugId] = district;
-        //    }
+            if (province != null)
+            {
+                if (district == null && geo != null)
+                {
+                    province.GeoCoordinateId = geo.Id;
+                }
+                province.CountrySlugId = country?.SlugId;
+                dp.ProvinceSlugId = province.SlugId;
+                Provinces[province.SlugId] = province;
+            }
 
-        //    if (null != geo)
-        //    {
-        //        Update.GeoCoordinates[geo.GeoSlug] = geo;
-        //    }
+            if (null != district)
+            {
+                if (geo != null)
+                {
+                    district.GeoCoordinateId = geo.Id;
+                }
+                district.CountrySlugId = country?.SlugId;
+                district.ProvinceSlugId = province?.SlugId;
+                dp.DistrictSlugId = district.SlugId;
+                Districts[district.SlugId] = district;
+            }
 
-        //    Update.DataPoints.Add(dp);
-        //}
+            DataPoints.Add(dp);
+        }
+
+
     }
 
 }

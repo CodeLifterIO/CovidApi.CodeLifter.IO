@@ -46,6 +46,7 @@ namespace CovidApi.Infrastructure.Startup
                 foreach (DataFile d in newFiles)
                 {
                     _logger.LogDebug($"FileName: {d.FileName}");
+
                     await _gitService.ParseAndDeleteFile(d);
 
                     d.CompletedAt = DateTime.UtcNow;
@@ -55,6 +56,8 @@ namespace CovidApi.Infrastructure.Startup
                     update.LastCompletedFileName = d.FileName;
                     update.RecordsProcessed += (int)d.RecordsProcessed;
                 }
+
+                //await _gitService.StoreDataAndClearMemory();
 
                 update.CompletedAt = DateTime.UtcNow;
                 update.Completed = true;
